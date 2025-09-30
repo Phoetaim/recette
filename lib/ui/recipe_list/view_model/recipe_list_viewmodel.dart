@@ -11,7 +11,6 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   final RecipeRepository _recipeRepository;
-  int id = 0;
 
 
   List<Recipe> get getRecipeList => _recipeRepository.getRecipeList;
@@ -31,7 +30,6 @@ class RecipeListViewModel extends ChangeNotifier {
   void addRecipe(Recipe recipe) {
     print('confirm add!');
     _recipeRepository.addRecipe(recipe);
-    id++;
     notifyListeners();
   }
 
@@ -44,7 +42,6 @@ class RecipeListViewModel extends ChangeNotifier {
 
   void resetRecipes() {
     _recipeRepository.resetRecipes();
-    id = 0;
     notifyListeners();
   }
 

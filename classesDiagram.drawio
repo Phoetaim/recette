@@ -1,0 +1,89 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
+  <diagram id="5OlCLhDMGaQYuM_J1NZZ" name="Page-1">
+    <mxGraphModel dx="973" dy="2330" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SjSN5JWok73M8ssYOIBE-1" value="Recette" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;" parent="1" vertex="1">
+          <mxGeometry x="60" y="80" width="160" height="144" as="geometry">
+            <mxRectangle x="60" y="80" width="90" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-2" value="+ id&#xa;+ nom&#xa;+ photo&#xa;+ nbPers&#xa;+ recette&#xa;+ tpsPrep&#xa;+ tpsCuiss" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;strokeWidth=1;" parent="SjSN5JWok73M8ssYOIBE-1" vertex="1">
+          <mxGeometry y="30" width="160" height="114" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-3" value="Ingrédient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;" parent="1" vertex="1">
+          <mxGeometry x="550" y="124" width="160" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-4" value="+ id&#xa;+ nom&#xa;+ photo" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;strokeWidth=1;" parent="SjSN5JWok73M8ssYOIBE-3" vertex="1">
+          <mxGeometry y="30" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-5" value="RecetteIngredient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;align=center;glass=0;sketch=0;" parent="1" vertex="1">
+          <mxGeometry x="310" y="117" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-6" value="+ recetteId&#xa;+ ingredientId&#xa;+ quantité&#xa;+ unité" style="align=left;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;fontStyle=0;glass=0;sketch=0;rounded=0;strokeWidth=1;" parent="SjSN5JWok73M8ssYOIBE-5" vertex="1">
+          <mxGeometry y="30" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-9" value="repas" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;" parent="1" vertex="1">
+          <mxGeometry x="60" y="370" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-10" value="+ id&#xa;+ date&#xa;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;strokeWidth=1;" parent="SjSN5JWok73M8ssYOIBE-9" vertex="1">
+          <mxGeometry y="30" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-11" value="Manger" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;" parent="1" vertex="1">
+          <mxGeometry x="60" y="260" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-12" value="+ recetteId&#xa;+ planningId&#xa;+ nb" style="align=left;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;fontStyle=0;strokeWidth=1;rounded=0;" parent="SjSN5JWok73M8ssYOIBE-11" vertex="1">
+          <mxGeometry y="30" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-13" value="" style="endArrow=none;html=1;" parent="1" source="SjSN5JWok73M8ssYOIBE-11" target="SjSN5JWok73M8ssYOIBE-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="350" as="sourcePoint" />
+            <mxPoint x="460" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-14" value="" style="endArrow=none;html=1;" parent="1" source="SjSN5JWok73M8ssYOIBE-2" target="SjSN5JWok73M8ssYOIBE-5" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="260" as="sourcePoint" />
+            <mxPoint x="460" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-15" value="" style="endArrow=none;html=1;" parent="1" source="SjSN5JWok73M8ssYOIBE-5" target="SjSN5JWok73M8ssYOIBE-3" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="260" as="sourcePoint" />
+            <mxPoint x="460" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-16" value="" style="endArrow=none;html=1;" parent="1" source="SjSN5JWok73M8ssYOIBE-11" target="SjSN5JWok73M8ssYOIBE-9" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="410" y="260" as="sourcePoint" />
+            <mxPoint x="460" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-17" value="Necessiter" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=0;fontSize=14;fontStyle=0;strokeWidth=1;resizeParent=0;resizeLast=1;shadow=0;align=center;glass=0;sketch=0;" parent="1" vertex="1">
+          <mxGeometry x="60" y="-50" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-18" value="+ recetteId1&#xa;+ recetteId2" style="align=left;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;fontStyle=0;glass=0;sketch=0;rounded=0;strokeWidth=1;" parent="SjSN5JWok73M8ssYOIBE-17" vertex="1">
+          <mxGeometry y="30" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-19" value="" style="endArrow=none;html=1;entryX=0.25;entryY=1;entryDx=0;entryDy=0;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" parent="1" source="SjSN5JWok73M8ssYOIBE-1" target="SjSN5JWok73M8ssYOIBE-18" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="260" y="90" as="sourcePoint" />
+            <mxPoint x="310" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SjSN5JWok73M8ssYOIBE-20" value="" style="endArrow=none;html=1;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.75;exitY=0;exitDx=0;exitDy=0;" parent="1" source="SjSN5JWok73M8ssYOIBE-1" target="SjSN5JWok73M8ssYOIBE-18" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="110" y="90.00000000000023" as="sourcePoint" />
+            <mxPoint x="110" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H0Wt10pWkUqC93i6ehlb-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="SjSN5JWok73M8ssYOIBE-2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="140" y="250" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
