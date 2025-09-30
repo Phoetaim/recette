@@ -93,7 +93,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           print('add');
-          widget.viewModel.addRecipe(Recipe());
+          widget.viewModel.addRecipe(Recipe(0));
         },
         shape: CircleBorder(),
         child: const Icon(Icons.add),
@@ -110,6 +110,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     }
 
     if (widget.viewModel.deleteRecipe.error) {
+
       widget.viewModel.deleteRecipe.clearResult();
       ScaffoldMessenger.of(
         context,
