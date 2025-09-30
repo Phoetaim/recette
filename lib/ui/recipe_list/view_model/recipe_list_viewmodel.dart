@@ -7,45 +7,42 @@ class RecipeListViewModel extends ChangeNotifier {
   RecipeListViewModel({required RecipeRepository recipeRepository})
     : _recipeRepository = recipeRepository {
     loadRecipeList =  Command0(_loadRecipeList)..execute();
+    deleteRecipe = Command1(_deleteRecipe);
   }
 
   final RecipeRepository _recipeRepository;
   int id = 0;
 
-  List<Recipe> _recipeList = <Recipe>[];
 
-  List<Recipe> get getRecipeList => _recipeList;
+  List<Recipe> get getRecipeList => _recipeRepository.getRecipeList;
 
   late final Command0 loadRecipeList;
+  late final Command1<void, Recipe> deleteRecipe;
   
-  int recipeCount() => _recipeList.length;
+  int recipeCount() => getRecipeList.length;
 
   Future<Result<void>> _loadRecipeList() async {
     print('load');
     _recipeRepository.initDb();
-    _recipeList = _recipeRepository.getRecipeList;
     notifyListeners();
     return Result.ok(null);
   }
 
   void addRecipe(Recipe recipe) {
     print('confirm add!');
-    _recipeList.add(recipe);
     _recipeRepository.addRecipe(recipe);
     id++;
     notifyListeners();
   }
 
-  void deleteRecipe(Recipe recipe) {
-    if (_recipeList.contains(recipe)) {
+  Future<Result<void>> _deleteRecipe(Recipe recipe) async {
       _recipeRepository.removeRecipe(recipe);
-      _recipeList.remove(recipe);
       notifyListeners();
+      return Result.ok(null);
     }
-  }
+
 
   void resetRecipes() {
-    _recipeList.clear();
     _recipeRepository.resetRecipes();
     id = 0;
     notifyListeners();
@@ -54,10 +51,10 @@ class RecipeListViewModel extends ChangeNotifier {
   Recipe getRecipeByIndex(int index){
     print('Getting item ${index}');
     try {
-      return _recipeList[index];
+      return getRecipeList[index];
     } on IndexError {
       print('No index ${index}m returning first recipe');
-      return _recipeList[0];
+      return getRecipeList[0];
     } 
   }
 }

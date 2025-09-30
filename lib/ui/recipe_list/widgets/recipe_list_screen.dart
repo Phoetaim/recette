@@ -2,10 +2,34 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 
-class RecipeListScreen extends StatelessWidget {
+class RecipeListScreen extends StatefulWidget {
   const RecipeListScreen({super.key, required this.viewModel});
 
   final RecipeListViewModel viewModel;
+
+  @override
+  State<RecipeListScreen> createState() => _RecipeListScreenState();
+}
+
+class _RecipeListScreenState extends State<RecipeListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.deleteRecipe.addListener(_onResult);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecipeListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.deleteRecipe.removeListener(_onResult);
+    widget.viewModel.deleteRecipe.addListener(_onResult);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.deleteRecipe.removeListener(_onResult);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +38,7 @@ class RecipeListScreen extends StatelessWidget {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            viewModel.resetRecipes();
+            widget.viewModel.resetRecipes();
           },
           child: Icon(Icons.home),
         ),
@@ -24,39 +48,73 @@ class RecipeListScreen extends StatelessWidget {
         backgroundColor: theme.colorScheme.primaryContainer,
       ),
       body: ListenableBuilder(
-        listenable: viewModel,
+        listenable: widget.viewModel.loadRecipeList,
         builder: (context, child) {
-          print('hello');
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: viewModel.recipeCount(),
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: [
-                        RecipeFullCard(viewModel: viewModel, index: index),
-                        Divider(),
-                      ],
-                    );
-                  },
+          if (widget.viewModel.loadRecipeList.running) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (widget.viewModel.loadRecipeList.error) {
+            return TextButton(
+              onPressed: widget.viewModel.loadRecipeList.execute,
+              child: Text('Retry?'),
+            );
+          }
+          return child!;
+        },
+        child: ListenableBuilder(
+          listenable: widget.viewModel,
+          builder: (context, child) {
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: widget.viewModel.recipeCount(),
+                    itemBuilder: (BuildContext context, int index) {
+                      return Column(
+                        children: [
+                          RecipeFullCard(
+                            viewModel: widget.viewModel,
+                            index: index,
+                          ),
+                          Divider(),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
+              ],
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           print('add');
-          viewModel.addRecipe(Recipe(viewModel.id));
+          widget.viewModel.addRecipe(Recipe());
         },
         shape: CircleBorder(),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _onResult() {
+    if (widget.viewModel.deleteRecipe.completed) {
+      widget.viewModel.deleteRecipe.clearResult();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Recipe deleted'), duration: Duration(microseconds: 200),));
+    }
+
+    if (widget.viewModel.deleteRecipe.error) {
+      widget.viewModel.deleteRecipe.clearResult();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error while loading')));
+    }
   }
 }
 
@@ -85,7 +143,7 @@ class RecipeFullCard extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            viewModel.deleteRecipe(recipe);
+            viewModel.deleteRecipe.execute(recipe);
           },
           child: Icon(Icons.delete),
         ),
@@ -103,24 +161,20 @@ class RecipeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        SizedBox(width: 5),
+        Text(recipe.id.toString()),
+        Expanded(child: Center(child: Text(recipe.name))),
+        IconRow(icon: Icons.group, label: recipe.nbOfPeople.toString()),
+        SizedBox(width: 20),
         Row(
           children: [
-            SizedBox(width: 5),
-            Text(recipe.id.toString()),
-            Expanded(child: Center(child: Text(recipe.name))),
-            IconRow(icon: Icons.group, label: recipe.nbOfPeople.toString()),
-            SizedBox(width: 20),
-            Row(
+            Column(
               children: [
-                Column(
-                  children: [
-                    IconRow(
-                      icon: Icons.timer_outlined,
-                      label: recipe.preparationTime,
-                    ),
-                    IconRow(icon: Icons.thermostat, label: recipe.cookingTime),
-                  ],
+                IconRow(
+                  icon: Icons.timer_outlined,
+                  label: recipe.preparationTime,
                 ),
+                IconRow(icon: Icons.thermostat, label: recipe.cookingTime),
               ],
             ),
           ],
