@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
+import 'recipe_detail_body.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   const RecipeDetailScreen({super.key, required this.viewModel, required this.recipeId});
@@ -35,16 +36,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    widget.viewModel.getRecipeById.execute(widget.recipeId!);
+    widget.viewModel.loadRecipeById.execute(widget.recipeId!);
     final theme = Theme.of(context);
     return ListenableBuilder(
-      listenable: widget.viewModel.getRecipeById,
+      listenable: widget.viewModel.loadRecipeById,
       builder: (context, child) {
-        if (widget.viewModel.getRecipeById.running) {
+        if (widget.viewModel.loadRecipeById.running) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (widget.viewModel.getRecipeById.error) {
+        if (widget.viewModel.loadRecipeById.error) {
           return TextButton(
             onPressed: () => context.go(Routes.recipeList),
             child: Text('Retry?'),
@@ -58,6 +59,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           Recipe recipe = widget.viewModel.getRecipe;
           return Scaffold(
             appBar: AppBar(
+              actions: [
+                TextButton(onPressed: () => print('Modify recipe'), child: Icon(Icons.edit)),
+                TextButton(onPressed: () {
+                  widget.viewModel.deleteRecipe.execute(recipe);
+                  }, child: Icon(Icons.delete)),
+                ],
               leading: TextButton(
                 onPressed: () {
                   context.go(Routes.recipeList);
@@ -69,10 +76,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               scrolledUnderElevation: 4,
               backgroundColor: theme.colorScheme.primaryContainer,
             ),
-            body: TextButton(
-              onPressed: () => context.go(Routes.recipeList),
-              child: Text('GO BACK'),
-            ),
+            body: RecipeDetailBody(viewModel: widget.viewModel, recipe: recipe)
           );
         },
       ),
@@ -81,13 +85,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   void _onResult() {
     if (widget.viewModel.deleteRecipe.completed) {
-      widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Recipe deleted'),
-          duration: Duration(microseconds: 200),
-        ),
-      );
+      context.go(Routes.recipeList);
     }
 
     if (widget.viewModel.deleteRecipe.error) {
