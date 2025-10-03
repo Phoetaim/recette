@@ -19,7 +19,6 @@ class RecipeRepository {
 
   void initDb(){
     _recipeList = List.generate(startLength, (int index) => Recipe(index));
-    print(_recipeList.length);
   }
 
   List<Recipe> get  getRecipeList => _recipeList;

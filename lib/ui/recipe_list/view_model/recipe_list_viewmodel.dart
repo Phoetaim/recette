@@ -21,14 +21,12 @@ class RecipeListViewModel extends ChangeNotifier {
   int recipeCount() => getRecipeList.length;
 
   Future<Result<void>> _loadRecipeList() async {
-    print('load');
     _recipeRepository.initDb();
     notifyListeners();
     return Result.ok(null);
   }
 
   void addRecipe(Recipe recipe) {
-    print('confirm add!');
     _recipeRepository.addRecipe(recipe);
     notifyListeners();
   }
@@ -46,7 +44,6 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   Recipe getRecipeByIndex(int index){
-    print('Getting item ${index}');
     try {
       return getRecipeList[index];
     } on IndexError {
