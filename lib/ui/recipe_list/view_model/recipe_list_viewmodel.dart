@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
+import '../../../domain/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/recipe/recipe_repository.dart';
+import 'package:go_router/go_router.dart';
+import 'package:recette/routing/routes.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 import 'recipe_list_body.dart';
 
@@ -67,12 +68,15 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           listenable: widget.viewModel,
           builder: (context, child) {
             return RecipeListBody(viewModel: widget.viewModel);
-          }
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          widget.viewModel.addRecipe(Recipe(0));
+          context.goNamed(
+            Routes.recipeDetail,
+            pathParameters: {'recipeId': (-1).toString()},
+          );
         },
         shape: CircleBorder(),
         child: const Icon(Icons.add),
@@ -83,13 +87,15 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   void _onResult() {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Recipe deleted'), duration: Duration(microseconds: 200),));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Recipe deleted'),
+          duration: Duration(microseconds: 200),
+        ),
+      );
     }
 
     if (widget.viewModel.deleteRecipe.error) {
-
       widget.viewModel.deleteRecipe.clearResult();
       ScaffoldMessenger.of(
         context,

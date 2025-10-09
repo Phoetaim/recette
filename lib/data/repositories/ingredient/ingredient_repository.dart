@@ -15,7 +15,7 @@ final List<String> ingredientNames = [
 ];
 
 class IngredientRepository {
-  List<Ingredient> _ingredientList = [];
+  final List<Ingredient> _ingredientList = [];
   int _sequentialId = 0;
   bool initialized = false;
 

@@ -1,0 +1,58 @@
+[
+    {
+        "id": 0,
+        "name": "Tarte à la tomate",
+        "preparationTime": "15'",
+        "cookingTime": "40'",
+        "nbOfPeople": 4,
+        "ingredients": [
+            {"ingredientId": 0, "unit": "unit", "quantity": 1},
+            {"ingredientId": 1, "unit": "unit", "quantity": 4},
+            {"ingredientId": 2, "unit": "unit", "quantity": 2},
+            {"ingredientId": 3, "unit": "unit", "quantity": 1}
+        ],
+        "steps": ["Fais la tarte", "Cuis la"]
+    },
+        {
+        "id": 1,
+        "name": "Butternut farcie",
+        "preparationTime": "15'",
+        "cookingTime": "1h20",
+        "nbOfPeople": 2,
+        "ingredients": [
+            {"ingredientId": 0, "unit": "unit", "quantity": 1},
+            {"ingredientId": 1, "unit": "unit", "quantity": 4},
+            {"ingredientId": 2, "unit": "unit", "quantity": 2},
+            {"ingredientId": 3, "unit": "unit", "quantity": 1}
+        ],
+        "steps": ["Fais la tarte", "Cuis la"]
+    },
+        {
+        "id": 2,
+        "name": "Burgers",
+        "preparationTime": "15'",
+        "cookingTime": "40'",
+        "nbOfPeople": 2,
+        "ingredients": [
+            {"ingredientId": 0, "unit": "unit", "quantity": 1},
+            {"ingredientId": 1, "unit": "unit", "quantity": 4},
+            {"ingredientId": 2, "unit": "unit", "quantity": 2},
+            {"ingredientId": 3, "unit": "unit", "quantity": 1}
+        ],
+        "steps": ["Fais la tarte", "Cuis la"]
+    },
+        {
+        "id": 3,
+        "name": "Un truc super bon avec un nom très long",
+        "preparationTime": "15'",
+        "cookingTime": "40'",
+        "nbOfPeople": 5000,
+        "ingredients": [
+            {"ingredientId": 0, "unit": "unit", "quantity": 1},
+            {"ingredientId": 1, "unit": "unit", "quantity": 4},
+            {"ingredientId": 2, "unit": "unit", "quantity": 2},
+            {"ingredientId": 3, "unit": "unit", "quantity": 1}
+        ],
+        "steps": ["Fais la tarte", "Cuis la"]
+    }
+]

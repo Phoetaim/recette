@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../../data/repositories/recipe/recipe_repository.dart';
+import '../../../domain/recipe/recipe.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 
 

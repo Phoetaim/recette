@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/recipe/recipe_repository.dart';
+import '../../../domain/recipe/recipe.dart';
+import '../../../domain/ingredient/ingredient_with_quantity.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailBody extends StatelessWidget {
@@ -79,7 +80,7 @@ class IngredientsCard extends StatelessWidget {
           ],
         ),
         SizedBox(height: 4),
-
+        
         Card(
           child: ListView.separated(
             scrollDirection: Axis.vertical,
@@ -88,7 +89,7 @@ class IngredientsCard extends StatelessWidget {
             separatorBuilder: (BuildContext context, int index) =>
                 const Divider(),
             itemBuilder: (BuildContext context, int index) {
-              IngredientRecipe ingredient = viewModel.getRecipe.ingredients[index];
+              IngredientWithQuantity ingredient = viewModel.getRecipe.ingredients[index];
               return Row(
                 children: [
                   Expanded(child: Text(viewModel.getIngredientName(ingredient.ingredientId))),

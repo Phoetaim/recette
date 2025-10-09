@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
+import '../../../domain/recipe/recipe.dart';
+import '../../../domain/ingredient/ingredient_with_quantity.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -32,22 +34,30 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
     _ingredientRepository.initDb();
-    _recipeRepository.initDb();
+    await _recipeRepository.initDb();
 
     if (recipeIdStr == null){
       return Result.error(RecipeError('No recipe id provided'));
     }
     int? recipeId = int.tryParse(recipeIdStr);
+    if (recipeId == null){
+      return Result.error(RecipeError('Recipe id could not be parsed'));
+    }
+    
+    if (recipeId == -1){
+      _recipe = Recipe();
+      return Result.ok(null);
+    }
     try {
-      _recipe = _recipeRepository.getRecipeList.where((recipe) => recipe.id == recipeId).first;
+      _recipe = _recipeRepository.getRecipeList.where((recipe) => recipe.id! == recipeId).first;
       List<Ingredient> ingredients = [];
-      for (IngredientRecipe ingredientRecipe in _recipe.ingredients){
-          final result = await _ingredientRepository.getIngredientbyId(ingredientRecipe.ingredientId);
+      for (IngredientWithQuantity recipeIngredient in _recipe.ingredients){
+          final result = await _ingredientRepository.getIngredientbyId(recipeIngredient.ingredientId);
           switch (result) {
             case Ok<Ingredient>():
               ingredients.add(result.value);
             case Error<Ingredient>():
-              return Result.error(RecipeError('Unknown argument: ${ingredientRecipe.ingredientId}'));
+              return Result.error(RecipeError('Unknown argument: ${recipeIngredient.ingredientId}'));
           }
       }
       _ingredientList = ingredients;
