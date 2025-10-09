@@ -46,10 +46,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         }
 
         if (widget.viewModel.loadRecipeById.error) {
-          return TextButton(
-            onPressed: () => context.go(Routes.recipeList),
-            child: Text('Retry?'),
-          );
+          return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Retry?'));
         }
         return child!;
       },
@@ -60,23 +57,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           return Scaffold(
             appBar: AppBar(
               actions: [
-                TextButton(onPressed: () => print('Modify recipe'), child: Icon(Icons.edit)),
-                TextButton(onPressed: () {
-                  widget.viewModel.deleteRecipe.execute(recipe);
-                  }, child: Icon(Icons.delete)),
-                ],
+                TextButton(
+                  onPressed: () {
+                    widget.viewModel.deleteRecipe.execute(recipe);
+                  },
+                  child: Icon(Icons.delete),
+                ),
+              ],
               leading: TextButton(
                 onPressed: () {
                   context.go(Routes.recipeList);
                 },
                 child: Icon(Icons.arrow_back),
               ),
-              title: Text(recipe.name),
+              title: HeaderTextFormField(
+                initialValue: recipe.name,
+                onSubmitted: (value) => widget.viewModel.updateRecipeName(value),
+              ),
               shadowColor: Colors.black,
               scrolledUnderElevation: 4,
               backgroundColor: theme.colorScheme.primaryContainer,
             ),
-            body: RecipeDetailBody(viewModel: widget.viewModel, recipe: recipe)
+            body: RecipeDetailBody(viewModel: widget.viewModel, recipe: recipe),
           );
         },
       ),
@@ -90,9 +92,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     if (widget.viewModel.deleteRecipe.error) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error while loading')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
     }
   }
 }

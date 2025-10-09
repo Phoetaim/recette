@@ -57,10 +57,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           }
 
           if (widget.viewModel.loadRecipeList.error) {
-            return TextButton(
-              onPressed: widget.viewModel.loadRecipeList.execute,
-              child: Text('Retry?'),
-            );
+            return TextButton(onPressed: widget.viewModel.loadRecipeList.execute, child: Text('Retry?'));
           }
           return child!;
         },
@@ -73,10 +70,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.goNamed(
-            Routes.recipeDetail,
-            pathParameters: {'recipeId': (-1).toString()},
-          );
+          context.goNamed(Routes.recipeDetail, pathParameters: {'recipeId': (-1).toString()});
         },
         shape: CircleBorder(),
         child: const Icon(Icons.add),
@@ -87,19 +81,14 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   void _onResult() {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Recipe deleted'),
-          duration: Duration(microseconds: 200),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Recipe deleted'), duration: Duration(microseconds: 200)));
     }
 
     if (widget.viewModel.deleteRecipe.error) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error while loading')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
     }
   }
 }

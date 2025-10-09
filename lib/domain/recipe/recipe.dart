@@ -1,4 +1,3 @@
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../ingredient/ingredient_with_quantity.dart';
@@ -26,16 +25,11 @@ abstract class Recipe with _$Recipe {
     @Default(4) int nbOfPeople,
 
     /// e.g. ['Mountain', 'Off-the-beaten-path', 'Wildlife watching']
-     @Default([]) List<IngredientWithQuantity> ingredients,
+    @Default([]) List<IngredientWithQuantity> ingredients,
 
     /// e.g. ['Prépare la tarte', 'Cuis la']
     @Default([]) List<String> steps,
   }) = _Recipe;
 
-  factory Recipe.fromJson(Map<String, Object?> json) =>
-      _$RecipeFromJson(json);
+  factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
 }
-
-
-
-

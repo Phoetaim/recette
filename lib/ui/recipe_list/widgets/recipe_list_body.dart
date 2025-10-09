@@ -4,45 +4,37 @@ import 'package:recette/routing/routes.dart';
 import '../../../domain/recipe/recipe.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 
-
-class RecipeListBody extends StatelessWidget{
+class RecipeListBody extends StatelessWidget {
   const RecipeListBody({super.key, required this.viewModel});
 
   final RecipeListViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: viewModel.recipeCount(),
+            itemBuilder: (BuildContext context, int index) {
               return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: viewModel.recipeCount(),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children: [
-                          RecipeFullCard(
-                            viewModel: viewModel,
-                            index: index,
-                          ),
-                          Divider(),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
+                children: [
+                  RecipeFullCard(viewModel: viewModel, index: index),
+                  Divider(),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
 
 class RecipeFullCard extends StatelessWidget {
-  const RecipeFullCard({
-    super.key,
-    required this.viewModel,
-    required this.index,
-  });
+  const RecipeFullCard({super.key, required this.viewModel, required this.index});
 
   final RecipeListViewModel viewModel;
   final int index;
@@ -89,10 +81,7 @@ class RecipeCard extends StatelessWidget {
           children: [
             Column(
               children: [
-                IconRow(
-                  icon: Icons.timer_outlined,
-                  label: recipe.preparationTime,
-                ),
+                IconRow(icon: Icons.timer_outlined, label: recipe.preparationTime),
                 IconRow(icon: Icons.thermostat, label: recipe.cookingTime),
               ],
             ),

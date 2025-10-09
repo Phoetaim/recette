@@ -5,8 +5,7 @@ import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
 class RecipeListViewModel extends ChangeNotifier {
-  RecipeListViewModel({required RecipeRepository recipeRepository})
-    : _recipeRepository = recipeRepository {
+  RecipeListViewModel({required RecipeRepository recipeRepository}) : _recipeRepository = recipeRepository {
     loadRecipeList = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
   }
@@ -21,7 +20,7 @@ class RecipeListViewModel extends ChangeNotifier {
   int recipeCount() => getRecipeList.length;
 
   Future<Result<void>> _loadRecipeList() async {
-    _recipeRepository.initDb();
+    await _recipeRepository.initDb();
     notifyListeners();
     return Result.ok(null);
   }

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../domain/recipe/recipe.dart';
 import '../../../domain/ingredient/ingredient_with_quantity.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailBody extends StatelessWidget {
-  const RecipeDetailBody({
-    super.key,
-    required this.viewModel,
-    required this.recipe,
-  });
+  const RecipeDetailBody({super.key, required this.viewModel, required this.recipe});
 
   final RecipeDetailViewModel viewModel;
   final Recipe recipe;
@@ -17,7 +14,7 @@ class RecipeDetailBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        HeaderRow(recipe: recipe),
+        HeaderRow(recipe: recipe, viewModel: viewModel),
         IngredientsCard(recipe: recipe, viewModel: viewModel),
         StepCard(recipe: recipe),
       ],
@@ -26,9 +23,10 @@ class RecipeDetailBody extends StatelessWidget {
 }
 
 class HeaderRow extends StatelessWidget {
-  const HeaderRow({super.key, required this.recipe});
+  const HeaderRow({super.key, required this.recipe, required this.viewModel});
 
   final Recipe recipe;
+  final RecipeDetailViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +38,32 @@ class HeaderRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Center(
-                  child: Text('Préparation: ${recipe.preparationTime}'),
+                  child: HeaderTextFormField(
+                    prefix: Text(' Prep:  '),
+                    initialValue: recipe.preparationTime,
+                    onSubmitted: (value) => viewModel.updateRecipePreparationTime(value),
+                  ),
                 ),
               ),
               Expanded(
-                child: Center(child: Text('Cuisson: ${recipe.cookingTime}')),
+                child: Center(
+                  child: HeaderTextFormField(
+                    prefix: Text(' Cuisson:  '),
+                    initialValue: recipe.cookingTime,
+                    onSubmitted: (value) => viewModel.updateRecipeCookingTime(value),
+                  ),
+                ),
               ),
               Expanded(
-                child: Center(child: Text('Personnes: ${recipe.nbOfPeople}')),
+                child: Center(
+                  child: HeaderTextFormField(
+                    prefix: Text(' Personnes:  '),
+                    initialValue: recipe.nbOfPeople.toString(),
+                    keyBoardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                    onSubmitted: (value) => viewModel.updateRecipeNbOfPeople(value),
+                  ),
+                ),
               ),
             ],
           ),
@@ -57,12 +73,35 @@ class HeaderRow extends StatelessWidget {
   }
 }
 
-class IngredientsCard extends StatelessWidget {
-  const IngredientsCard({
+class HeaderTextFormField extends StatelessWidget {
+  const HeaderTextFormField({
     super.key,
-    required this.recipe,
-    required this.viewModel,
+    this.prefix,
+    required this.initialValue,
+    required this.onSubmitted,
+    this.keyBoardType,
+    this.inputFormatters,
   });
+  final Widget? prefix;
+  final String initialValue;
+  final TextInputType? keyBoardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final Function(String) onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      decoration: InputDecoration(border: InputBorder.none, prefix: prefix),
+      keyboardType: keyBoardType,
+      inputFormatters: inputFormatters,
+      initialValue: initialValue,
+      onFieldSubmitted: onSubmitted,
+    );
+  }
+}
+
+class IngredientsCard extends StatelessWidget {
+  const IngredientsCard({super.key, required this.recipe, required this.viewModel});
 
   final Recipe recipe;
   final RecipeDetailViewModel viewModel;
@@ -90,21 +129,13 @@ class IngredientsCard extends StatelessWidget {
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: recipe.ingredients.length,
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(),
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemBuilder: (BuildContext context, int index) {
-              IngredientWithQuantity ingredient =
-                  viewModel.getRecipe.ingredients[index];
+              IngredientWithQuantity ingredient = viewModel.getRecipe.ingredients[index];
               return Row(
                 children: [
-                  Expanded(
-                    child: Text(
-                      viewModel.getIngredientName(ingredient.ingredientId),
-                    ),
-                  ),
-                  Text(
-                    '${ingredient.quantity.toString()} ${ingredient.unit.name}',
-                  ),
+                  Expanded(child: Text(viewModel.getIngredientName(ingredient.ingredientId))),
+                  Text('${ingredient.quantity.toString()} ${ingredient.unit.name}'),
                 ],
               );
             },
@@ -142,8 +173,7 @@ class StepCard extends StatelessWidget {
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: recipe.steps.length,
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider(),
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemBuilder: (BuildContext context, int index) {
               return Text('$index: ${recipe.steps[index]}');
             },

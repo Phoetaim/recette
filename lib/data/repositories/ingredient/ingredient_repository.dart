@@ -7,12 +7,7 @@ class Ingredient {
   final String name;
 }
 
-final List<String> ingredientNames = [
-  'pate brisée',
-  'tomates',
-  'chèvre',
-  'onions',
-];
+final List<String> ingredientNames = ['pate brisée', 'tomates', 'chèvre', 'onions'];
 
 class IngredientRepository {
   final List<Ingredient> _ingredientList = [];
@@ -43,11 +38,7 @@ class IngredientRepository {
 
   Future<Result<Ingredient>> getIngredientbyId(int ingredientId) async {
     try {
-      return Result.ok(
-        getIngredientList
-            .where((ingredient) => ingredient.id == ingredientId)
-            .first,
-      );
+      return Result.ok(getIngredientList.where((ingredient) => ingredient.id == ingredientId).first);
     } on StateError {
       return Result.error(IngredientRepositoryError('No such ingredient'));
     }

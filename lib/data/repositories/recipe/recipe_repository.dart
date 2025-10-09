@@ -6,7 +6,7 @@ import '../../services/local_service.dart';
 final int startLength = 3;
 
 class RecipeRepository {
-  RecipeRepository({required LocalDataService localDataService}): _localDataService = localDataService;
+  RecipeRepository({required LocalDataService localDataService}) : _localDataService = localDataService;
 
   List<Recipe> _recipeList = [];
   int _sequentialId = startLength + 1;
@@ -15,7 +15,7 @@ class RecipeRepository {
 
   List<Recipe> get getRecipeList => _recipeList;
 
-  Future<void> initDb() async{
+  Future<void> initDb() async {
     if (!initialized) {
       _recipeList = await _localDataService.getRecipes();
       initialized = true;
@@ -25,6 +25,12 @@ class RecipeRepository {
   Future<Result<void>> addRecipe(Recipe recipe) async {
     final recipeWithId = recipe.copyWith(id: _sequentialId++);
     _recipeList.add(recipeWithId);
+    return Result.ok(null);
+  }
+
+  Future<Result<void>> updateRecipe(Recipe oldRecipe, Recipe newRecipe) async {
+    int index = _recipeList.indexOf(oldRecipe);
+    _recipeList.replaceRange(index, index + 1, [newRecipe]);
     return Result.ok(null);
   }
 

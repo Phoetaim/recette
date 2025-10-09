@@ -8,13 +8,7 @@ import '../data/services/local_service.dart';
 List<SingleChildWidget> get providersLocal {
   return [
     Provider.value(value: LocalDataService()),
-    Provider(
-      create: (context) =>
-          RecipeRepository(localDataService: context.read()),
-    ),
-    Provider(
-      create: (context) =>
-          IngredientRepository(),
-    ),
+    Provider(create: (context) => RecipeRepository(localDataService: context.read())),
+    Provider(create: (context) => IngredientRepository()),
   ];
 }

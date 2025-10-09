@@ -5,7 +5,6 @@ import 'config/dependencies.dart';
 import 'routing/router.dart';
 
 void main() {
-
   runApp(MultiProvider(providers: providersLocal, child: const MainApp()));
 }
 
@@ -14,9 +13,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      themeMode: ThemeMode.system,
-      routerConfig: router(),
-    );
+    return MaterialApp.router(themeMode: ThemeMode.system, routerConfig: router());
   }
 }

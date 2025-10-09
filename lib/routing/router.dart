@@ -10,18 +10,21 @@ import 'routes.dart';
 GoRouter router() => GoRouter(
   initialLocation: Routes.recipeList,
   routes: [
-    GoRoute(path: Routes.recipeList,
-    builder: (context, state){
-      return RecipeListScreen(
-        viewModel: RecipeListViewModel(recipeRepository: context.read()),
-          );
-    }),
-    GoRoute(name: Routes.recipeDetail, path: '${Routes.recipeDetail}/:recipeId',
-    builder: (context, state){
-      return RecipeDetailScreen(
-        viewModel: RecipeDetailViewModel(recipeRepository: context.read(), ingredientRepository: context.read()),
-        recipeId: state.pathParameters['recipeId']
-          );
-    }),
-  ]
+    GoRoute(
+      path: Routes.recipeList,
+      builder: (context, state) {
+        return RecipeListScreen(viewModel: RecipeListViewModel(recipeRepository: context.read()));
+      },
+    ),
+    GoRoute(
+      name: Routes.recipeDetail,
+      path: '${Routes.recipeDetail}/:recipeId',
+      builder: (context, state) {
+        return RecipeDetailScreen(
+          viewModel: RecipeDetailViewModel(recipeRepository: context.read(), ingredientRepository: context.read()),
+          recipeId: state.pathParameters['recipeId'],
+        );
+      },
+    ),
+  ],
 );
