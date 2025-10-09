@@ -58,7 +58,11 @@ class HeaderRow extends StatelessWidget {
 }
 
 class IngredientsCard extends StatelessWidget {
-  const IngredientsCard({super.key, required this.recipe, required this.viewModel});
+  const IngredientsCard({
+    super.key,
+    required this.recipe,
+    required this.viewModel,
+  });
 
   final Recipe recipe;
   final RecipeDetailViewModel viewModel;
@@ -80,7 +84,7 @@ class IngredientsCard extends StatelessWidget {
           ],
         ),
         SizedBox(height: 4),
-        
+
         Card(
           child: ListView.separated(
             scrollDirection: Axis.vertical,
@@ -89,11 +93,18 @@ class IngredientsCard extends StatelessWidget {
             separatorBuilder: (BuildContext context, int index) =>
                 const Divider(),
             itemBuilder: (BuildContext context, int index) {
-              IngredientWithQuantity ingredient = viewModel.getRecipe.ingredients[index];
+              IngredientWithQuantity ingredient =
+                  viewModel.getRecipe.ingredients[index];
               return Row(
                 children: [
-                  Expanded(child: Text(viewModel.getIngredientName(ingredient.ingredientId))),
-                  Text('${ingredient.quantity.toString()} ${ingredient.unit.name}')
+                  Expanded(
+                    child: Text(
+                      viewModel.getIngredientName(ingredient.ingredientId),
+                    ),
+                  ),
+                  Text(
+                    '${ingredient.quantity.toString()} ${ingredient.unit.name}',
+                  ),
                 ],
               );
             },
