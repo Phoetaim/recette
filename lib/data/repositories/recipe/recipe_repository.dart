@@ -22,11 +22,12 @@ class RecipeRepository {
     }
   }
 
-  Future<Result<void>> addRecipe(Recipe recipe) async {
+  Future<Result<int>> addRecipe(Recipe recipe) async {
     final recipeWithId = recipe.copyWith(id: _sequentialId++);
     _recipeList.add(recipeWithId);
-    return Result.ok(null);
+    return Result.ok(recipeWithId.id!);
   }
+
 
   Future<Result<void>> updateRecipe(Recipe oldRecipe, Recipe newRecipe) async {
     int index = _recipeList.indexOf(oldRecipe);

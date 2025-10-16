@@ -46,7 +46,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         }
 
         if (widget.viewModel.loadRecipeById.error) {
-          return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Retry?'));
+          return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Return to recipe list?'));
         }
         return child!;
       },
@@ -57,6 +57,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           return Scaffold(
             appBar: AppBar(
               actions: [
+                TextButton(
+                  onPressed: !widget.viewModel.isRecipeUpdated() ? null: () {
+
+                      widget.viewModel.saveRecipe.execute();
+                  },
+                  child: Icon(Icons.save),
+                ),
                 TextButton(
                   onPressed: () {
                     widget.viewModel.deleteRecipe.execute(recipe);

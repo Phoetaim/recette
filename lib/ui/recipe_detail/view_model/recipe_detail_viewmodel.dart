@@ -12,27 +12,24 @@ class RecipeDetailViewModel extends ChangeNotifier {
     required IngredientRepository ingredientRepository,
   }) : _recipeRepository = recipeRepository,
        _ingredientRepository = ingredientRepository {
-    deleteRecipe = Command1(_deleteRecipe);
     loadRecipeById = Command1(_loadRecipeById);
+    saveRecipe = Command0(_saveRecipe);
+    deleteRecipe = Command1(_deleteRecipe);
   }
 
   final RecipeRepository _recipeRepository;
   final IngredientRepository _ingredientRepository;
 
   late final Command1<void, String> loadRecipeById;
+  late final Command0<void> saveRecipe;
   late final Command1<void, Recipe> deleteRecipe;
 
+  late Recipe? _originalRecipe;
   late Recipe _recipe;
   late final List<Ingredient> _ingredientList;
 
   Recipe get getRecipe => _recipe;
   List<Ingredient> get getIngredients => _ingredientList;
-
-  Future<Result<void>> _deleteRecipe(Recipe recipe) async {
-    _recipeRepository.removeRecipe(recipe);
-    notifyListeners();
-    return Result.ok(null);
-  }
 
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
     _ingredientRepository.initDb();
@@ -48,10 +45,13 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
     if (recipeId == -1) {
       _recipe = Recipe();
+      _originalRecipe = null;
       return Result.ok(null);
     }
     try {
-      _recipe = _recipeRepository.getRecipeList.where((recipe) => recipe.id! == recipeId).first;
+      _originalRecipe = _recipeRepository.getRecipeList.where((recipe) => recipe.id! == recipeId).first;
+      _recipe = _originalRecipe!;
+
       List<Ingredient> ingredients = [];
       for (IngredientWithQuantity recipeIngredient in _recipe.ingredients) {
         final result = await _ingredientRepository.getIngredientbyId(recipeIngredient.ingredientId);
@@ -69,6 +69,40 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
   }
 
+  Future<Result<void>> _saveRecipe() async {
+    if (_originalRecipe == null) {
+      print('AddRecipe');
+      print(_recipe.id);
+      Result<int> result = await _recipeRepository.addRecipe(_recipe);
+      switch (result) {
+        case Ok<int>():
+          _originalRecipe = _recipe.copyWith(id: result.value);
+          _recipe = _originalRecipe!;
+          notifyListeners();
+          return Result.ok(null);
+        case Error<int>():
+          return Result.error(RecipeError('Could not update recipe'));
+      }
+    } else {
+      Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _recipe);
+      switch (result) {
+      case Ok<void>():
+        _originalRecipe = _recipe;
+        notifyListeners();
+        return Result.ok(null);
+      case Error<void>():
+        return Result.error(RecipeError('Could not update recipe'));
+    }
+    }
+    
+  }
+
+  Future<Result<void>> _deleteRecipe(Recipe recipe) async {
+    _recipeRepository.removeRecipe(recipe);
+    notifyListeners();
+    return Result.ok(null);
+  }
+
   String getIngredientName(int id) {
     try {
       return _ingredientList.where((ingredient) => ingredient.id == id).first.name;
@@ -77,32 +111,32 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<void>> updateRecipeName(String newName) async {
-    Recipe newRecipe = _recipe.copyWith(name: newName);
-    var result = await _recipeRepository.updateRecipe(_recipe, newRecipe);
-    return handleResponseUpdate(result);
+  void updateRecipeName(String newName) async {
+    _recipe = _recipe.copyWith(name: newName);
+    notifyListeners();
   }
 
-  Future<Result<void>> updateRecipePreparationTime(String newPrepTime) async {
-    Recipe newRecipe = _recipe.copyWith(preparationTime: newPrepTime);
-    var result = await _recipeRepository.updateRecipe(_recipe, newRecipe);
-    return handleResponseUpdate(result);
+  void updateRecipePreparationTime(String newPrepTime) async {
+    _recipe = _recipe.copyWith(preparationTime: newPrepTime);
+    notifyListeners();
   }
 
-  Future<Result<void>> updateRecipeCookingTime(String newCookingTime) async {
-    Recipe newRecipe = _recipe.copyWith(cookingTime: newCookingTime);
-    var result = await _recipeRepository.updateRecipe(_recipe, newRecipe);
-    return handleResponseUpdate(result);
+  void updateRecipeCookingTime(String newCookingTime) async {
+    _recipe = _recipe.copyWith(cookingTime: newCookingTime);
+    notifyListeners();
   }
 
-  Future<Result<void>> updateRecipeNbOfPeople(String newNbOfPeopleAsString) async {
+  void updateRecipeNbOfPeople(String newNbOfPeopleAsString) async {
     int? newNbOfPeople = int.tryParse(newNbOfPeopleAsString);
     if (newNbOfPeople == null) {
-      return Result.error(RecipeError('Could not parse input $newNbOfPeopleAsString'));
+      throw TypeError();
     }
-    Recipe newRecipe = _recipe.copyWith(nbOfPeople: newNbOfPeople);
-    var result = await _recipeRepository.updateRecipe(_recipe, newRecipe);
-    return handleResponseUpdate(result);
+    _recipe = _recipe.copyWith(nbOfPeople: newNbOfPeople);
+    notifyListeners();
+  }
+
+  bool isRecipeUpdated() {
+    return _recipe != _originalRecipe;
   }
 
   Result<void> handleResponseUpdate(Result<void> result) {
