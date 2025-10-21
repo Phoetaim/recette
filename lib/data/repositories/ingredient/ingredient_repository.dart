@@ -1,11 +1,6 @@
 import 'package:recette/utils/result.dart';
 
-class Ingredient {
-  Ingredient({required this.id, required this.name});
-
-  int id;
-  final String name;
-}
+import '../../../domain/ingredient/ingredient.dart';
 
 final List<String> ingredientNames = ['pate brisée', 'tomates', 'chèvre', 'onions'];
 
@@ -26,8 +21,8 @@ class IngredientRepository {
   List<Ingredient> get getIngredientList => _ingredientList;
 
   Future<Result<void>> addIngredient(Ingredient ingredient) async {
-    ingredient.id = _sequentialId++;
-    _ingredientList.add(ingredient);
+    Ingredient ingredientWithId = ingredient.copyWith(id: _sequentialId++);
+    _ingredientList.add(ingredientWithId);
     return Result.ok(null);
   }
 

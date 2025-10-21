@@ -96,7 +96,7 @@ class HeaderTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       initialValue: initialValue,
       onFieldSubmitted: onSubmitted,
-    );
+  );
   }
 }
 
@@ -118,7 +118,7 @@ class IngredientsCard extends StatelessWidget {
               onPressed: () {
                 print('modify Ingredients');
               },
-              child: Icon(Icons.edit),
+              child: Icon(Icons.add_box),
             ),
           ],
         ),

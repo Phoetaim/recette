@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
+import '../../../domain/ingredient/ingredient.dart';
 import '../../../domain/recipe/recipe.dart';
 import '../../../domain/ingredient/ingredient_with_quantity.dart';
 import '../../../utils/commands.dart';
@@ -132,6 +133,15 @@ class RecipeDetailViewModel extends ChangeNotifier {
       throw TypeError();
     }
     _recipe = _recipe.copyWith(nbOfPeople: newNbOfPeople);
+    notifyListeners();
+  }
+
+  void updateIngredientOrder(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+          final IngredientWithQuantity item = _recipe.ingredients.removeAt(oldIndex);
+          _recipe.ingredients.insert(newIndex, item);
     notifyListeners();
   }
 
