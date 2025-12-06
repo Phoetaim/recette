@@ -1,5 +1,7 @@
 abstract final class Routes {
   static const home = '/';
-  static const recipeList = '/recipeList';
-  static const recipeDetail = '/recipe';
+  static const recipeList = '/recipes';
+  static const recipeDetail = '/recipes/detail';
+  static const ingredientList = '/ingredientList';
+  static const shoppingList = '/shoppingList';
 }

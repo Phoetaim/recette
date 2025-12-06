@@ -9,7 +9,7 @@ class IngredientRepository {
   int _sequentialId = 0;
   bool initialized = false;
 
-  void initDb() {
+  Future<void> initDb() async {
     if (!initialized) {
       for (String ingredientName in ingredientNames) {
         addIngredient(Ingredient(id: 0, name: ingredientName));

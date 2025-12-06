@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
+import '../../../data/repositories/ingredient/ingredient_repository.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../../../domain/ingredient/ingredient.dart';
 import '../../../domain/recipe/recipe.dart';
@@ -87,15 +87,14 @@ class RecipeDetailViewModel extends ChangeNotifier {
     } else {
       Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _recipe);
       switch (result) {
-      case Ok<void>():
-        _originalRecipe = _recipe;
-        notifyListeners();
-        return Result.ok(null);
-      case Error<void>():
-        return Result.error(RecipeError('Could not update recipe'));
+        case Ok<void>():
+          _originalRecipe = _recipe;
+          notifyListeners();
+          return Result.ok(null);
+        case Error<void>():
+          return Result.error(RecipeError('Could not update recipe'));
+      }
     }
-    }
-    
   }
 
   Future<Result<void>> _deleteRecipe(Recipe recipe) async {
@@ -138,10 +137,10 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   void updateIngredientOrder(int oldIndex, int newIndex) async {
     if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final IngredientWithQuantity item = _recipe.ingredients.removeAt(oldIndex);
-          _recipe.ingredients.insert(newIndex, item);
+      newIndex -= 1;
+    }
+    final IngredientWithQuantity item = _recipe.ingredients.removeAt(oldIndex);
+    _recipe.ingredients.insert(newIndex, item);
     notifyListeners();
   }
 
