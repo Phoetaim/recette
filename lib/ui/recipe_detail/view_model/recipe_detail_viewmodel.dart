@@ -33,7 +33,6 @@ class RecipeDetailViewModel extends ChangeNotifier {
   List<Ingredient> get getIngredients => _ingredientList;
 
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
-    _ingredientRepository.initDb();
     await _recipeRepository.initDb();
 
     if (recipeIdStr == null) {
@@ -55,7 +54,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
       List<Ingredient> ingredients = [];
       for (IngredientWithQuantity recipeIngredient in _recipe.ingredients) {
-        final result = await _ingredientRepository.getIngredientbyId(recipeIngredient.ingredientId);
+        final result = await _ingredientRepository.getIngredientById(recipeIngredient.ingredientId);
         switch (result) {
           case Ok<Ingredient>():
             ingredients.add(result.value);

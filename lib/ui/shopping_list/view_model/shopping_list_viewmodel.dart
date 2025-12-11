@@ -29,8 +29,8 @@ class ShoppingListViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  Future <Result<Ingredient>> getIngredientbyId (int id)  async {
-      final result = await _ingredientRepository.getIngredientbyId(id);
+  Future <Result<Ingredient>> getIngredientById (int id)  async {
+      final result = await _ingredientRepository.getIngredientById(id);
       switch (result) {
         case Ok<Ingredient>():
           return Result.ok(result.value);

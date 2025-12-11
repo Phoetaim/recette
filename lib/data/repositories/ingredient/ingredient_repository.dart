@@ -1,46 +1,83 @@
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/ingredient/ingredient.dart';
+import '../../services/database.dart';
 
 final List<String> ingredientNames = ['pate brisée', 'tomates', 'chèvre', 'onions'];
 
 class IngredientRepository {
-  final List<Ingredient> _ingredientList = [];
-  int _sequentialId = 0;
-  bool initialized = false;
+  IngredientRepository({required DatabaseService database}) : _database = database;
 
-  Future<void> initDb() async {
-    if (!initialized) {
-      for (String ingredientName in ingredientNames) {
-        addIngredient(Ingredient(id: 0, name: ingredientName));
-      }
-      initialized = true;
+  final DatabaseService _database;
+
+  final List<Ingredient> _cachedIngredients = [];
+
+
+  Future<Result<void>> addIngredient(Ingredient ingredient) async {
+    await _ensureDatabase();
+    var result = await _database.insertIngredient(ingredient);
+    switch (result) {
+      case Ok<Ingredient>():
+        _cachedIngredients.add(result.value);
+        return Result.ok(null);
+      case Error<Ingredient>():
+        return Result.error(IngredientRepositoryError('Could not had ingredient'));
     }
   }
 
-  List<Ingredient> get getIngredientList => _ingredientList;
+  Future<Result<List<Ingredient>>> getIngredients() async{
+    await _ensureDatabase();
+    var result = await _database.getAllIngredients();
+    switch (result) {
+      case Ok<List<Ingredient>>():
+        _cachedIngredients.clear();
+        _cachedIngredients.addAll(result.value);  // Add to cache
+        return Result.ok(_cachedIngredients);
+      case Error<List<Ingredient>>():
+        return Result.error(IngredientRepositoryError('Could find the ingredient'));
+    }
 
-  Future<Result<void>> addIngredient(Ingredient ingredient) async {
-    Ingredient ingredientWithId = ingredient.copyWith(id: _sequentialId++);
-    _ingredientList.add(ingredientWithId);
-    return Result.ok(null);
+  }
+
+  Future<Result<Ingredient>> getIngredientById(int ingredientId) async {
+    await _ensureDatabase();
+    try {
+      Ingredient ingredient = _cachedIngredients.firstWhere((ingredient) => ingredient.id == ingredientId);
+      return Result.ok(ingredient);
+    } on StateError {
+      // Ingredient not cached
+    }
+
+    var result = await _database.getIngredientsByIds([ingredientId]);
+    switch (result) {
+      case Ok<List<Ingredient>>():
+        _cachedIngredients.add(result.value.first);  // Add to cache
+        return Result.ok(result.value.first);
+      case Error<List<Ingredient>>():
+        return Result.error(IngredientRepositoryError('Could find the ingredient'));
+    }
   }
 
   Future<Result<void>> removeIngredient(Ingredient ingredient) async {
-    _ingredientList.removeWhere((item) => item.id == ingredient.id);
-    return Result.ok(null);
-  }
-
-  Future<Result<Ingredient>> getIngredientbyId(int ingredientId) async {
-    try {
-      return Result.ok(getIngredientList.where((ingredient) => ingredient.id == ingredientId).first);
-    } on StateError {
-      return Result.error(IngredientRepositoryError('No such ingredient'));
+    await _ensureDatabase();
+    var result = await _database.deleteIngredient(ingredient.id!);
+    switch (result) {
+      case Ok<void>():
+        _cachedIngredients.removeWhere((item) => item.id == ingredient.id);
+        return Result.ok(null);
+      case Error<void>():
+        return Result.error(IngredientRepositoryError('Could not remove ingredient'));
     }
   }
 
   void resetIngredients() {
-    _ingredientList.clear();
+    _cachedIngredients.clear();
+  }
+
+  Future<void> _ensureDatabase() async {
+    if (!_database.isOpen()) {
+      await _database.open();
+    }
   }
 }
 

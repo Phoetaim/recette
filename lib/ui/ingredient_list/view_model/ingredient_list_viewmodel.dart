@@ -19,14 +19,19 @@ class IngredientListViewModel extends ChangeNotifier {
   late final Command1<void, Ingredient> saveIngredient;
   late final Command1<void, Recipe> deleteIngredient;
 
-  late final List<Ingredient> _ingredientList;
+  late final List<Ingredient> _ingredients;
 
-  List<Ingredient> get getIngredients => _ingredientList;
+  List<Ingredient> get getIngredients => _ingredients;
 
   Future<Result<void>> _loadIngredientList() async {
-    await _ingredientRepository.initDb();
-    _ingredientList = _ingredientRepository.getIngredientList;
-    return Result.ok(null);
+    var result = await _ingredientRepository.getIngredients();
+    switch (result) {
+      case Ok<List<Ingredient>>():
+        _ingredients = result.value;
+        return Result.ok(null);
+      case Error<List<Ingredient>>():
+        return Result.error(result.error);
+    }
   }
 
   Future<Result<void>> _saveIngredient(Ingredient ingredient) async {
