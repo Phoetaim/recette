@@ -39,7 +39,7 @@ class DatabaseService {
     try {
       final id = await _database!.insert(TableNames.ingredients, {
         'name': ingredient.name,
-        'type': ingredient.type,
+        'type': ingredient.type.name,
       });
       return Result.ok(ingredient.copyWith(id: id));
     } on Exception catch (e) {
@@ -47,6 +47,21 @@ class DatabaseService {
     }
   }
 
+
+  Future<Result<void>> updateIngredient(Ingredient ingredient) async {
+    try {
+      await _database!.update(TableNames.ingredients, {
+        'name': ingredient.name,
+        'type': ingredient.type.name,
+      },
+      where: 'id = ?',
+      whereArgs: [ingredient.id],
+      );
+      return Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
 
   Future<Result<List<Ingredient>>> getAllIngredients() async {
     try {
@@ -66,9 +81,10 @@ class DatabaseService {
 
   Future<Result<List<Ingredient>>> getIngredientsByIds(List<int> ids) async {
     try {
+     String placeholders = List.filled(ids.length, '?').join(',');
       final entries = await _database!.query(
         TableNames.ingredients,
-        where: 'id IN ?',
+        where: 'id IN ($placeholders)',
         whereArgs: ids,
       );
       final list = entries

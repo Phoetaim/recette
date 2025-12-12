@@ -27,10 +27,10 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   late Recipe? _originalRecipe;
   late Recipe _recipe;
-  late final List<Ingredient> _ingredientList;
+  late final List<Ingredient> _ingredients;
 
   Recipe get getRecipe => _recipe;
-  List<Ingredient> get getIngredients => _ingredientList;
+  List<Ingredient> get getIngredients => _ingredients;
 
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
     await _recipeRepository.initDb();
@@ -59,10 +59,10 @@ class RecipeDetailViewModel extends ChangeNotifier {
           case Ok<Ingredient>():
             ingredients.add(result.value);
           case Error<Ingredient>():
-            return Result.error(RecipeError('Unknown argument: ${recipeIngredient.ingredientId}'));
+            // If ingredient does not exists, pass
         }
       }
-      _ingredientList = ingredients;
+      _ingredients = ingredients;
       return Result.ok(null);
     } on StateError {
       return Result.error(RecipeError('No recipe with id: $recipeId'));
@@ -104,7 +104,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   String getIngredientName(int id) {
     try {
-      return _ingredientList.where((ingredient) => ingredient.id == id).first.name;
+      return _ingredients.where((ingredient) => ingredient.id == id).first.name;
     } on StateError {
       return 'Euuuuuh ton ingrédient n\'existe pas...';
     }

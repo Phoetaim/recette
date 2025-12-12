@@ -3,7 +3,6 @@ import 'package:recette/utils/result.dart';
 import '../../../domain/ingredient/ingredient.dart';
 import '../../services/database.dart';
 
-final List<String> ingredientNames = ['pate brisée', 'tomates', 'chèvre', 'onions'];
 
 class IngredientRepository {
   IngredientRepository({required DatabaseService database}) : _database = database;
@@ -13,17 +12,31 @@ class IngredientRepository {
   final List<Ingredient> _cachedIngredients = [];
 
 
-  Future<Result<void>> addIngredient(Ingredient ingredient) async {
+  Future<Result<Ingredient>> addIngredient(Ingredient ingredient) async {
     await _ensureDatabase();
     var result = await _database.insertIngredient(ingredient);
     switch (result) {
       case Ok<Ingredient>():
         _cachedIngredients.add(result.value);
-        return Result.ok(null);
+        return Result.ok(result.value);
       case Error<Ingredient>():
         return Result.error(IngredientRepositoryError('Could not had ingredient'));
     }
   }
+
+  Future<Result<void>> updateIngredient(Ingredient ingredient) async {
+    await _ensureDatabase();
+    var result = await _database.updateIngredient(ingredient);
+    switch (result) {
+      case Ok<void>():
+        _cachedIngredients.removeWhere((element) => element.id == ingredient.id );
+        _cachedIngredients.add(ingredient);
+        return Result.ok(null);
+      case Error<void>():
+        return Result.error(IngredientRepositoryError('Could not update ingredient'));
+    }
+  }
+
 
   Future<Result<List<Ingredient>>> getIngredients() async{
     await _ensureDatabase();
@@ -70,9 +83,6 @@ class IngredientRepository {
     }
   }
 
-  void resetIngredients() {
-    _cachedIngredients.clear();
-  }
 
   Future<void> _ensureDatabase() async {
     if (!_database.isOpen()) {

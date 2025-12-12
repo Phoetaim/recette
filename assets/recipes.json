@@ -7,12 +7,12 @@
         "nbOfPeople": 4,
         "ingredients": [
             {
-                "ingredientId": 0,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 1
             },
             {
-                "ingredientId": 1,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 4
             },
@@ -40,12 +40,12 @@
         "nbOfPeople": 2,
         "ingredients": [
             {
-                "ingredientId": 0,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 1
             },
             {
-                "ingredientId": 1,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 4
             },
@@ -73,12 +73,12 @@
         "nbOfPeople": 2,
         "ingredients": [
             {
-                "ingredientId": 0,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 1
             },
             {
-                "ingredientId": 1,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 4
             },
@@ -106,12 +106,12 @@
         "nbOfPeople": 5000,
         "ingredients": [
             {
-                "ingredientId": 0,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 1
             },
             {
-                "ingredientId": 1,
+                "ingredientId": 2,
                 "unit": "unit",
                 "quantity": 4
             },
