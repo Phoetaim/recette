@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../domain/recipe/recipe.dart';
-import '../../../domain/ingredient/ingredient_with_quantity.dart';
+import '../../../domain/models/recipe/recipe.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
-class RecipeDetailBody extends StatelessWidget {
-  const RecipeDetailBody({super.key, required this.viewModel, required this.recipe});
+class RecipeDetailInfoTab extends StatelessWidget {
+  const RecipeDetailInfoTab({super.key, required this.viewModel, required this.recipe});
 
   final RecipeDetailViewModel viewModel;
   final Recipe recipe;
@@ -15,7 +14,6 @@ class RecipeDetailBody extends StatelessWidget {
     return Column(
       children: [
         HeaderRow(recipe: recipe, viewModel: viewModel),
-        IngredientsCard(recipe: recipe, viewModel: viewModel),
         StepCard(recipe: recipe),
       ],
     );
@@ -97,52 +95,6 @@ class HeaderTextFormField extends StatelessWidget {
       initialValue: initialValue,
       onFieldSubmitted: onSubmitted,
   );
-  }
-}
-
-class IngredientsCard extends StatelessWidget {
-  const IngredientsCard({super.key, required this.recipe, required this.viewModel});
-
-  final Recipe recipe;
-  final RecipeDetailViewModel viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 4),
-        Row(
-          children: [
-            Text('Ingredients:'),
-            TextButton(
-              onPressed: () {
-                print('modify Ingredients');
-              },
-              child: Icon(Icons.add_box),
-            ),
-          ],
-        ),
-        SizedBox(height: 4),
-
-        Card(
-          child: ListView.separated(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: recipe.ingredients.length,
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
-            itemBuilder: (BuildContext context, int index) {
-              IngredientWithQuantity ingredient = viewModel.getRecipe.ingredients[index];
-              return Row(
-                children: [
-                  Expanded(child: Text(viewModel.getIngredientName(ingredient.ingredientId))),
-                  Text('${ingredient.quantity.toString()} ${ingredient.unit.name}'),
-                ],
-              );
-            },
-          ),
-        ),
-      ],
-    );
   }
 }
 

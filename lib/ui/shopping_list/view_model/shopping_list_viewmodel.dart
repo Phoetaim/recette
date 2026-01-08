@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
-import 'package:recette/domain/ingredient/ingredient_with_quantity.dart';
-import 'package:recette/domain/shopping_list/shopping_ingredient.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
 import '../../../data/repositories/shopping_list/shopping_list_repository.dart';
-import '../../../domain/ingredient/ingredient.dart';
+import '../../../domain/models/ingredient/ingredient.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -25,12 +25,11 @@ class ShoppingListViewModel extends ChangeNotifier {
   ShoppingList get getShoppingList => _shoppingListRepository.getShoppingList;
 
   Future<Result<void>> _loadShoppingList() async {
-    await _shoppingListRepository.initDb();
     return Result.ok(null);
   }
 
-  Future <Result<Ingredient>> getIngredientbyId (int id)  async {
-      final result = await _ingredientRepository.getIngredientbyId(id);
+  Future <Result<Ingredient>> getIngredientById (int id)  async {
+      final result = await _ingredientRepository.getIngredientById(id);
       switch (result) {
         case Ok<Ingredient>():
           return Result.ok(result.value);

@@ -15,7 +15,7 @@ class ShoppingListBody extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               return Column(
                 children: [
-                  Text(viewModel.getShoppingList[index].ingredient.ingredientId.toString()),
+                  Text(viewModel.getShoppingList[index].ingredient.ingredient.name),
                   Divider(),
                 ],
               );

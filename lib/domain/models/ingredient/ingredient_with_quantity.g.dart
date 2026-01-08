@@ -9,7 +9,8 @@ part of 'ingredient_with_quantity.dart';
 _IngredientWithQuantity _$IngredientWithQuantityFromJson(
   Map<String, dynamic> json,
 ) => _IngredientWithQuantity(
-  ingredientId: (json['ingredientId'] as num).toInt(),
+  id: (json['id'] as num?)?.toInt(),
+  ingredient: Ingredient.fromJson(json['ingredient'] as Map<String, dynamic>),
   unit:
       $enumDecodeNullable(_$IngredientUnitEnumMap, json['unit']) ??
       IngredientUnit.unit,
@@ -19,7 +20,8 @@ _IngredientWithQuantity _$IngredientWithQuantityFromJson(
 Map<String, dynamic> _$IngredientWithQuantityToJson(
   _IngredientWithQuantity instance,
 ) => <String, dynamic>{
-  'ingredientId': instance.ingredientId,
+  'id': instance.id,
+  'ingredient': instance.ingredient,
   'unit': _$IngredientUnitEnumMap[instance.unit]!,
   'quantity': instance.quantity,
 };

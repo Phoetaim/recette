@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../../domain/recipe/recipe.dart';
+import '../../../domain/models/recipe/recipe.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
-import 'recipe_detail_body.dart';
+import 'recipe_detail_info_tab.dart';
+import 'recipe_detail_ingredient_tab.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   const RecipeDetailScreen({super.key, required this.viewModel, required this.recipeId});
@@ -54,8 +55,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         listenable: widget.viewModel,
         builder: (context, child) {
           Recipe recipe = widget.viewModel.getRecipe;
-          return Scaffold(
-            appBar: AppBar(
+          return DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.info), text: 'Information'),
+                    Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
+                  ],
+                ),
               actions: [
                 TextButton(
                   onPressed: !widget.viewModel.isRecipeUpdated() ? null: () {
@@ -66,7 +76,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    widget.viewModel.deleteRecipe.execute(recipe);
+                    widget.viewModel.deleteRecipe.execute(recipe.id!);
                   },
                   child: Icon(Icons.delete),
                 ),
@@ -85,8 +95,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               scrolledUnderElevation: 4,
               backgroundColor: theme.colorScheme.primaryContainer,
             ),
-            body: RecipeDetailBody(viewModel: widget.viewModel, recipe: recipe),
-          );
+            body: TabBarView(children: [
+                  RecipeDetailInfoTab(viewModel: widget.viewModel, recipe: recipe),
+                  RecipeDetailIngredientTab(viewModel: widget.viewModel, recipe: recipe),
+                ]),
+              )
+            );
         },
       ),
     );
