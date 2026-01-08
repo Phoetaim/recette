@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-import 'package:recette/domain/recipe/recipe.dart';
 
 import '../../config/assets.dart';
+import 'models/raw_recipe.dart';
 
 class LocalDataService {
-  Future<List<Recipe>> getRecipes() async {
+  Future<List<RawRecipe>> getRecipes() async {
     final json = await _loadStringAsset(Assets.recipes);
-    return json.map<Recipe>(Recipe.fromJson).toList();
+    return json.map<RawRecipe>(RawRecipe.fromJson).toList();
   }
 
   Future<List<Map<String, dynamic>>> _loadStringAsset(String asset) async {

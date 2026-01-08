@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../../domain/recipe/recipe.dart';
+import '../../../data/services/models/raw_recipe.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 
 class RecipeListBody extends StatelessWidget {
@@ -41,20 +41,20 @@ class RecipeFullCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Recipe recipe = viewModel.getRecipeByIndex(index);
+    RawRecipe rawRecipe = viewModel.getRecipeByIndex(index);
     return Row(
       children: [
         Expanded(
           child: TextButton(
             onPressed: () {
-              context.goNamed(Routes.recipeDetail, pathParameters: {'recipeId': recipe.id.toString()});
+              context.goNamed(Routes.recipeDetail, pathParameters: {'recipeId': rawRecipe.id.toString()});
             },
-            child: RecipeCard(recipe: recipe),
+            child: RecipeCard(recipe: rawRecipe),
           ),
         ),
         TextButton(
           onPressed: () {
-            viewModel.deleteRecipe.execute(recipe);
+            viewModel.deleteRecipe.execute(rawRecipe.id!);
           },
           child: Icon(Icons.delete),
         ),
@@ -66,7 +66,7 @@ class RecipeFullCard extends StatelessWidget {
 class RecipeCard extends StatelessWidget {
   const RecipeCard({super.key, required this.recipe});
 
-  final Recipe recipe;
+  final RawRecipe recipe;
 
   @override
   Widget build(BuildContext context) {

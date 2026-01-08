@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
-import '../../../domain/ingredient/ingredient.dart';
-import '../../../domain/recipe/recipe.dart';
+import '../../../domain/models/ingredient/ingredient.dart';
+import '../../../domain/models/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -42,7 +42,7 @@ class IngredientListViewModel extends ChangeNotifier {
     }
     else {
       _filteredIngredients = _ingredients.where((ingredient)
-      => ingredient.name.contains(filter)).toList();
+      => ingredient.name.toLowerCase().contains(filter.toLowerCase())).toList();
     }
     notifyListeners();
   }

@@ -1,7 +1,6 @@
-import 'package:recette/domain/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/utils/result.dart';
 
-import '../../../domain/shopping_list/shopping_ingredient.dart';
+import '../../../domain/models/shopping_list/shopping_ingredient.dart';
 
 typedef ShoppingList = List<ShoppingIngredient>;
 
@@ -12,9 +11,6 @@ class ShoppingListRepository {
 
   ShoppingList get getShoppingList => _shoppingList;
 
-  Future<void> initDb() async{
-    await addShoppingIngredient(ShoppingIngredient(ingredient: IngredientWithQuantity(ingredientId: 0)));
-  }
   Future<Result<void>> addShoppingIngredient(ShoppingIngredient shoppingIngredient) async {
     ShoppingIngredient ingredientWithId = shoppingIngredient.copyWith(id: _sequentialId++);
     _shoppingList.add(ingredientWithId);

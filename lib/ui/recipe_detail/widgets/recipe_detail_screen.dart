@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../../domain/recipe/recipe.dart';
+import '../../../domain/models/recipe/recipe.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 import 'recipe_detail_body.dart';
 
@@ -66,7 +66,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    widget.viewModel.deleteRecipe.execute(recipe);
+                    widget.viewModel.deleteRecipe.execute(recipe.id!);
                   },
                   child: Icon(Icons.delete),
                 ),

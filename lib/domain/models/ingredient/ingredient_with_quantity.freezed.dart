@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$IngredientWithQuantity {
 
- int get ingredientId; IngredientUnit get unit; int get quantity;
+ int? get id; Ingredient get ingredient; IngredientUnit get unit; int get quantity;
 /// Create a copy of IngredientWithQuantity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $IngredientWithQuantityCopyWith<IngredientWithQuantity> get copyWith => _$Ingred
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is IngredientWithQuantity&&(identical(other.ingredientId, ingredientId) || other.ingredientId == ingredientId)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.quantity, quantity) || other.quantity == quantity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IngredientWithQuantity&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredient, ingredient) || other.ingredient == ingredient)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.quantity, quantity) || other.quantity == quantity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ingredientId,unit,quantity);
+int get hashCode => Object.hash(runtimeType,id,ingredient,unit,quantity);
 
 @override
 String toString() {
-  return 'IngredientWithQuantity(ingredientId: $ingredientId, unit: $unit, quantity: $quantity)';
+  return 'IngredientWithQuantity(id: $id, ingredient: $ingredient, unit: $unit, quantity: $quantity)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $IngredientWithQuantityCopyWith<$Res>  {
   factory $IngredientWithQuantityCopyWith(IngredientWithQuantity value, $Res Function(IngredientWithQuantity) _then) = _$IngredientWithQuantityCopyWithImpl;
 @useResult
 $Res call({
- int ingredientId, IngredientUnit unit, int quantity
+ int? id, Ingredient ingredient, IngredientUnit unit, int quantity
 });
 
 
-
+$IngredientCopyWith<$Res> get ingredient;
 
 }
 /// @nodoc
@@ -65,15 +65,25 @@ class _$IngredientWithQuantityCopyWithImpl<$Res>
 
 /// Create a copy of IngredientWithQuantity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? ingredientId = null,Object? unit = null,Object? quantity = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? ingredient = null,Object? unit = null,Object? quantity = null,}) {
   return _then(_self.copyWith(
-ingredientId: null == ingredientId ? _self.ingredientId : ingredientId // ignore: cast_nullable_to_non_nullable
-as int,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,ingredient: null == ingredient ? _self.ingredient : ingredient // ignore: cast_nullable_to_non_nullable
+as Ingredient,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
 as IngredientUnit,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
-
+/// Create a copy of IngredientWithQuantity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IngredientCopyWith<$Res> get ingredient {
+  
+  return $IngredientCopyWith<$Res>(_self.ingredient, (value) {
+    return _then(_self.copyWith(ingredient: value));
+  });
+}
 }
 
 
@@ -155,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int ingredientId,  IngredientUnit unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity() when $default != null:
-return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
+return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
   return orElse();
 
 }
@@ -176,10 +186,10 @@ return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int ingredientId,  IngredientUnit unit,  int quantity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)  $default,) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity():
-return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
+return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +206,10 @@ return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int ingredientId,  IngredientUnit unit,  int quantity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)?  $default,) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity() when $default != null:
-return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
+return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
   return null;
 
 }
@@ -211,10 +221,11 @@ return $default(_that.ingredientId,_that.unit,_that.quantity);case _:
 @JsonSerializable()
 
 class _IngredientWithQuantity implements IngredientWithQuantity {
-  const _IngredientWithQuantity({required this.ingredientId, this.unit = IngredientUnit.unit, this.quantity = 1});
+  const _IngredientWithQuantity({this.id, required this.ingredient, this.unit = IngredientUnit.unit, this.quantity = 1});
   factory _IngredientWithQuantity.fromJson(Map<String, dynamic> json) => _$IngredientWithQuantityFromJson(json);
 
-@override final  int ingredientId;
+@override final  int? id;
+@override final  Ingredient ingredient;
 @override@JsonKey() final  IngredientUnit unit;
 @override@JsonKey() final  int quantity;
 
@@ -231,16 +242,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IngredientWithQuantity&&(identical(other.ingredientId, ingredientId) || other.ingredientId == ingredientId)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.quantity, quantity) || other.quantity == quantity));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _IngredientWithQuantity&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredient, ingredient) || other.ingredient == ingredient)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.quantity, quantity) || other.quantity == quantity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,ingredientId,unit,quantity);
+int get hashCode => Object.hash(runtimeType,id,ingredient,unit,quantity);
 
 @override
 String toString() {
-  return 'IngredientWithQuantity(ingredientId: $ingredientId, unit: $unit, quantity: $quantity)';
+  return 'IngredientWithQuantity(id: $id, ingredient: $ingredient, unit: $unit, quantity: $quantity)';
 }
 
 
@@ -251,11 +262,11 @@ abstract mixin class _$IngredientWithQuantityCopyWith<$Res> implements $Ingredie
   factory _$IngredientWithQuantityCopyWith(_IngredientWithQuantity value, $Res Function(_IngredientWithQuantity) _then) = __$IngredientWithQuantityCopyWithImpl;
 @override @useResult
 $Res call({
- int ingredientId, IngredientUnit unit, int quantity
+ int? id, Ingredient ingredient, IngredientUnit unit, int quantity
 });
 
 
-
+@override $IngredientCopyWith<$Res> get ingredient;
 
 }
 /// @nodoc
@@ -268,16 +279,26 @@ class __$IngredientWithQuantityCopyWithImpl<$Res>
 
 /// Create a copy of IngredientWithQuantity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? ingredientId = null,Object? unit = null,Object? quantity = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? ingredient = null,Object? unit = null,Object? quantity = null,}) {
   return _then(_IngredientWithQuantity(
-ingredientId: null == ingredientId ? _self.ingredientId : ingredientId // ignore: cast_nullable_to_non_nullable
-as int,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
+id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int?,ingredient: null == ingredient ? _self.ingredient : ingredient // ignore: cast_nullable_to_non_nullable
+as Ingredient,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
 as IngredientUnit,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
 
-
+/// Create a copy of IngredientWithQuantity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IngredientCopyWith<$Res> get ingredient {
+  
+  return $IngredientCopyWith<$Res>(_self.ingredient, (value) {
+    return _then(_self.copyWith(ingredient: value));
+  });
+}
 }
 
 // dart format on

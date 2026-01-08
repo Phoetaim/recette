@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../domain/recipe/recipe.dart';
-import '../../../domain/ingredient/ingredient_with_quantity.dart';
-import '../view_model/recipe_detail_viewmodel.dart';
+import '../../../domain/models/recipe/recipe.dart';
+import '../../../domain/models/ingredient/ingredient_with_quantity.dart';import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailBody extends StatelessWidget {
   const RecipeDetailBody({super.key, required this.viewModel, required this.recipe});
@@ -131,11 +130,11 @@ class IngredientsCard extends StatelessWidget {
             itemCount: recipe.ingredients.length,
             separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemBuilder: (BuildContext context, int index) {
-              IngredientWithQuantity ingredient = viewModel.getRecipe.ingredients[index];
+              IngredientWithQuantity ingredientWithQuantity = viewModel.getRecipe.ingredients[index];
               return Row(
                 children: [
-                  Expanded(child: Text(viewModel.getIngredientName(ingredient.ingredientId))),
-                  Text('${ingredient.quantity.toString()} ${ingredient.unit.name}'),
+                  Expanded(child: Text(ingredientWithQuantity.ingredient.name)),
+                  Text('${ingredientWithQuantity.quantity.toString()} ${ingredientWithQuantity.unit.name}'),
                 ],
               );
             },

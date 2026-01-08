@@ -35,7 +35,7 @@ GoRouter router() => GoRouter(
                     return RecipeDetailScreen(
                       viewModel: RecipeDetailViewModel(
                         recipeRepository: context.read(),
-                        ingredientRepository: context.read(),
+                        ingredientWithQuantityUseCase: context.read(),
                       ),
                       recipeId: state.pathParameters['recipeId'],
                     );

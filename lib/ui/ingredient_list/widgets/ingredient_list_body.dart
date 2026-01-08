@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:recette/domain/ingredient/ingredient.dart';
 import '../view_model/ingredient_list_viewmodel.dart';
 
 class IngredientListBody extends StatelessWidget {

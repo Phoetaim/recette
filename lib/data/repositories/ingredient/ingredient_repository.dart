@@ -1,6 +1,6 @@
 import 'package:recette/utils/result.dart';
 
-import '../../../domain/ingredient/ingredient.dart';
+import '../../../domain/models/ingredient/ingredient.dart';
 import '../../services/database.dart';
 
 
@@ -20,7 +20,7 @@ class IngredientRepository {
         _cachedIngredients.add(result.value);
         return Result.ok(result.value);
       case Error<Ingredient>():
-        return Result.error(IngredientRepositoryError('Could not had ingredient'));
+        return Result.error(IngredientRepositoryError('Could not add ingredient'));
     }
   }
 

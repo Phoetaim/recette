@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
-import '../../../domain/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -12,10 +12,10 @@ class RecipeListViewModel extends ChangeNotifier {
 
   final RecipeRepository _recipeRepository;
 
-  List<Recipe> get getRecipeList => _recipeRepository.getRecipeList;
+  List<RawRecipe> get getRecipeList => _recipeRepository.getRecipeList;
 
   late final Command0 loadRecipeList;
-  late final Command1<void, Recipe> deleteRecipe;
+  late final Command1<void, int> deleteRecipe;
 
   int recipeCount() => getRecipeList.length;
 
@@ -25,13 +25,13 @@ class RecipeListViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  void addRecipe(Recipe recipe) {
-    _recipeRepository.addRecipe(recipe);
+  void addRecipe(RawRecipe rawRecipe) {
+    _recipeRepository.addRecipe(rawRecipe);
     notifyListeners();
   }
 
-  Future<Result<void>> _deleteRecipe(Recipe recipe) async {
-    _recipeRepository.removeRecipe(recipe);
+  Future<Result<void>> _deleteRecipe(int id) async {
+    _recipeRepository.removeRecipe(id);
     notifyListeners();
     return Result.ok(null);
   }
@@ -41,7 +41,7 @@ class RecipeListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Recipe getRecipeByIndex(int index) {
+  RawRecipe getRecipeByIndex(int index) {
     try {
       return getRecipeList[index];
     } on IndexError {

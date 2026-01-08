@@ -5,28 +5,7 @@
         "preparationTime": "15'",
         "cookingTime": "40'",
         "nbOfPeople": 4,
-        "ingredients": [
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 1
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 4
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 2
-            },
-            {
-                "ingredientId": 3,
-                "unit": "unit",
-                "quantity": 1
-            }
-        ],
+        "ingredients": [],
         "steps": [
             "Fais la tarte",
             "Cuis la"
@@ -38,28 +17,7 @@
         "preparationTime": "15'",
         "cookingTime": "1h20",
         "nbOfPeople": 2,
-        "ingredients": [
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 1
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 4
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 2
-            },
-            {
-                "ingredientId": 3,
-                "unit": "unit",
-                "quantity": 1
-            }
-        ],
+        "ingredients": [],
         "steps": [
             "Fais la tarte",
             "Cuis la"
@@ -71,28 +29,7 @@
         "preparationTime": "15'",
         "cookingTime": "40'",
         "nbOfPeople": 2,
-        "ingredients": [
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 1
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 4
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 2
-            },
-            {
-                "ingredientId": 3,
-                "unit": "unit",
-                "quantity": 1
-            }
-        ],
+        "ingredients": [],
         "steps": [
             "Fais la tarte",
             "Cuis la"
@@ -104,28 +41,7 @@
         "preparationTime": "15'",
         "cookingTime": "40'",
         "nbOfPeople": 5000,
-        "ingredients": [
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 1
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 4
-            },
-            {
-                "ingredientId": 2,
-                "unit": "unit",
-                "quantity": 2
-            },
-            {
-                "ingredientId": 3,
-                "unit": "unit",
-                "quantity": 1
-            }
-        ],
+        "ingredients": [],
         "steps": [
             "Fais la tarte",
             "Cuis la"
