@@ -17,7 +17,7 @@ class RecipeListBody extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
-            itemCount: viewModel.recipeCount(),
+            itemCount: viewModel.recipes.length,
             itemBuilder: (BuildContext context, int index) {
               return Column(
                 children: [

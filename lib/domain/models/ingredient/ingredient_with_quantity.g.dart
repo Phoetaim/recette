@@ -29,7 +29,14 @@ Map<String, dynamic> _$IngredientWithQuantityToJson(
 const _$IngredientUnitEnumMap = {
   IngredientUnit.unit: 'unit',
   IngredientUnit.kg: 'kg',
-  IngredientUnit.gramme: 'gramme',
-  IngredientUnit.liter: 'liter',
+  IngredientUnit.g: 'g',
+  IngredientUnit.L: 'L',
+  IngredientUnit.dL: 'dL',
   IngredientUnit.cL: 'cL',
+  IngredientUnit.mL: 'mL',
+  IngredientUnit.cm: 'cm',
+  IngredientUnit.tranche: 'tranche',
+  IngredientUnit.boite: 'boite',
+  IngredientUnit.cac: 'cac',
+  IngredientUnit.cas: 'cas',
 };

@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../data/services/models/ingredient_id_with_quantity.dart';
+import '../../../data/services/models/raw_ingredient_with_quantity.dart';
 import 'ingredient.dart';
 
 part 'ingredient_with_quantity.freezed.dart';

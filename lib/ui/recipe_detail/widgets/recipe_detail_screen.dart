@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../../domain/models/recipe/recipe.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
@@ -47,61 +46,82 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         }
 
         if (widget.viewModel.loadRecipeById.error) {
-          return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Return to recipe list?'));
+          return TextButton(
+            onPressed: () => context.go(Routes.recipeList),
+            child: Text('Return to recipe list?'),
+          );
         }
         return child!;
       },
-      child: ListenableBuilder(
-        listenable: widget.viewModel,
-        builder: (context, child) {
-          Recipe recipe = widget.viewModel.getRecipe;
-          return DefaultTabController(
-            length: 2,
-            child: Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                bottom: const TabBar(
-                  tabs: [
-                    Tab(icon: Icon(Icons.info), text: 'Information'),
-                    Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
-                  ],
-                ),
-              actions: [
-                TextButton(
-                  onPressed: !widget.viewModel.isRecipeUpdated() ? null: () {
-
-                      widget.viewModel.saveRecipe.execute();
-                  },
-                  child: Icon(Icons.save),
-                ),
-                TextButton(
-                  onPressed: () {
-                    widget.viewModel.deleteRecipe.execute(recipe.id!);
-                  },
-                  child: Icon(Icons.delete),
-                ),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            bottom: const TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.info), text: 'Information'),
+                Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
               ],
-              leading: TextButton(
-                onPressed: () {
-                  context.go(Routes.recipeList);
-                },
-                child: Icon(Icons.arrow_back),
-              ),
-              title: HeaderTextFormField(
-                initialValue: recipe.name,
-                onSubmitted: (value) => widget.viewModel.updateRecipeName(value),
-              ),
-              shadowColor: Colors.black,
-              scrolledUnderElevation: 4,
-              backgroundColor: theme.colorScheme.primaryContainer,
             ),
-            body: TabBarView(children: [
-                  RecipeDetailInfoTab(viewModel: widget.viewModel, recipe: recipe),
-                  RecipeDetailIngredientTab(viewModel: widget.viewModel, recipe: recipe),
-                ]),
-              )
-            );
-        },
+            actions: [
+              ListenableBuilder(
+                listenable: widget.viewModel.saveRecipe,
+                builder: (context, value) {
+                  return ValueListenableBuilder(
+                    valueListenable: widget.viewModel.recipe,
+                    builder: (context, value, child) {
+                      return TextButton(
+                        onPressed: !widget.viewModel.isRecipeUpdated()
+                            ? null
+                            : () {
+                                widget.viewModel.saveRecipe.execute();
+                              },
+                        child: Icon(Icons.save),
+                      );
+                    },
+                  );
+                },
+              ),
+              TextButton(
+                onPressed: () {
+                  widget.viewModel.deleteRecipe.execute(widget.viewModel.recipe.value.id!);
+                },
+                child: Icon(Icons.delete),
+              ),
+            ],
+            leading: TextButton(
+              onPressed: () {
+                context.go(Routes.recipeList);
+              },
+              child: Icon(Icons.arrow_back),
+            ),
+            title: ValueListenableBuilder(
+              valueListenable: widget.viewModel.recipe,
+              builder: (context, value, child) {
+                return HeaderTextFormField(
+                  initialValue: widget.viewModel.recipe.value.name,
+                  callback: (value) => widget.viewModel.updateRecipeName(value),
+                );
+              },
+            ),
+            shadowColor: Colors.black,
+            scrolledUnderElevation: 4,
+            backgroundColor: theme.colorScheme.primaryContainer,
+          ),
+          body: TabBarView(
+            children: [
+              RecipeDetailInfoTab(viewModel: widget.viewModel),
+              RecipeDetailIngredientTab(viewModel: widget.viewModel),
+            ],
+          ),
+          floatingActionButton: ValueListenableBuilder(
+            valueListenable: widget.viewModel.recipe,
+            builder: (context, value, child) {
+              return CustomNumberInput(viewModel: widget.viewModel);
+            },
+          ),
+        ),
       ),
     );
   }

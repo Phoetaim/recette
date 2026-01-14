@@ -62,7 +62,15 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
           return IngredientListBody(viewModel: widget.viewModel);
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          widget.viewModel.addIngredients.execute();
+        },
+        shape: CircleBorder(),
+        child: const Icon(Icons.add),
+      ),
     );
+
   }
 
   void _onResult() {

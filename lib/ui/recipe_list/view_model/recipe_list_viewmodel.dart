@@ -6,18 +6,16 @@ import '../../../utils/result.dart';
 
 class RecipeListViewModel extends ChangeNotifier {
   RecipeListViewModel({required RecipeRepository recipeRepository}) : _recipeRepository = recipeRepository {
-    loadRecipeList = Command0(_loadRecipeList)..execute();
+    loadRecipes = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
   }
 
   final RecipeRepository _recipeRepository;
 
-  List<RawRecipe> get getRecipeList => _recipeRepository.getRecipeList;
+  List<RawRecipe> get recipes => _recipeRepository.recipes;
 
-  late final Command0 loadRecipeList;
+  late final Command0 loadRecipes;
   late final Command1<void, int> deleteRecipe;
-
-  int recipeCount() => getRecipeList.length;
 
   Future<Result<void>> _loadRecipeList() async {
     await _recipeRepository.initDb();
@@ -43,10 +41,10 @@ class RecipeListViewModel extends ChangeNotifier {
 
   RawRecipe getRecipeByIndex(int index) {
     try {
-      return getRecipeList[index];
+      return recipes[index];
     } on IndexError {
-      print('No index ${index}m returning first recipe');
-      return getRecipeList[0];
+      print('No index $index returning first recipe');
+      return recipes[0];
     }
   }
 }

@@ -15,7 +15,7 @@ abstract class ShoppingIngredient with _$ShoppingIngredient {
     @Default(false) bool bought,
 
     // Ingredient def
-    required IngredientWithQuantity ingredient,
+    required IngredientWithQuantity ingredientWithQuantity,
   }) = _ShoppingIngredient;
 
   factory ShoppingIngredient.fromJson(Map<String, Object?> json) => _$ShoppingIngredientFromJson(json);

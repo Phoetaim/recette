@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/models/shopping_list/shopping_ingredient.dart';
@@ -7,14 +10,16 @@ typedef ShoppingList = List<ShoppingIngredient>;
 class ShoppingListRepository {
   final ShoppingList _shoppingList = <ShoppingIngredient>[];
   int _sequentialId = 0;
-  bool initialized = false;
 
-  ShoppingList get getShoppingList => _shoppingList;
+  ShoppingList get shoppingList => _shoppingList;
+  StreamController<void> updatedShoppingList = StreamController.broadcast();
 
-  Future<Result<void>> addShoppingIngredient(ShoppingIngredient shoppingIngredient) async {
-    ShoppingIngredient ingredientWithId = shoppingIngredient.copyWith(id: _sequentialId++);
-    _shoppingList.add(ingredientWithId);
-    return Result.ok(null);
+  Future<Result<ShoppingIngredient>> addShoppingIngredient(IngredientWithQuantity ingredientWithQuantity) async {
+    ShoppingIngredient initShoppingIngredient = ShoppingIngredient(ingredientWithQuantity: ingredientWithQuantity);
+    ShoppingIngredient shoppingIngredient = initShoppingIngredient.copyWith(id: _sequentialId++);
+    _shoppingList.add(shoppingIngredient);
+    updatedShoppingList.add(null);
+    return Result.ok(shoppingIngredient);
   }
 
   Future<Result<void>> removeShoppingIngredient(ShoppingIngredient shoppingIngredient) async {
@@ -30,6 +35,7 @@ class ShoppingListRepository {
   void emptyShoppingList() {
     _shoppingList.clear();
   }
+
 }
 
 class ShoppingIngredientRepositoryError implements Exception {

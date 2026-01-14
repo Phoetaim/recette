@@ -19,7 +19,7 @@ class IngredientListBody extends StatelessWidget {
         ),
         SizedBox(height: 10,),
         ListenableBuilder(
-          listenable: viewModel,
+          listenable: viewModel.loadIngredientList,
           builder: (context, child) {
             return ListView.builder(
               scrollDirection: Axis.vertical,

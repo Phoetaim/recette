@@ -35,6 +35,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    widget.viewModel.initShoppingList();
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -48,20 +49,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         shadowColor: Colors.black,
         scrolledUnderElevation: 4,
         backgroundColor: theme.colorScheme.primaryContainer,
+        actions: [TextButton(onPressed: () => widget.viewModel.clearShoppingList(), child: Icon(Icons.clear_all))],
       ),
-      body: ListenableBuilder(
-        listenable: widget.viewModel.loadShoppingList,
-        builder: (context, child) {
-          if (widget.viewModel.loadShoppingList.running) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (widget.viewModel.loadShoppingList.error) {
-            return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Return to recipe list?'));
-          }
-          return ShoppingListBody(viewModel: widget.viewModel);
-        },
-      ),
+      body: ShoppingListBody(viewModel: widget.viewModel),
     );
   }
 

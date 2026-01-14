@@ -9,20 +9,21 @@ class IngredientListViewModel extends ChangeNotifier {
   IngredientListViewModel({required IngredientRepository ingredientRepository})
     : _ingredientRepository = ingredientRepository {
     loadIngredientList = Command0(_loadIngredientList)..execute();
-    addIngredient = Command1(_addIngredient);
+    addIngredients = Command0(_addIngredients);
     deleteIngredient = Command1(_deleteIngredient);
   }
 
   final IngredientRepository _ingredientRepository;
 
   late final Command0<void> loadIngredientList;
-  late final Command1<void, Ingredient> addIngredient;
+  late final Command0<void> addIngredients;
   late final Command1<void, Recipe> deleteIngredient;
 
   late final List<Ingredient> _ingredients;
   late List<Ingredient> _filteredIngredients;
 
   List<Ingredient> get getFilteredIngredients => _filteredIngredients;
+
 
 
   Future<Result<void>> _loadIngredientList() async {
@@ -47,17 +48,19 @@ class IngredientListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<void>> _addIngredient(Ingredient ingredient) async {
-    var result = await _ingredientRepository.addIngredient(ingredient);
+  Future<Result<void>> _addIngredients() async {
+    List<String> ingredients = ['patates', 'carottes', 'ognons', 'patatartiner'];
+    for (var ingredient in ingredients) {
+      var result = await _ingredientRepository.addIngredient(Ingredient(name: ingredient));
     switch (result) {
       case Ok<Ingredient>():
         _ingredients.add(result.value);
         notifyListeners();
-        return Result.ok(null);
       case Error<Ingredient>():
-        return Result.error(result.error);
+        // Skipp
     }
-
+    }
+    return Result.ok(null);
   }
 
 

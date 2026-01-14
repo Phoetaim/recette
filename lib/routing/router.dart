@@ -36,6 +36,7 @@ GoRouter router() => GoRouter(
                       viewModel: RecipeDetailViewModel(
                         recipeRepository: context.read(),
                         ingredientWithQuantityUseCase: context.read(),
+                        shoppingListRepository: context.read(),
                       ),
                       recipeId: state.pathParameters['recipeId'],
                     );
@@ -62,7 +63,7 @@ GoRouter router() => GoRouter(
               path: Routes.shoppingList,
               builder: (context, state) {
                 return ShoppingListScreen(viewModel: ShoppingListViewModel(
-                  ingredientRepository: context.read(),
+                  ingredientWithQuantityUseCase: context.read(),
                   shoppingListRepository: context.read(),
                 ));
               },
@@ -92,7 +93,7 @@ class ScaffoldBottomNavigationBar extends StatelessWidget {
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int tappedIndex) {
-          navigationShell.goBranch(tappedIndex);
+          navigationShell.goBranch(tappedIndex, initialLocation: true);
         },
       ),
     );

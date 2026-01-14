@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
+import 'package:recette/ui/ingredient_search/view_model/ingredient_search_viewmodel.dart';
+import 'package:recette/ui/ingredient_search/widgets/ingredient_search_widget.dart';
+import '../../../data/services/models/raw_ingredient_with_quantity.dart';
 import '../view_model/shopping_list_viewmodel.dart';
 
 class ShoppingListBody extends StatelessWidget {
@@ -8,18 +14,66 @@ class ShoppingListBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: viewModel.getShoppingList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Column(
-                children: [
-                  Text(viewModel.getShoppingList[index].ingredient.ingredient.name),
-                  Divider(),
-                ],
-              );
-            },
-          );
+    return Column(
+      children: [
+        IngredientSearch(
+          viewModel: IngredientSearchViewModel(
+            ingredientRepository: context.read(),
+          ),
+          callbackForIngredient: viewModel.addToShoppingList,
+        ),
+        ListenableBuilder(
+          listenable: viewModel,
+
+          builder: (context, value) {
+            return ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: viewModel.shoppingList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ShoppingIngredientCard(
+                  viewModel: viewModel,
+                  shoppingIngredient: viewModel.shoppingList[index],
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class ShoppingIngredientCard extends StatelessWidget {
+  const ShoppingIngredientCard({
+    super.key,
+    required this.viewModel,
+    required this.shoppingIngredient,
+  });
+
+  final ShoppingListViewModel viewModel;
+  final ShoppingIngredient shoppingIngredient;
+
+  @override
+  Widget build(BuildContext context) {
+    IngredientWithQuantity ingredientWithQuantity =
+        shoppingIngredient.ingredientWithQuantity;
+    return Row(
+      children: [
+        SizedBox(width: 8),
+        Expanded(child: Text(ingredientWithQuantity.ingredient.name)),
+        Builder(
+          builder: (context) {
+            if (ingredientWithQuantity.unit == IngredientUnit.unit) {
+              return Text(ingredientWithQuantity.quantity.toInt().toString());
+            }
+            return Text(
+              '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
+            );
+          },
+        ),
+        SizedBox(width: 8),
+      ],
+    );
   }
 }

@@ -13,7 +13,7 @@ class RecipeRepository {
   bool initialized = false;
   final LocalDataService _localDataService;
 
-  List<RawRecipe> get getRecipeList => _recipeList;
+  List<RawRecipe> get recipes => _recipeList;
 
   Future<void> initDb() async {
     if (!initialized) {

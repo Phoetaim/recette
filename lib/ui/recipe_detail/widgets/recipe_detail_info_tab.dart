@@ -4,13 +4,13 @@ import '../../../domain/models/recipe/recipe.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailInfoTab extends StatelessWidget {
-  const RecipeDetailInfoTab({super.key, required this.viewModel, required this.recipe});
+  const RecipeDetailInfoTab({super.key, required this.viewModel});
 
   final RecipeDetailViewModel viewModel;
-  final Recipe recipe;
 
   @override
   Widget build(BuildContext context) {
+    Recipe recipe = viewModel.recipe.value;
     return Column(
       children: [
         HeaderRow(recipe: recipe, viewModel: viewModel),
@@ -39,7 +39,7 @@ class HeaderRow extends StatelessWidget {
                   child: HeaderTextFormField(
                     prefix: Text(' Prep:  '),
                     initialValue: recipe.preparationTime,
-                    onSubmitted: (value) => viewModel.updateRecipePreparationTime(value),
+                    callback: (value) => viewModel.updateRecipePreparationTime(value),
                   ),
                 ),
               ),
@@ -48,7 +48,7 @@ class HeaderRow extends StatelessWidget {
                   child: HeaderTextFormField(
                     prefix: Text(' Cuisson:  '),
                     initialValue: recipe.cookingTime,
-                    onSubmitted: (value) => viewModel.updateRecipeCookingTime(value),
+                    callback: (value) => viewModel.updateRecipeCookingTime(value),
                   ),
                 ),
               ),
@@ -59,7 +59,7 @@ class HeaderRow extends StatelessWidget {
                     initialValue: recipe.nbOfPeople.toString(),
                     keyBoardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-                    onSubmitted: (value) => viewModel.updateRecipeNbOfPeople(value),
+                    callback: (value) => viewModel.updateRecipeNbOfPeople(value),
                   ),
                 ),
               ),
@@ -71,12 +71,12 @@ class HeaderRow extends StatelessWidget {
   }
 }
 
-class HeaderTextFormField extends StatelessWidget {
+class HeaderTextFormField extends StatefulWidget {
   const HeaderTextFormField({
     super.key,
     this.prefix,
     required this.initialValue,
-    required this.onSubmitted,
+    required this.callback,
     this.keyBoardType,
     this.inputFormatters,
   });
@@ -84,17 +84,39 @@ class HeaderTextFormField extends StatelessWidget {
   final String initialValue;
   final TextInputType? keyBoardType;
   final List<TextInputFormatter>? inputFormatters;
-  final Function(String) onSubmitted;
+  final Function(String) callback;
+
+  @override
+  State<HeaderTextFormField> createState() => _HeaderTextFormFieldState();
+}
+
+class _HeaderTextFormFieldState extends State<HeaderTextFormField> {
+  late String _currentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      decoration: InputDecoration(border: InputBorder.none, prefix: prefix),
-      keyboardType: keyBoardType,
-      inputFormatters: inputFormatters,
-      initialValue: initialValue,
-      onFieldSubmitted: onSubmitted,
-  );
+      decoration: InputDecoration(border: InputBorder.none, prefix: widget.prefix),
+      keyboardType: widget.keyBoardType,
+      inputFormatters: widget.inputFormatters,
+      initialValue: widget.initialValue,
+      onFieldSubmitted: widget.callback,
+      onChanged: (value) {
+        setState(() {
+          _currentValue = value;
+        });
+      },
+      onTapOutside: (PointerDownEvent event) {
+        widget.callback(_currentValue);
+        FocusScope.of(context).unfocus();
+      },
+    );
   }
 }
 
@@ -127,7 +149,10 @@ class StepCard extends StatelessWidget {
             itemCount: recipe.steps.length,
             separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemBuilder: (BuildContext context, int index) {
-              return Text('$index: ${recipe.steps[index]}');
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('\u2022 ${recipe.steps[index]}'),
+              );
             },
           ),
         ),

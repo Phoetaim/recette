@@ -50,14 +50,14 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
         backgroundColor: theme.colorScheme.primaryContainer,
       ),
       body: ListenableBuilder(
-        listenable: widget.viewModel.loadRecipeList,
+        listenable: widget.viewModel.loadRecipes,
         builder: (context, child) {
-          if (widget.viewModel.loadRecipeList.running) {
+          if (widget.viewModel.loadRecipes.running) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (widget.viewModel.loadRecipeList.error) {
-            return TextButton(onPressed: widget.viewModel.loadRecipeList.execute, child: Text('Retry?'));
+          if (widget.viewModel.loadRecipes.error) {
+            return TextButton(onPressed: widget.viewModel.loadRecipes.execute, child: Text('Retry?'));
           }
           return child!;
         },

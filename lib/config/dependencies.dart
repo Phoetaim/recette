@@ -25,7 +25,6 @@ List<SingleChildWidget> get providersLocal {
   return [
     Provider.value(value: LocalDataService()),
     Provider.value(value: databaseService),
-    Provider.value(value: DatabaseService(databaseFactory: databaseFactory)),
     Provider(create: (context) => RecipeRepository(localDataService: context.read())),
     Provider(create: (context) => IngredientRepository(database: context.read())),
     Provider(create: (context) => IngredientIdWithQuantityRepository(database: context.read())),
