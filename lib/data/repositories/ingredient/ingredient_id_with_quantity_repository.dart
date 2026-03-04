@@ -11,7 +11,7 @@ class IngredientIdWithQuantityRepository {
 
 
   Future<Result<RawIngredientWithQuantity>> addRawIngredientWithQuantity(RawIngredientWithQuantity ingredientIdWithQuantity) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.insertIngredientIdWithQuantity(ingredientIdWithQuantity);
     switch (result) {
       case Ok<RawIngredientWithQuantity>():
@@ -22,7 +22,7 @@ class IngredientIdWithQuantityRepository {
   }
 
   Future<Result<void>> updateRawIngredientWithQuantity(RawIngredientWithQuantity ingredientIdWithQuantity) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.updateIngredientIdWithQuantity(ingredientIdWithQuantity);
     switch (result) {
       case Ok<void>():
@@ -33,7 +33,7 @@ class IngredientIdWithQuantityRepository {
   }
 
   Future<Result<List<RawIngredientWithQuantity>>> getAllRawIngredientWithQuantity() async{
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.getAllIngredientsIdWithQuantity();
     switch (result) {
       case Ok<List<RawIngredientWithQuantity>>():
@@ -45,7 +45,7 @@ class IngredientIdWithQuantityRepository {
   }
 
   Future<Result<List<RawIngredientWithQuantity>>> getRawIngredientWithQuantityByIds(List<int> ids) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.getIngredientIdsWithQuantityByIds(ids);
     switch (result) {
       case Ok<List<RawIngredientWithQuantity>>():
@@ -56,7 +56,7 @@ class IngredientIdWithQuantityRepository {
   }
 
   Future<Result<void>> rawRemoveIngredientWithQuantity(RawIngredientWithQuantity ingredientIdWithQuantity) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.deleteIngredientIdWithQuantity(ingredientIdWithQuantity.id!);
     switch (result) {
       case Ok<void>():
@@ -65,13 +65,7 @@ class IngredientIdWithQuantityRepository {
         return Result.error(IngredientIdWithQuantityRepositoryError('Could not remove ingredientIdWithQuantity'));
     }
   }
-
-
-  Future<void> _ensureDatabase() async {
-    if (!_database.isOpen()) {
-      await _database.open();
-    }
-  }
+  
 }
 
 class IngredientIdWithQuantityRepositoryError implements Exception {

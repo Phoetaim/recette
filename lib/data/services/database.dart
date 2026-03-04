@@ -19,7 +19,11 @@ class DatabaseService {
 
   Database? _database;
 
-  bool isOpen() => _database != null;
+  Future<void> ensureDatabase() async {
+    if (_database == null) {
+      await open();
+    }
+  }
 
   Future<void> open() async {
     try {
