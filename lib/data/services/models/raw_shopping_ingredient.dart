@@ -11,9 +11,9 @@ abstract class RawShoppingIngredient with _$RawShoppingIngredient {
 
     required int ingredientWithQuantityId,
 
-    @Default(1) int shoppingList,
+    @Default(1) int shoppingListId,
 
-    @Default(false) bool bought,
+    @Default(0) int bought,
   }) = _RawShoppingIngredient;
 
   factory RawShoppingIngredient.fromJson(Map<String, Object?> json) => _$RawShoppingIngredientFromJson(json);

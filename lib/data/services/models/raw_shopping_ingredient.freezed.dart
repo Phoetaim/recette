@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RawShoppingIngredient {
 
- int? get id; int get ingredientWithQuantityId; int get shoppingList; bool get bought;
+ int? get id; int get ingredientWithQuantityId; int get shoppingListId; int get bought;
 /// Create a copy of RawShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RawShoppingIngredientCopyWith<RawShoppingIngredient> get copyWith => _$RawShopp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RawShoppingIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredientWithQuantityId, ingredientWithQuantityId) || other.ingredientWithQuantityId == ingredientWithQuantityId)&&(identical(other.shoppingList, shoppingList) || other.shoppingList == shoppingList)&&(identical(other.bought, bought) || other.bought == bought));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RawShoppingIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredientWithQuantityId, ingredientWithQuantityId) || other.ingredientWithQuantityId == ingredientWithQuantityId)&&(identical(other.shoppingListId, shoppingListId) || other.shoppingListId == shoppingListId)&&(identical(other.bought, bought) || other.bought == bought));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,ingredientWithQuantityId,shoppingList,bought);
+int get hashCode => Object.hash(runtimeType,id,ingredientWithQuantityId,shoppingListId,bought);
 
 @override
 String toString() {
-  return 'RawShoppingIngredient(id: $id, ingredientWithQuantityId: $ingredientWithQuantityId, shoppingList: $shoppingList, bought: $bought)';
+  return 'RawShoppingIngredient(id: $id, ingredientWithQuantityId: $ingredientWithQuantityId, shoppingListId: $shoppingListId, bought: $bought)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RawShoppingIngredientCopyWith<$Res>  {
   factory $RawShoppingIngredientCopyWith(RawShoppingIngredient value, $Res Function(RawShoppingIngredient) _then) = _$RawShoppingIngredientCopyWithImpl;
 @useResult
 $Res call({
- int? id, int ingredientWithQuantityId, int shoppingList, bool bought
+ int? id, int ingredientWithQuantityId, int shoppingListId, int bought
 });
 
 
@@ -65,13 +65,13 @@ class _$RawShoppingIngredientCopyWithImpl<$Res>
 
 /// Create a copy of RawShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? ingredientWithQuantityId = null,Object? shoppingList = null,Object? bought = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? ingredientWithQuantityId = null,Object? shoppingListId = null,Object? bought = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,ingredientWithQuantityId: null == ingredientWithQuantityId ? _self.ingredientWithQuantityId : ingredientWithQuantityId // ignore: cast_nullable_to_non_nullable
-as int,shoppingList: null == shoppingList ? _self.shoppingList : shoppingList // ignore: cast_nullable_to_non_nullable
+as int,shoppingListId: null == shoppingListId ? _self.shoppingListId : shoppingListId // ignore: cast_nullable_to_non_nullable
 as int,bought: null == bought ? _self.bought : bought // ignore: cast_nullable_to_non_nullable
-as bool,
+as int,
   ));
 }
 
@@ -156,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int ingredientWithQuantityId,  int shoppingList,  bool bought)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int ingredientWithQuantityId,  int shoppingListId,  int bought)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RawShoppingIngredient() when $default != null:
-return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that.bought);case _:
+return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingListId,_that.bought);case _:
   return orElse();
 
 }
@@ -177,10 +177,10 @@ return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int ingredientWithQuantityId,  int shoppingList,  bool bought)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int ingredientWithQuantityId,  int shoppingListId,  int bought)  $default,) {final _that = this;
 switch (_that) {
 case _RawShoppingIngredient():
-return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that.bought);case _:
+return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingListId,_that.bought);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +197,10 @@ return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int ingredientWithQuantityId,  int shoppingList,  bool bought)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int ingredientWithQuantityId,  int shoppingListId,  int bought)?  $default,) {final _that = this;
 switch (_that) {
 case _RawShoppingIngredient() when $default != null:
-return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that.bought);case _:
+return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingListId,_that.bought);case _:
   return null;
 
 }
@@ -212,13 +212,13 @@ return $default(_that.id,_that.ingredientWithQuantityId,_that.shoppingList,_that
 @JsonSerializable()
 
 class _RawShoppingIngredient implements RawShoppingIngredient {
-  const _RawShoppingIngredient({this.id, required this.ingredientWithQuantityId, this.shoppingList = 1, this.bought = false});
+  const _RawShoppingIngredient({this.id, required this.ingredientWithQuantityId, this.shoppingListId = 1, this.bought = 0});
   factory _RawShoppingIngredient.fromJson(Map<String, dynamic> json) => _$RawShoppingIngredientFromJson(json);
 
 @override final  int? id;
 @override final  int ingredientWithQuantityId;
-@override@JsonKey() final  int shoppingList;
-@override@JsonKey() final  bool bought;
+@override@JsonKey() final  int shoppingListId;
+@override@JsonKey() final  int bought;
 
 /// Create a copy of RawShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RawShoppingIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredientWithQuantityId, ingredientWithQuantityId) || other.ingredientWithQuantityId == ingredientWithQuantityId)&&(identical(other.shoppingList, shoppingList) || other.shoppingList == shoppingList)&&(identical(other.bought, bought) || other.bought == bought));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RawShoppingIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.ingredientWithQuantityId, ingredientWithQuantityId) || other.ingredientWithQuantityId == ingredientWithQuantityId)&&(identical(other.shoppingListId, shoppingListId) || other.shoppingListId == shoppingListId)&&(identical(other.bought, bought) || other.bought == bought));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,ingredientWithQuantityId,shoppingList,bought);
+int get hashCode => Object.hash(runtimeType,id,ingredientWithQuantityId,shoppingListId,bought);
 
 @override
 String toString() {
-  return 'RawShoppingIngredient(id: $id, ingredientWithQuantityId: $ingredientWithQuantityId, shoppingList: $shoppingList, bought: $bought)';
+  return 'RawShoppingIngredient(id: $id, ingredientWithQuantityId: $ingredientWithQuantityId, shoppingListId: $shoppingListId, bought: $bought)';
 }
 
 
@@ -253,7 +253,7 @@ abstract mixin class _$RawShoppingIngredientCopyWith<$Res> implements $RawShoppi
   factory _$RawShoppingIngredientCopyWith(_RawShoppingIngredient value, $Res Function(_RawShoppingIngredient) _then) = __$RawShoppingIngredientCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, int ingredientWithQuantityId, int shoppingList, bool bought
+ int? id, int ingredientWithQuantityId, int shoppingListId, int bought
 });
 
 
@@ -270,13 +270,13 @@ class __$RawShoppingIngredientCopyWithImpl<$Res>
 
 /// Create a copy of RawShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? ingredientWithQuantityId = null,Object? shoppingList = null,Object? bought = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? ingredientWithQuantityId = null,Object? shoppingListId = null,Object? bought = null,}) {
   return _then(_RawShoppingIngredient(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,ingredientWithQuantityId: null == ingredientWithQuantityId ? _self.ingredientWithQuantityId : ingredientWithQuantityId // ignore: cast_nullable_to_non_nullable
-as int,shoppingList: null == shoppingList ? _self.shoppingList : shoppingList // ignore: cast_nullable_to_non_nullable
+as int,shoppingListId: null == shoppingListId ? _self.shoppingListId : shoppingListId // ignore: cast_nullable_to_non_nullable
 as int,bought: null == bought ? _self.bought : bought // ignore: cast_nullable_to_non_nullable
-as bool,
+as int,
   ));
 }
 

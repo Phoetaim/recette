@@ -11,8 +11,8 @@ _RawShoppingIngredient _$RawShoppingIngredientFromJson(
 ) => _RawShoppingIngredient(
   id: (json['id'] as num?)?.toInt(),
   ingredientWithQuantityId: (json['ingredientWithQuantityId'] as num).toInt(),
-  shoppingList: (json['shoppingList'] as num?)?.toInt() ?? 1,
-  bought: json['bought'] as bool? ?? false,
+  shoppingListId: (json['shoppingListId'] as num?)?.toInt() ?? 1,
+  bought: (json['bought'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$RawShoppingIngredientToJson(
@@ -20,6 +20,6 @@ Map<String, dynamic> _$RawShoppingIngredientToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'ingredientWithQuantityId': instance.ingredientWithQuantityId,
-  'shoppingList': instance.shoppingList,
+  'shoppingListId': instance.shoppingListId,
   'bought': instance.bought,
 };

@@ -17,23 +17,32 @@ class ShoppingListBody extends StatelessWidget {
     return Column(
       children: [
         IngredientSearch(
-          viewModel: IngredientSearchViewModel(
-            ingredientRepository: context.read(),
-          ),
+          viewModel: IngredientSearchViewModel(ingredientRepository: context.read()),
           callbackForIngredient: viewModel.addToShoppingList,
         ),
         ListenableBuilder(
-          listenable: viewModel,
-
+          listenable: viewModel.initShoppingList,
           builder: (context, value) {
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: viewModel.shoppingList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ShoppingIngredientCard(
-                  viewModel: viewModel,
-                  shoppingIngredient: viewModel.shoppingList[index],
+            if (viewModel.initShoppingList.running) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (viewModel.initShoppingList.error) {
+              return Text('Failed to load recipe list');
+            }
+
+            return ListenableBuilder(
+              listenable: viewModel,
+              builder: (context, value) {
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: viewModel.shoppingList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ShoppingIngredientCard(
+                      viewModel: viewModel,
+                      shoppingIngredient: viewModel.shoppingList[index],
+                    );
+                  },
                 );
               },
             );
@@ -56,8 +65,7 @@ class ShoppingIngredientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    IngredientWithQuantity ingredientWithQuantity =
-        shoppingIngredient.ingredientWithQuantity;
+    IngredientWithQuantity ingredientWithQuantity = shoppingIngredient.ingredientWithQuantity;
     return Row(
       children: [
         SizedBox(width: 8),

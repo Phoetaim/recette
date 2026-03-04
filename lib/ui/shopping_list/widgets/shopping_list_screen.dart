@@ -35,7 +35,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    widget.viewModel.initShoppingList();
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
