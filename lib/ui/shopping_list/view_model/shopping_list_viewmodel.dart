@@ -101,12 +101,14 @@ class ShoppingListViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _removeFromShoppingList(ShoppingIngredient shoppingIngredient) async {
+    _shoppingList.remove(shoppingIngredient);
     notifyListeners();
     return Result.ok(null);
   }
 
   void clearShoppingList() {
     _shoppingListRepository.emptyShoppingList();
+    _shoppingList.clear();
     notifyListeners();
   }
 

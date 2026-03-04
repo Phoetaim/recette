@@ -217,7 +217,14 @@ class RecipeDetailViewModel extends ChangeNotifier {
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(
         quantity: newQuantity.round(),
       );
-      _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
+      final result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(ingredientToAdd);
+      switch (result) {
+        case Ok<IngredientWithQuantity>():
+          await _shoppingListRepository.addShoppingIngredient(result.value);
+          return Result.ok(null);
+        case Error<IngredientWithQuantity>():
+          return Result.error(RecipeError('Could add to shopping list'));
+      }
     }
     return Result.ok(null);
   }
