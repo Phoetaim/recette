@@ -245,6 +245,10 @@ class DatabaseService {
     );
   }
 
+  Future<void> emptyBoughtShoppingList() async {
+    await _database!.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
+  }
+
   Future<void> close() async {
     await _database?.close();
     _database = null;

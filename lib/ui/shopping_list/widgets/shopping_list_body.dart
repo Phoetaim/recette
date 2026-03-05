@@ -41,9 +41,10 @@ class ShoppingListBody extends StatelessWidget {
                         ),
                       ),
                       ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingList),
-                      const SliverToBoxAdapter(
+                      SliverToBoxAdapter(
                         child: ListTile(
                           title: Text('Ingrédients récemment achetés'),
+                          trailing: TextButton(onPressed: viewModel.deleteAllBoughtIngredients, child: Icon(Icons.remove_shopping_cart)),
                         ),
                       ),
                       ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingListBought.reversed.toList()),

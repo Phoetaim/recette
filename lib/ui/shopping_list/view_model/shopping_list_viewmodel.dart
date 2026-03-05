@@ -112,25 +112,47 @@ class ShoppingListViewModel extends ChangeNotifier {
     if (shoppingIngredient.bought) {
       await addToShoppingList(shoppingIngredient.ingredientWithQuantity);
     } else {
-    final result = await _shoppingListRepository.removeShoppingIngredient(shoppingIngredient);
-    switch (result) {
-      case Ok<void>():
-        _shoppingList.remove(shoppingIngredient);
-        _shoppingList.add(shoppingIngredient.copyWith(bought: true));
-        notifyListeners();
-      case Error<void>():
-        print('RIP: ${result.error}');
-        return;
-    }
+      final result = await _shoppingListRepository.removeShoppingIngredient(shoppingIngredient);
+      switch (result) {
+        case Ok<void>():
+          _shoppingList.remove(shoppingIngredient);
+          _shoppingList.add(shoppingIngredient.copyWith(bought: true));
+          notifyListeners();
+        case Error<void>():
+          print('RIP: ${result.error}');
+          return;
+      }
     }
   }
 
-  void clearShoppingList() {
-    _shoppingListRepository.emptyShoppingList();
-    ShoppingList ingredientsNotBought = List.from(_shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought));
-    _shoppingList.retainWhere((shoppingIngredient) => shoppingIngredient.bought);
-    _shoppingList.addAll(ingredientsNotBought.map((shoppingIngredient) => shoppingIngredient.copyWith(bought: true)));
-    notifyListeners();
+  Future<void> deleteAllBoughtIngredients() async {
+    var result = await _shoppingListRepository.emptyBoughtShoppingList();
+    switch (result) {
+      case Ok<void>():
+        _shoppingList.removeWhere((shoppingIngredient) => shoppingIngredient.bought);
+        notifyListeners();
+      case Error<void>():
+        return;
+    }
+  }
+
+  void clearShoppingList() async {
+    var result = await _shoppingListRepository.emptyShoppingList();
+    switch (result) {
+      case Ok<void>():
+        ShoppingList ingredientsNotBought = List.from(
+          _shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought),
+        );
+        _shoppingList.retainWhere((shoppingIngredient) => shoppingIngredient.bought);
+        _shoppingList.addAll(
+          ingredientsNotBought.map(
+            (shoppingIngredient) => shoppingIngredient.copyWith(bought: true),
+          ),
+        );
+        notifyListeners();
+      case Error<void>():
+        return;
+    }
   }
 
   @override

@@ -63,9 +63,26 @@ class ShoppingListRepository {
     }
   }
 
-  Future<void> emptyShoppingList() async {
-    await _database.ensureDatabase();
-    await _database.broughtAllShoppingIngredients();
+  Future<Result<void>> emptyShoppingList() async {
+    try {
+      await _database.ensureDatabase();
+      await _database.broughtAllShoppingIngredients();
+    } on Exception catch (e) {
+      logger.warning(e);
+      return Result.error(ShoppingIngredientRepositoryError('Could not buy all of shopping list'));
+    }
+    return Result.ok(null);
+  }
+
+  Future<Result<void>> emptyBoughtShoppingList() async {
+    try {
+      await _database.ensureDatabase();
+      await _database.emptyBoughtShoppingList();
+    } on Exception catch (e) {
+      logger.warning(e);
+      return Result.error(ShoppingIngredientRepositoryError('Could not empty Shopping list'));
+    }
+    return Result.ok(null);
   }
 }
 
