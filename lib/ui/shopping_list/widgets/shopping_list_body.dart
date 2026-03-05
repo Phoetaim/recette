@@ -95,24 +95,32 @@ class ShoppingIngredientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     IngredientWithQuantity ingredientWithQuantity = shoppingIngredient.ingredientWithQuantity;
-    return CheckboxListTile(
-      contentPadding: const EdgeInsets.all(6.0),
-      controlAffinity: ListTileControlAffinity.leading,
-      value: shoppingIngredient.bought,
-      onChanged: (bool? value) {
-        viewModel.updateShoppingIngredientStatus(shoppingIngredient);
+    return Dismissible(
+      key: Key(shoppingIngredient.id!.toString()),
+      direction: DismissDirection.endToStart,
+      background: Container(color: Colors.red, child: Icon(Icons.remove_shopping_cart_outlined),),
+      onDismissed: (direction) {
+        viewModel.deleteShoppingIngredient(shoppingIngredient);
       },
-      title: Text(ingredientWithQuantity.ingredient.name),
-
-      secondary: Builder(
-        builder: (context) {
-          if (ingredientWithQuantity.unit == IngredientUnit.unit) {
-            return Text(ingredientWithQuantity.quantity.toInt().toString());
-          }
-          return Text(
-            '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
-          );
+      child: CheckboxListTile(
+        contentPadding: const EdgeInsets.all(6.0),
+        controlAffinity: ListTileControlAffinity.leading,
+        value: shoppingIngredient.bought,
+        onChanged: (bool? value) {
+          viewModel.updateShoppingIngredientStatus(shoppingIngredient);
         },
+        title: Text(ingredientWithQuantity.ingredient.name),
+
+        secondary: Builder(
+          builder: (context) {
+            if (ingredientWithQuantity.unit == IngredientUnit.unit) {
+              return Text(ingredientWithQuantity.quantity.toInt().toString());
+            }
+            return Text(
+              '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
+            );
+          },
+        ),
       ),
     );
   }

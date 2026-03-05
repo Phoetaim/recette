@@ -112,7 +112,7 @@ class ShoppingListViewModel extends ChangeNotifier {
     if (shoppingIngredient.bought) {
       await addToShoppingList(shoppingIngredient.ingredientWithQuantity);
     } else {
-      final result = await _shoppingListRepository.removeShoppingIngredient(shoppingIngredient);
+      final result = await _shoppingListRepository.updateShoppingIngredientStatus(shoppingIngredient);
       switch (result) {
         case Ok<void>():
           _shoppingList.remove(shoppingIngredient);
@@ -130,6 +130,17 @@ class ShoppingListViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<void>():
         _shoppingList.removeWhere((shoppingIngredient) => shoppingIngredient.bought);
+        notifyListeners();
+      case Error<void>():
+        return;
+    }
+  }
+
+  Future<void> deleteShoppingIngredient(ShoppingIngredient shoppingIngredient) async {
+    var result = await _shoppingListRepository.deleteShoppingIngredient(shoppingIngredient.id!);
+    switch (result) {
+      case Ok<void>():
+        _shoppingList.removeWhere((element) => element.id == shoppingIngredient.id);
         notifyListeners();
       case Error<void>():
         return;

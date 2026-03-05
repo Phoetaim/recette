@@ -52,10 +52,21 @@ class ShoppingListRepository {
     }
   }
 
-  Future<Result<void>> removeShoppingIngredient(ShoppingIngredient shoppingIngredient) async {
+  Future<Result<void>> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
     await _database.ensureDatabase();
     try {
-      await _database.broughtShoppingIngredient(shoppingIngredient.id!);
+      await _database.updateShoppingIngredientStatus(shoppingIngredient.id!);
+      return Result.ok(null);
+    } on Exception catch (e) {
+      logger.warning(e);
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<void>> deleteShoppingIngredient(int id) async {
+    await _database.ensureDatabase();
+    try {
+      await _database.deleteShoppingIngredient(id);
       return Result.ok(null);
     } on Exception catch (e) {
       logger.warning(e);

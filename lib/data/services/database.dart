@@ -224,7 +224,7 @@ class DatabaseService {
     return entries.map((element) => RawShoppingIngredient.fromJson(element)).toList();
   }
 
-  Future<void> broughtShoppingIngredient(int id) async {
+  Future<void> updateShoppingIngredientStatus(int id) async {
     final rowsUpdated = await _database!.update(
       TableNames.shoppingIngredient,
       {'bought': 1},
@@ -234,6 +234,10 @@ class DatabaseService {
     if (rowsUpdated == 0) {
       throw Exception('No shopping ingredient found with id $id');
     }
+  }
+
+  Future<void> deleteShoppingIngredient(int id) async {
+    await _database!.delete(TableNames.shoppingIngredient, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> broughtAllShoppingIngredients() async {
