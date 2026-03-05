@@ -32,22 +32,35 @@ class ShoppingListBody extends StatelessWidget {
             return ListenableBuilder(
               listenable: viewModel,
               builder: (context, value) {
-                return ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: viewModel.shoppingList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ShoppingIngredientCard(
-                      viewModel: viewModel,
-                      shoppingIngredient: viewModel.shoppingList[index],
-                    );
-                  },
-                );
+                return ShoppingListToBuy(viewModel: viewModel);
               },
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class ShoppingListToBuy extends StatelessWidget {
+  const ShoppingListToBuy({super.key, required this.viewModel});
+
+  final ShoppingListViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: viewModel.shoppingList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ShoppingIngredientCard(
+            viewModel: viewModel,
+            shoppingIngredient: viewModel.shoppingList[index],
+          );
+        },
+      ),
     );
   }
 }
@@ -65,22 +78,25 @@ class ShoppingIngredientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     IngredientWithQuantity ingredientWithQuantity = shoppingIngredient.ingredientWithQuantity;
-    return Row(
-      children: [
-        SizedBox(width: 8),
-        Expanded(child: Text(ingredientWithQuantity.ingredient.name)),
-        Builder(
-          builder: (context) {
-            if (ingredientWithQuantity.unit == IngredientUnit.unit) {
-              return Text(ingredientWithQuantity.quantity.toInt().toString());
-            }
-            return Text(
-              '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
-            );
-          },
-        ),
-        SizedBox(width: 8),
-      ],
+    return CheckboxListTile(
+      contentPadding: const EdgeInsets.all(6.0),
+      controlAffinity: ListTileControlAffinity.leading,
+      value: shoppingIngredient.bought,
+      onChanged: (bool? value) {
+        viewModel.removeFromShoppingList(shoppingIngredient);
+      },
+      title: Text(ingredientWithQuantity.ingredient.name),
+
+      secondary: Builder(
+        builder: (context) {
+          if (ingredientWithQuantity.unit == IngredientUnit.unit) {
+            return Text(ingredientWithQuantity.quantity.toInt().toString());
+          }
+          return Text(
+            '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
+          );
+        },
+      ),
     );
   }
 }
