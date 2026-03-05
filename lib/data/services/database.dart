@@ -227,7 +227,7 @@ class DatabaseService {
   Future<void> broughtShoppingIngredient(int id) async {
     final rowsUpdated = await _database!.update(
       TableNames.shoppingIngredient,
-      {'bought': true},
+      {'bought': 1},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -239,9 +239,9 @@ class DatabaseService {
   Future<void> broughtAllShoppingIngredients() async {
     await _database!.update(
       TableNames.shoppingIngredient,
-      {'': true},
+      {'bought': 1},
       where: 'bought = ?',
-      whereArgs: [false],
+      whereArgs: [0],
     );
   }
 

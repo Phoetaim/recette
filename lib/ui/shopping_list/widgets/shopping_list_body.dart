@@ -29,7 +29,6 @@ class ShoppingListBody extends StatelessWidget {
             if (viewModel.initShoppingList.error) {
               return Text('Failed to load recipe list');
             }
-
             return ListenableBuilder(
               listenable: viewModel,
               builder: (context, value) {
