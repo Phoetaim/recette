@@ -27,33 +27,33 @@ class DatabaseService {
 
   Future<void> open() async {
     try {
-      // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
+      await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onCreate: (db, version) {
             db.execute('''
-                CREATE TABLE IF NOT EXISTS ${TableNames.ingredients}(
+                CREATE TABLE ${TableNames.ingredients}(
                   id INTEGER PRIMARY KEY AUTOINCREMENT,
                   name TEXT NOT NULL,
                   type TEXT
                  );
                  ''');
             db.execute('''
-                CREATE TABLE  IF NOT EXISTS ${TableNames.ingredientWithQuantity}(
+                CREATE TABLE ${TableNames.ingredientWithQuantity}(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    ingredientId int NOT NULL,
                    unit TEXT,
                    quantity int,
-                   FOREIGN KEY (ingredientId) REFERENCES ${TableNames.ingredients} (id))
+                   FOREIGN KEY (ingredientId) REFERENCES ${TableNames.ingredients} (id) ON DELETE CASCADE)
                 ''');
             db.execute('''
-                CREATE TABLE  IF NOT EXISTS ${TableNames.shoppingIngredient}(
+                CREATE TABLE ${TableNames.shoppingIngredient}(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    ingredientWithQuantityId int NOT NULL,
                    shoppingListId  int,
                    bought BOOL,
-                   FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity} (id))
+                   FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity} (id) ON DELETE CASCADE)
                 ''');
           },
           version: 1,
@@ -237,7 +237,7 @@ class DatabaseService {
   }
 
   Future<void> deleteShoppingIngredient(int id) async {
-    await _database!.delete(TableNames.shoppingIngredient, where: 'id = ?', whereArgs: [id]);
+    await _database!.rawDelete('DELETE from ${TableNames.ingredientWithQuantity} as I WHERE I.id = (SELECT ingredientWithQuantityId from ${TableNames.shoppingIngredient} where id = ?) ', [id]);
   }
 
   Future<void> broughtAllShoppingIngredients() async {
