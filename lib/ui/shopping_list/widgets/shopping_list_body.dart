@@ -32,7 +32,24 @@ class ShoppingListBody extends StatelessWidget {
             return ListenableBuilder(
               listenable: viewModel,
               builder: (context, value) {
-                return ShoppingListToBuy(viewModel: viewModel);
+                return Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      const SliverToBoxAdapter(
+                        child: ListTile(
+                          title: Text('Ingrédients à acheter'),
+                        ),
+                      ),
+                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingList),
+                      const SliverToBoxAdapter(
+                        child: ListTile(
+                          title: Text('Ingrédients récemment achetés'),
+                        ),
+                      ),
+                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingListBought.reversed.toList()),
+                    ],
+                  ),
+                );
               },
             );
           },
@@ -42,25 +59,23 @@ class ShoppingListBody extends StatelessWidget {
   }
 }
 
-class ShoppingListToBuy extends StatelessWidget {
-  const ShoppingListToBuy({super.key, required this.viewModel});
+class ShoppingListSlivers extends StatelessWidget {
+  const ShoppingListSlivers({super.key, required this.viewModel, required this.shoppingList});
 
   final ShoppingListViewModel viewModel;
+  final ShoppingList shoppingList;
+
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        itemCount: viewModel.shoppingList.length,
+    return SliverList.builder(
+        itemCount: shoppingList.length,
         itemBuilder: (BuildContext context, int index) {
           return ShoppingIngredientCard(
             viewModel: viewModel,
-            shoppingIngredient: viewModel.shoppingList[index],
+            shoppingIngredient: shoppingList[index],
           );
         },
-      ),
     );
   }
 }
@@ -83,7 +98,7 @@ class ShoppingIngredientCard extends StatelessWidget {
       controlAffinity: ListTileControlAffinity.leading,
       value: shoppingIngredient.bought,
       onChanged: (bool? value) {
-        viewModel.removeFromShoppingList(shoppingIngredient);
+        viewModel.updateShoppingIngredientStatus(shoppingIngredient);
       },
       title: Text(ingredientWithQuantity.ingredient.name),
 

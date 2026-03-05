@@ -108,7 +108,10 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> removeFromShoppingList(ShoppingIngredient shoppingIngredient) async {
+  Future<void> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
+    if (shoppingIngredient.bought) {
+      await addToShoppingList(shoppingIngredient.ingredientWithQuantity);
+    } else {
     final result = await _shoppingListRepository.removeShoppingIngredient(shoppingIngredient);
     switch (result) {
       case Ok<void>():
@@ -119,11 +122,14 @@ class ShoppingListViewModel extends ChangeNotifier {
         print('RIP: ${result.error}');
         return;
     }
+    }
   }
 
   void clearShoppingList() {
     _shoppingListRepository.emptyShoppingList();
-    _shoppingList.clear();
+    ShoppingList ingredientsNotBought = List.from(_shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought));
+    _shoppingList.retainWhere((shoppingIngredient) => shoppingIngredient.bought);
+    _shoppingList.addAll(ingredientsNotBought.map((shoppingIngredient) => shoppingIngredient.copyWith(bought: true)));
     notifyListeners();
   }
 
