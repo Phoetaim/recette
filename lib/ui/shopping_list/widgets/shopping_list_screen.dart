@@ -29,7 +29,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         shadowColor: Colors.black,
         scrolledUnderElevation: 4,
         backgroundColor: theme.colorScheme.primaryContainer,
-        actions: [TextButton(onPressed: () => widget.viewModel.clearShoppingList(), child: Icon(Icons.clear_all))],
       ),
       body: ShoppingListBody(viewModel: widget.viewModel),
     );

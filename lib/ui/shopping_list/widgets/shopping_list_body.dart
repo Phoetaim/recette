@@ -35,9 +35,10 @@ class ShoppingListBody extends StatelessWidget {
                 return Expanded(
                   child: CustomScrollView(
                     slivers: [
-                      const SliverToBoxAdapter(
+                      SliverToBoxAdapter(
                         child: ListTile(
                           title: Text('Ingrédients à acheter'),
+                            trailing: TextButton(onPressed: viewModel.clearShoppingList, child: Icon(Icons.checklist)),
                         ),
                       ),
                       ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingList),
