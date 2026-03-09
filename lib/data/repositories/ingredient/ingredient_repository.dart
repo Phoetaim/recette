@@ -14,7 +14,7 @@ class IngredientRepository {
   bool initialized = false;
 
   Future<Result<Ingredient>> addIngredient(Ingredient ingredient) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.insertIngredient(ingredient);
     switch (result) {
       case Ok<Ingredient>():
@@ -28,7 +28,7 @@ class IngredientRepository {
   }
 
   Future<Result<void>> updateIngredient(Ingredient ingredient) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.updateIngredient(ingredient);
     switch (result) {
       case Ok<void>():
@@ -45,7 +45,7 @@ class IngredientRepository {
   }
 
   Future<Result<List<Ingredient>>> getIngredients() async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     if (!initialized) {
       var result = await _database.getAllIngredients();
       switch (result) {
@@ -63,7 +63,7 @@ class IngredientRepository {
   }
 
   Future<Result<Ingredient>> getIngredientById(int id) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     await getIngredients();
     try {
       Ingredient ingredient = _cachedIngredients.firstWhere(
@@ -76,7 +76,7 @@ class IngredientRepository {
   }
 
   Future<Result<Ingredient>> getIngredientByName(String name) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     await getIngredients();
     try {
       Ingredient ingredient = _cachedIngredients.firstWhere(
@@ -89,7 +89,7 @@ class IngredientRepository {
   }
 
   Future<Result<void>> removeIngredient(Ingredient ingredient) async {
-    await _ensureDatabase();
+    await _database.ensureDatabase();
     var result = await _database.deleteIngredient(ingredient.id!);
     switch (result) {
       case Ok<void>():
@@ -101,12 +101,7 @@ class IngredientRepository {
         );
     }
   }
-
-  Future<void> _ensureDatabase() async {
-    if (!_database.isOpen()) {
-      await _database.open();
-    }
-  }
+  
 }
 
 class IngredientRepositoryError implements Exception {

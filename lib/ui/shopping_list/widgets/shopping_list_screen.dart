@@ -15,27 +15,7 @@ class ShoppingListScreen extends StatefulWidget {
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
   @override
-  void initState() {
-    super.initState();
-    widget.viewModel.removeFromShoppingList.addListener(_onResult);
-  }
-
-  @override
-  void didUpdateWidget(covariant ShoppingListScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    oldWidget.viewModel.removeFromShoppingList.removeListener(_onResult);
-    widget.viewModel.removeFromShoppingList.addListener(_onResult);
-  }
-
-  @override
-  void dispose() {
-    widget.viewModel.removeFromShoppingList.removeListener(_onResult);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    widget.viewModel.initShoppingList();
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -49,20 +29,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         shadowColor: Colors.black,
         scrolledUnderElevation: 4,
         backgroundColor: theme.colorScheme.primaryContainer,
-        actions: [TextButton(onPressed: () => widget.viewModel.clearShoppingList(), child: Icon(Icons.clear_all))],
       ),
       body: ShoppingListBody(viewModel: widget.viewModel),
     );
   }
 
-  void _onResult() {
-    if (widget.viewModel.removeFromShoppingList.completed) {
-      context.go(Routes.recipeList);
-    }
-
-    if (widget.viewModel.removeFromShoppingList.error) {
-      widget.viewModel.removeFromShoppingList.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
-    }
-  }
 }

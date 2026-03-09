@@ -209,6 +209,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _addRecipeToShoppingList() async {
     saveRecipe.execute();
+    bool error = false;
     for (var ingredient in recipe.value.ingredients) {
       double newQuantity =
           ingredient.quantity /
@@ -217,7 +218,17 @@ class RecipeDetailViewModel extends ChangeNotifier {
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(
         quantity: newQuantity.round(),
       );
-      _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
+      final result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(ingredientToAdd);
+      switch (result) {
+        case Ok<IngredientWithQuantity>():
+          await _shoppingListRepository.addShoppingIngredient(result.value);
+        case Error<IngredientWithQuantity>():
+          error = true;
+      }
+    }
+
+    if (error) {
+      return Result.error(RecipeError('Could not add at least one ingredient'));
     }
     return Result.ok(null);
   }

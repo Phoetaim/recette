@@ -17,29 +17,67 @@ class ShoppingListBody extends StatelessWidget {
     return Column(
       children: [
         IngredientSearch(
-          viewModel: IngredientSearchViewModel(
-            ingredientRepository: context.read(),
-          ),
+          viewModel: IngredientSearchViewModel(ingredientRepository: context.read()),
           callbackForIngredient: viewModel.addToShoppingList,
         ),
         ListenableBuilder(
-          listenable: viewModel,
-
+          listenable: viewModel.initShoppingList,
           builder: (context, value) {
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: viewModel.shoppingList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ShoppingIngredientCard(
-                  viewModel: viewModel,
-                  shoppingIngredient: viewModel.shoppingList[index],
+            if (viewModel.initShoppingList.running) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (viewModel.initShoppingList.error) {
+              return Text('Failed to load recipe list');
+            }
+            return ListenableBuilder(
+              listenable: viewModel,
+              builder: (context, value) {
+                return Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: ListTile(
+                          title: Text('Ingrédients à acheter'),
+                            trailing: TextButton(onPressed: viewModel.clearShoppingList, child: Icon(Icons.checklist)),
+                        ),
+                      ),
+                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingList),
+                      SliverToBoxAdapter(
+                        child: ListTile(
+                          title: Text('Ingrédients récemment achetés'),
+                          trailing: TextButton(onPressed: viewModel.deleteAllBoughtIngredients, child: Icon(Icons.remove_shopping_cart)),
+                        ),
+                      ),
+                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingListBought.reversed.toList()),
+                    ],
+                  ),
                 );
               },
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class ShoppingListSlivers extends StatelessWidget {
+  const ShoppingListSlivers({super.key, required this.viewModel, required this.shoppingList});
+
+  final ShoppingListViewModel viewModel;
+  final ShoppingList shoppingList;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverList.builder(
+        itemCount: shoppingList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ShoppingIngredientCard(
+            viewModel: viewModel,
+            shoppingIngredient: shoppingList[index],
+          );
+        },
     );
   }
 }
@@ -56,13 +94,24 @@ class ShoppingIngredientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    IngredientWithQuantity ingredientWithQuantity =
-        shoppingIngredient.ingredientWithQuantity;
-    return Row(
-      children: [
-        SizedBox(width: 8),
-        Expanded(child: Text(ingredientWithQuantity.ingredient.name)),
-        Builder(
+    IngredientWithQuantity ingredientWithQuantity = shoppingIngredient.ingredientWithQuantity;
+    return Dismissible(
+      key: Key(shoppingIngredient.id!.toString()),
+      direction: DismissDirection.endToStart,
+      background: Container(color: Colors.red, child: Icon(Icons.remove_shopping_cart_outlined),),
+      onDismissed: (direction) {
+        viewModel.deleteShoppingIngredient(shoppingIngredient);
+      },
+      child: CheckboxListTile(
+        contentPadding: const EdgeInsets.all(6.0),
+        controlAffinity: ListTileControlAffinity.leading,
+        value: shoppingIngredient.bought,
+        onChanged: (bool? value) {
+          viewModel.updateShoppingIngredientStatus(shoppingIngredient);
+        },
+        title: Text(ingredientWithQuantity.ingredient.name),
+
+        secondary: Builder(
           builder: (context) {
             if (ingredientWithQuantity.unit == IngredientUnit.unit) {
               return Text(ingredientWithQuantity.quantity.toInt().toString());
@@ -72,8 +121,7 @@ class ShoppingIngredientCard extends StatelessWidget {
             );
           },
         ),
-        SizedBox(width: 8),
-      ],
+      ),
     );
   }
 }

@@ -83,7 +83,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       widget.viewModel.deleteRecipe.clearResult();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Recipe deleted'), duration: Duration(microseconds: 200)));
+      ).showSnackBar(SnackBar(content: Text('Recette supprimée'), duration: Duration(microseconds: 500)));
     }
 
     if (widget.viewModel.deleteRecipe.error) {

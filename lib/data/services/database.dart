@@ -19,37 +19,41 @@ class DatabaseService {
 
   Database? _database;
 
-  bool isOpen() => _database != null;
+  Future<void> ensureDatabase() async {
+    if (_database == null) {
+      await open();
+    }
+  }
 
   Future<void> open() async {
     try {
-      // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
+      await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onCreate: (db, version) {
             db.execute('''
-                CREATE TABLE IF NOT EXISTS ${TableNames.ingredients}(
+                CREATE TABLE ${TableNames.ingredients}(
                   id INTEGER PRIMARY KEY AUTOINCREMENT,
                   name TEXT NOT NULL,
                   type TEXT
                  );
                  ''');
             db.execute('''
-                CREATE TABLE  IF NOT EXISTS ${TableNames.ingredientWithQuantity}(
+                CREATE TABLE ${TableNames.ingredientWithQuantity}(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    ingredientId int NOT NULL,
                    unit TEXT,
                    quantity int,
-                   FOREIGN KEY (ingredientId) REFERENCES ${TableNames.ingredients} (id))
+                   FOREIGN KEY (ingredientId) REFERENCES ${TableNames.ingredients} (id) ON DELETE CASCADE)
                 ''');
             db.execute('''
-                CREATE TABLE  IF NOT EXISTS ${TableNames.shoppingIngredient}(
+                CREATE TABLE ${TableNames.shoppingIngredient}(
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    ingredientWithQuantityId int NOT NULL,
                    shoppingListId  int,
                    bought BOOL,
-                   FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity} (id))
+                   FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity} (id) ON DELETE CASCADE)
                 ''');
           },
           version: 1,
@@ -89,9 +93,7 @@ class DatabaseService {
   Future<Result<List<Ingredient>>> getAllIngredients() async {
     try {
       final entries = await _database!.query(TableNames.ingredients);
-      final list = entries
-          .map((element) => Ingredient.fromJson(element))
-          .toList();
+      final list = entries.map((element) => Ingredient.fromJson(element)).toList();
       return Result.ok(list);
     } on Exception catch (e) {
       return Result.error(e);
@@ -149,21 +151,19 @@ class DatabaseService {
     }
   }
 
-  Future<Result<List<RawIngredientWithQuantity>>>
-  getAllIngredientsIdWithQuantity() async {
+  Future<Result<List<RawIngredientWithQuantity>>> getAllIngredientsIdWithQuantity() async {
     try {
       final entries = await _database!.query(TableNames.ingredientWithQuantity);
-      final list = entries
-          .map((element) => RawIngredientWithQuantity.fromJson(element))
-          .toList();
+      final list = entries.map((element) => RawIngredientWithQuantity.fromJson(element)).toList();
       return Result.ok(list);
     } on Exception catch (e) {
       return Result.error(e);
     }
   }
 
-  Future<Result<List<RawIngredientWithQuantity>>>
-  getIngredientIdsWithQuantityByIds(List<int> ids) async {
+  Future<Result<List<RawIngredientWithQuantity>>> getIngredientIdsWithQuantityByIds(
+    List<int> ids,
+  ) async {
     try {
       String placeholders = List.filled(ids.length, '?').join(',');
       final entries = await _database!.query(
@@ -171,9 +171,7 @@ class DatabaseService {
         where: 'id IN ($placeholders)',
         whereArgs: ids,
       );
-      final list = entries
-          .map((element) => RawIngredientWithQuantity.fromJson(element))
-          .toList();
+      final list = entries.map((element) => RawIngredientWithQuantity.fromJson(element)).toList();
       return Result.ok(list);
     } on Exception catch (e) {
       return Result.error(e);
@@ -188,9 +186,7 @@ class DatabaseService {
         whereArgs: [id],
       );
       if (rowsDeleted == 0) {
-        return Result.error(
-          Exception('No ingredientWithQuantity found with id $id'),
-        );
+        return Result.error(Exception('No ingredientWithQuantity found with id $id'));
       }
       return Result.ok(null);
     } on Exception catch (e) {
@@ -198,15 +194,13 @@ class DatabaseService {
     }
   }
 
-  Future<Result<RawShoppingIngredient>> insertShoppingIngredient(RawShoppingIngredient rawShoppingIngredient) async {
-    try {
-      Map<String, Object> data = Map<String, Object>.from(rawShoppingIngredient.toJson());
-      data.remove('id');
-      final id = await _database!.insert(TableNames.shoppingIngredient, data);
-      return Result.ok(rawShoppingIngredient.copyWith(id: id));
-    } on Exception catch (e) {
-      return Result.error(e);
-    }
+  Future<RawShoppingIngredient> insertShoppingIngredient(
+    RawShoppingIngredient rawShoppingIngredient,
+  ) async {
+    Map<String, Object?> data = Map<String, Object?>.from(rawShoppingIngredient.toJson());
+    data.remove('id');
+    final id = await _database!.insert(TableNames.shoppingIngredient, data);
+    return rawShoppingIngredient.copyWith(id: id);
   }
 
   Future<Result<void>> updateShoppingIngredient(RawShoppingIngredient rawShoppingIngredient) async {
@@ -225,32 +219,38 @@ class DatabaseService {
     }
   }
 
-  Future<Result<List<RawShoppingIngredient>>> getAllShoppingIngredients() async {
-    try {
-      final entries = await _database!.query(TableNames.shoppingIngredient);
-      final list = entries
-          .map((element) => RawShoppingIngredient.fromJson(element))
-          .toList();
-      return Result.ok(list);
-    } on Exception catch (e) {
-      return Result.error(e);
+  Future<List<RawShoppingIngredient>> getAllShoppingIngredients() async {
+    final entries = await _database!.query(TableNames.shoppingIngredient);
+    return entries.map((element) => RawShoppingIngredient.fromJson(element)).toList();
+  }
+
+  Future<void> updateShoppingIngredientStatus(int id) async {
+    final rowsUpdated = await _database!.update(
+      TableNames.shoppingIngredient,
+      {'bought': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (rowsUpdated == 0) {
+      throw Exception('No shopping ingredient found with id $id');
     }
   }
 
-  Future<Result<void>> deleteShoppingIngredient(int id) async {
-    try {
-      final rowsDeleted = await _database!.delete(
-        TableNames.shoppingIngredient,
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-      if (rowsDeleted == 0) {
-        return Result.error(Exception('No shopping ingredient found with id $id'));
-      }
-      return Result.ok(null);
-    } on Exception catch (e) {
-      return Result.error(e);
-    }
+  Future<void> deleteShoppingIngredient(int id) async {
+    await _database!.rawDelete('DELETE from ${TableNames.ingredientWithQuantity} as I WHERE I.id = (SELECT ingredientWithQuantityId from ${TableNames.shoppingIngredient} where id = ?) ', [id]);
+  }
+
+  Future<void> broughtAllShoppingIngredients() async {
+    await _database!.update(
+      TableNames.shoppingIngredient,
+      {'bought': 1},
+      where: 'bought = ?',
+      whereArgs: [0],
+    );
+  }
+
+  Future<void> emptyBoughtShoppingList() async {
+    await _database!.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
   }
 
   Future<void> close() async {
