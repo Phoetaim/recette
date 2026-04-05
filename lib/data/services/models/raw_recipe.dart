@@ -26,7 +26,7 @@ abstract class RawRecipe with _$RawRecipe {
     @Default([]) List<int> ingredientWithQuantityIds,
 
     /// e.g. ['Prépare la tarte', 'Cuis la']
-    @Default([]) List<String> steps,
+    @Default('') String steps,
   }) = _RawRecipe;
 
   factory RawRecipe.fromJson(Map<String, Object?> json) => _$RawRecipeFromJson(json);

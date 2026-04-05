@@ -22,7 +22,7 @@ mixin _$RawRecipe {
  String get cookingTime;/// e.g. 4
  int get nbOfPeople;/// e.g. [1, 323]
  List<int> get ingredientWithQuantityIds;/// e.g. ['Prépare la tarte', 'Cuis la']
- List<String> get steps;
+ String get steps;
 /// Create a copy of RawRecipe
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -35,12 +35,12 @@ $RawRecipeCopyWith<RawRecipe> get copyWith => _$RawRecipeCopyWithImpl<RawRecipe>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RawRecipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other.ingredientWithQuantityIds, ingredientWithQuantityIds)&&const DeepCollectionEquality().equals(other.steps, steps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RawRecipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other.ingredientWithQuantityIds, ingredientWithQuantityIds)&&(identical(other.steps, steps) || other.steps == steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(ingredientWithQuantityIds),const DeepCollectionEquality().hash(steps));
+int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(ingredientWithQuantityIds),steps);
 
 @override
 String toString() {
@@ -55,7 +55,7 @@ abstract mixin class $RawRecipeCopyWith<$Res>  {
   factory $RawRecipeCopyWith(RawRecipe value, $Res Function(RawRecipe) _then) = _$RawRecipeCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<int> ingredientWithQuantityIds, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<int> ingredientWithQuantityIds, String steps
 });
 
 
@@ -81,7 +81,7 @@ as String,cookingTime: null == cookingTime ? _self.cookingTime : cookingTime // 
 as String,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,ingredientWithQuantityIds: null == ingredientWithQuantityIds ? _self.ingredientWithQuantityIds : ingredientWithQuantityIds // ignore: cast_nullable_to_non_nullable
 as List<int>,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as String,
   ));
 }
 
@@ -166,7 +166,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  List<String> steps)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  String steps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RawRecipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredientWithQuantityIds,_that.steps);case _:
@@ -187,7 +187,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  List<String> steps)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  String steps)  $default,) {final _that = this;
 switch (_that) {
 case _RawRecipe():
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredientWithQuantityIds,_that.steps);case _:
@@ -207,7 +207,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  List<String> steps)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<int> ingredientWithQuantityIds,  String steps)?  $default,) {final _that = this;
 switch (_that) {
 case _RawRecipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredientWithQuantityIds,_that.steps);case _:
@@ -222,7 +222,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 @JsonSerializable()
 
 class _RawRecipe implements RawRecipe {
-  const _RawRecipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, final  List<int> ingredientWithQuantityIds = const [], final  List<String> steps = const []}): _ingredientWithQuantityIds = ingredientWithQuantityIds,_steps = steps;
+  const _RawRecipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, final  List<int> ingredientWithQuantityIds = const [], this.steps = ''}): _ingredientWithQuantityIds = ingredientWithQuantityIds;
   factory _RawRecipe.fromJson(Map<String, dynamic> json) => _$RawRecipeFromJson(json);
 
 /// e.g. 0
@@ -245,14 +245,7 @@ class _RawRecipe implements RawRecipe {
 }
 
 /// e.g. ['Prépare la tarte', 'Cuis la']
- final  List<String> _steps;
-/// e.g. ['Prépare la tarte', 'Cuis la']
-@override@JsonKey() List<String> get steps {
-  if (_steps is EqualUnmodifiableListView) return _steps;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_steps);
-}
-
+@override@JsonKey() final  String steps;
 
 /// Create a copy of RawRecipe
 /// with the given fields replaced by the non-null parameter values.
@@ -267,12 +260,12 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RawRecipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other._ingredientWithQuantityIds, _ingredientWithQuantityIds)&&const DeepCollectionEquality().equals(other._steps, _steps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RawRecipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other._ingredientWithQuantityIds, _ingredientWithQuantityIds)&&(identical(other.steps, steps) || other.steps == steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(_ingredientWithQuantityIds),const DeepCollectionEquality().hash(_steps));
+int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(_ingredientWithQuantityIds),steps);
 
 @override
 String toString() {
@@ -287,7 +280,7 @@ abstract mixin class _$RawRecipeCopyWith<$Res> implements $RawRecipeCopyWith<$Re
   factory _$RawRecipeCopyWith(_RawRecipe value, $Res Function(_RawRecipe) _then) = __$RawRecipeCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<int> ingredientWithQuantityIds, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<int> ingredientWithQuantityIds, String steps
 });
 
 
@@ -312,8 +305,8 @@ as String,preparationTime: null == preparationTime ? _self.preparationTime : pre
 as String,cookingTime: null == cookingTime ? _self.cookingTime : cookingTime // ignore: cast_nullable_to_non_nullable
 as String,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,ingredientWithQuantityIds: null == ingredientWithQuantityIds ? _self._ingredientWithQuantityIds : ingredientWithQuantityIds // ignore: cast_nullable_to_non_nullable
-as List<int>,steps: null == steps ? _self._steps : steps // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<int>,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

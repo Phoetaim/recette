@@ -72,6 +72,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     valueListenable: widget.viewModel.recipe,
                     builder: (context, value, child) {
                       return TextButton(
+                        key: Key('SaveButton'),
                         onPressed: !widget.viewModel.isRecipeUpdated()
                             ? null
                             : () {
@@ -100,6 +101,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               valueListenable: widget.viewModel.recipe,
               builder: (context, value, child) {
                 return HeaderTextFormField(
+                  fieldKey: Key('RecipeName'),
                   initialValue: widget.viewModel.recipe.value.name,
                   callback: (value) => widget.viewModel.updateRecipeName(value),
                 );

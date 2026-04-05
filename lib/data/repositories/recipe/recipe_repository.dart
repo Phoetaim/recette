@@ -1,47 +1,68 @@
+import 'dart:async';
+
 import 'package:recette/utils/result.dart';
 
-import '../../services/local_service.dart';
+import '../../services/database/database_recipe.dart';
 import '../../services/models/raw_recipe.dart';
 
 final int startLength = 3;
 
 class RecipeRepository {
-  RecipeRepository({required LocalDataService localDataService}) : _localDataService = localDataService;
+  RecipeRepository({required DatabaseRecipeService database}) : _database = database;
 
-  List<RawRecipe> _recipeList = [];
-  int _sequentialId = startLength + 1;
-  bool initialized = false;
-  final LocalDataService _localDataService;
+  final DatabaseRecipeService _database;
+  StreamController<RawRecipe> updatedRecipeList = StreamController.broadcast();
 
-  List<RawRecipe> get recipes => _recipeList;
 
-  Future<void> initDb() async {
-    if (!initialized) {
-      _recipeList = await _localDataService.getRecipes();
-      initialized = true;
+  Future<Result<RawRecipe>> getRecipe(int id) async {
+    try {
+      final recipe = await _database.getRecipeById(id);
+      return Result.ok(recipe);
+    } on Exception {
+      return Result.error(RecipeRepositoryError('Could not retrieve recipe'));
     }
   }
 
-  Future<Result<int>> addRecipe(RawRecipe recipe) async {
-    final recipeWithId = recipe.copyWith(id: _sequentialId++);
-    _recipeList.add(recipeWithId);
-    return Result.ok(recipeWithId.id!);
+  Future<Result<List<RawRecipe>>> getRecipeList() async {
+    try {
+      final recipes = await _database.getRecipeList();
+      return Result.ok(recipes);
+    } on Exception {
+      return Result.error(RecipeRepositoryError('Could not retrieve recipe list'));
+    }
   }
 
+  Future<Result<RawRecipe>> addRecipe(RawRecipe recipe) async {
+    try {
+      final recipeWithId = await _database.insertRecipe(recipe);
+      updatedRecipeList.add(recipeWithId);
+      return Result.ok(recipeWithId);
+    } on Exception {
+      return Result.error(RecipeRepositoryError('Could not add recipe'));
+    }
+  }
 
   Future<Result<void>> updateRecipe(RawRecipe oldRecipe, RawRecipe newRecipe) async {
-    int index = _recipeList.indexOf(oldRecipe);
-    _recipeList.replaceRange(index, index + 1, [newRecipe]);
-    return Result.ok(null);
+    try {
+      await _database.updateRecipe(newRecipe);
+      updatedRecipeList.add(newRecipe);
+      return Result.ok(null);
+    } on Exception {
+      return Result.error(RecipeRepositoryError('Could not update recipe'));
+    }
   }
 
-  Future<Result<void>> removeRecipe(int id) async {
-    _recipeList.removeWhere((item) => item.id == id);
-    return Result.ok(null);
+  Future<Result<void>> deleteRecipe(int id) async {
+    try {
+      await _database.deleteRecipe(id);
+      return Result.ok(null);
+    } on Exception {
+      return Result.error(RecipeRepositoryError('Could not update recipe'));
+    }
   }
+}
 
-  void resetRecipes() {
-    initialized = false;
-    _recipeList.clear();
-  }
+class RecipeRepositoryError implements Exception {
+  String cause;
+  RecipeRepositoryError(this.cause);
 }

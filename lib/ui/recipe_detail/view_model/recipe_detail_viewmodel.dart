@@ -40,7 +40,6 @@ class RecipeDetailViewModel extends ChangeNotifier {
   int tmpIngredientId = -1;
 
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
-    await _recipeRepository.initDb();
     if (recipeIdStr == null) {
       return Result.error(RecipeError('No recipe id provided'));
     }
@@ -54,17 +53,19 @@ class RecipeDetailViewModel extends ChangeNotifier {
       _originalRecipe = null;
       return Result.ok(null);
     }
-    _originalRecipe = _recipeRepository.recipes
-        .where((recipe) => recipe.id! == recipeId)
-        .first;
-    if (_originalRecipe == null) {
-      return Result.error(RecipeError('No recipe with id: $recipeId'));
+    final result = await _recipeRepository.getRecipe(recipeId);
+    switch (result) {
+      case Ok<RawRecipe>():
+        _originalRecipe = result.value;
+      case Error<RawRecipe>():
+        return Result.error(RecipeError('No recipe with id: $recipeId'));
     }
-    _rawRecipe = _originalRecipe!;
 
+    _rawRecipe = _originalRecipe!;
     var jsonRawRecipe = _rawRecipe.toJson();
     jsonRawRecipe.remove('ingredientWithQuantityIds');
     jsonRawRecipe['ingredients'] = await loadIngredientsWithQuantity();
+    jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
     recipe.value = Recipe.fromJson(jsonRawRecipe);
     currentNumberOfPeople.value = recipe.value.nbOfPeople;
     notifyListeners();
@@ -116,13 +117,13 @@ class RecipeDetailViewModel extends ChangeNotifier {
       }
     }
     if (_originalRecipe == null) {
-      Result<int> result = await _recipeRepository.addRecipe(_rawRecipe);
+      final result = await _recipeRepository.addRecipe(_rawRecipe);
       switch (result) {
-        case Ok<int>():
-          _originalRecipe = _rawRecipe.copyWith(id: result.value);
+        case Ok<RawRecipe>():
+          _originalRecipe = result.value;
           _rawRecipe = _originalRecipe!;
           return Result.ok(null);
-        case Error<int>():
+        case Error<RawRecipe>():
           return Result.error(RecipeError('Could not update recipe'));
       }
     } else {
@@ -141,7 +142,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _deleteRecipe(int id) async {
-    _recipeRepository.removeRecipe(id);
+    _recipeRepository.deleteRecipe(id);
     return Result.ok(null);
   }
 

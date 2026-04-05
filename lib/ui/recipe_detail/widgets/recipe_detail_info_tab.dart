@@ -37,6 +37,7 @@ class HeaderRow extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: HeaderTextFormField(
+                    fieldKey: Key('PrepTime'),
                     prefix: Text(' Prep:  '),
                     initialValue: recipe.preparationTime,
                     callback: (value) => viewModel.updateRecipePreparationTime(value),
@@ -46,6 +47,7 @@ class HeaderRow extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: HeaderTextFormField(
+                    fieldKey: Key('CookingTime'),
                     prefix: Text(' Cuisson:  '),
                     initialValue: recipe.cookingTime,
                     callback: (value) => viewModel.updateRecipeCookingTime(value),
@@ -55,6 +57,7 @@ class HeaderRow extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: HeaderTextFormField(
+                    fieldKey: Key('People'),
                     prefix: Text(' Personnes:  '),
                     initialValue: recipe.nbOfPeople.toString(),
                     keyBoardType: TextInputType.number,
@@ -74,12 +77,14 @@ class HeaderRow extends StatelessWidget {
 class HeaderTextFormField extends StatefulWidget {
   const HeaderTextFormField({
     super.key,
+    required this.fieldKey,
     this.prefix,
     required this.initialValue,
     required this.callback,
     this.keyBoardType,
     this.inputFormatters,
   });
+  final Key fieldKey;
   final Widget? prefix;
   final String initialValue;
   final TextInputType? keyBoardType;
@@ -102,6 +107,7 @@ class _HeaderTextFormFieldState extends State<HeaderTextFormField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: widget.fieldKey,
       decoration: InputDecoration(border: InputBorder.none, prefix: widget.prefix),
       keyboardType: widget.keyBoardType,
       inputFormatters: widget.inputFormatters,

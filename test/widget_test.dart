@@ -7,24 +7,70 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:recette/config/dependencies.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
 
 import 'package:recette/main.dart';
+import 'package:recette/ui/recipe_list/widgets/recipe_list_body.dart';
 
+const recipe = RawRecipe(
+    name: 'Recette de test',
+  preparationTime: '24h',
+  cookingTime: '1h99',
+  nbOfPeople: 666
+);
+
+void addRecipe(tester) async {
+  await tester.tap(find.byIcon(Icons.list));
+  await tester.pump();
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  await tester.enterText(find.byKey(Key('RecipeName')), recipe.name);
+  await tester.enterText(find.byKey(Key('PrepTime')), recipe.preparationTime);
+  await tester.enterText(find.byKey(Key('CookingTime')), recipe.cookingTime);
+  await tester.enterText(find.byKey(Key('People')), recipe.nbOfPeople.toString());
+  await tester.tap(find.byIcon(Icons.save));
+}
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Test recipe', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MainApp());
+    await tester.pumpWidget(MultiProvider(providers: providersLocal, child: const MainApp()));
 
     // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Liste de courses'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.byIcon(Icons.list));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Mes Recettes'), findsOneWidget);
+    expect(find.byType(RecipeCard), findsNothing);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mes Recettes'), findsNothing);
+
+    await tester.enterText(find.byKey(Key('RecipeName')), recipe.name);
+
+    await tester.enterText(find.byKey(Key('PrepTime')), recipe.preparationTime);
+    await tester.enterText(find.byKey(Key('CookingTime')), recipe.cookingTime);
+    await tester.enterText(find.byKey(Key('People')), recipe.nbOfPeople.toString());
+    await tester.tap(find.byIcon(Icons.save));
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pump();
+
+    expect(find.text('Mes Recettes'), findsOneWidget);
+
+    expect(find.text(recipe.name), findsOneWidget);
+    expect(find.text(recipe.preparationTime), findsOneWidget);
+    expect(find.text(recipe.cookingTime), findsOneWidget);
+    expect(find.text(recipe.nbOfPeople.toString()), findsOneWidget);
+
+    await tester.tap(find.text(recipe.name));
+    await tester.pump();
+
   });
 }

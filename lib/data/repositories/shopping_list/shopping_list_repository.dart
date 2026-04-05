@@ -5,21 +5,21 @@ import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/models/shopping_list/shopping_ingredient.dart';
-import '../../services/database.dart';
+import '../../services/database/database_shopping_ingredient.dart';
 import '../../services/models/raw_shopping_ingredient.dart';
 
 typedef RawShoppingList = List<RawShoppingIngredient>;
 
 class ShoppingListRepository {
-  ShoppingListRepository({required DatabaseService database}) : _database = database;
+  ShoppingListRepository({required DatabaseShoppingIngredientService database})
+    : _database = database;
 
   var logger = Logger('ShoppingListRepository');
-  final DatabaseService _database;
+  final DatabaseShoppingIngredientService _database;
 
   StreamController<ShoppingIngredient> updatedShoppingList = StreamController.broadcast();
 
   Future<Result<RawShoppingList>> getShoppingList() async {
-    await _database.ensureDatabase();
     try {
       final shoppingList = await _database.getAllShoppingIngredients();
       return Result.ok(shoppingList);
@@ -32,7 +32,6 @@ class ShoppingListRepository {
   Future<Result<RawShoppingIngredient>> addShoppingIngredient(
     IngredientWithQuantity ingredientWithQuantity,
   ) async {
-    await _database.ensureDatabase();
     RawShoppingIngredient rawShoppingIngredient = RawShoppingIngredient(
       ingredientWithQuantityId: ingredientWithQuantity.id!,
     );
@@ -53,7 +52,6 @@ class ShoppingListRepository {
   }
 
   Future<Result<void>> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
-    await _database.ensureDatabase();
     try {
       await _database.updateShoppingIngredientStatus(shoppingIngredient.id!);
       return Result.ok(null);
@@ -64,7 +62,6 @@ class ShoppingListRepository {
   }
 
   Future<Result<void>> deleteShoppingIngredient(int id) async {
-    await _database.ensureDatabase();
     try {
       await _database.deleteShoppingIngredient(id);
       return Result.ok(null);
@@ -76,7 +73,6 @@ class ShoppingListRepository {
 
   Future<Result<void>> emptyShoppingList() async {
     try {
-      await _database.ensureDatabase();
       await _database.broughtAllShoppingIngredients();
     } on Exception catch (e) {
       logger.warning(e);
@@ -87,7 +83,6 @@ class ShoppingListRepository {
 
   Future<Result<void>> emptyBoughtShoppingList() async {
     try {
-      await _database.ensureDatabase();
       await _database.emptyBoughtShoppingList();
     } on Exception catch (e) {
       logger.warning(e);

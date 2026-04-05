@@ -40,9 +40,9 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            widget.viewModel.resetRecipes();
+            context.go(Routes.shoppingList);
           },
-          child: Icon(Icons.home),
+          child: Icon(Icons.arrow_back),
         ),
         title: const Text('Mes Recettes'),
         shadowColor: Colors.black,

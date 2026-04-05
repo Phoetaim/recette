@@ -17,9 +17,7 @@ _RawRecipe _$RawRecipeFromJson(Map<String, dynamic> json) => _RawRecipe(
           ?.map((e) => (e as num).toInt())
           .toList() ??
       const [],
-  steps:
-      (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
+  steps: json['steps'] as String? ?? '',
 );
 
 Map<String, dynamic> _$RawRecipeToJson(_RawRecipe instance) =>

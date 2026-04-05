@@ -13,13 +13,26 @@ import '../ui/recipe_list/widgets/recipe_list_screen.dart';
 import 'routes.dart';
 
 GoRouter router() => GoRouter(
-  initialLocation: Routes.recipeList,
+  initialLocation: Routes.shoppingList,
   routes: <RouteBase>[
     StatefulShellRoute.indexedStack(
       builder: (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
         return ScaffoldBottomNavigationBar(navigationShell: navigationShell);
       },
       branches: <StatefulShellBranch>[
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: Routes.shoppingList,
+              builder: (context, state) {
+                return ShoppingListScreen(viewModel: ShoppingListViewModel(
+                  ingredientWithQuantityUseCase: context.read(),
+                  shoppingListRepository: context.read(),
+                ));
+              },
+            ),
+          ],
+        ),
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
@@ -56,22 +69,9 @@ GoRouter router() => GoRouter(
             ),
           ],
         ),
-
-       StatefulShellBranch(
-          routes: <RouteBase>[
-            GoRoute(
-              path: Routes.shoppingList,
-              builder: (context, state) {
-                return ShoppingListScreen(viewModel: ShoppingListViewModel(
-                  ingredientWithQuantityUseCase: context.read(),
-                  shoppingListRepository: context.read(),
-                ));
-              },
-            ),
-          ],
-        ),
       ],
     ),
+
   ],
 );
 
@@ -87,9 +87,9 @@ class ScaffoldBottomNavigationBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), label: 'Liste'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Recettes'),
           BottomNavigationBarItem(icon: Icon(Icons.food_bank), label: 'Ingrédients'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), label: 'Liste'),
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int tappedIndex) {

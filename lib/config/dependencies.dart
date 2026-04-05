@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
@@ -9,8 +8,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../data/repositories/ingredient/ingredient_repository.dart';
 import '../data/repositories/recipe/recipe_repository.dart';
+import '../data/services/database/database_ingredient.dart';
+import '../data/services/database/database_ingredient_with_quantity.dart';
+import '../data/services/database/database_recipe.dart';
+import '../data/services/database/database_shopping_ingredient.dart';
 import '../data/services/local_service.dart';
-import '../data/services/database.dart';
+import '../data/services/database/database.dart';
 
 List<SingleChildWidget> get providersLocal {
   late DatabaseService databaseService;
@@ -25,10 +28,14 @@ List<SingleChildWidget> get providersLocal {
   return [
     Provider.value(value: LocalDataService()),
     Provider.value(value: databaseService),
-    Provider(create: (context) => RecipeRepository(localDataService: context.read())),
+    Provider(create: (context) => DatabaseIngredientService(databaseService: context.read())),
+    Provider(create: (context) => DatabaseIngredientWithQuantityService(databaseService: context.read())),
+    Provider(create: (context) => DatabaseShoppingIngredientService(databaseService: context.read())),
+    Provider(create: (context) => DatabaseRecipeService(databaseService: context.read())),
+    Provider(create: (context) => RecipeRepository(database: context.read())),
     Provider(create: (context) => IngredientRepository(database: context.read())),
     Provider(create: (context) => IngredientIdWithQuantityRepository(database: context.read())),
-    Provider(create: (context) => IngredientWithQuantityUseCase(ingredientRepository: context.read(), ingredientIdWithQuantityRepository: context.read())),
     Provider(create: (context) => ShoppingListRepository(database: context.read())),
+    Provider(create: (context) => IngredientWithQuantityUseCase(ingredientRepository: context.read(), ingredientIdWithQuantityRepository: context.read())),
   ];
 }

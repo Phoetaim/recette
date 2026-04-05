@@ -49,7 +49,7 @@ class RecipeFullCard extends StatelessWidget {
             onPressed: () {
               context.goNamed(Routes.recipeDetail, pathParameters: {'recipeId': rawRecipe.id.toString()});
             },
-            child: RecipeCard(recipe: rawRecipe),
+            child: RecipeCard(key: Key('recipe${rawRecipe.id!}'), recipe: rawRecipe),
           ),
         ),
         TextButton(
@@ -73,8 +73,7 @@ class RecipeCard extends StatelessWidget {
     return Row(
       children: [
         SizedBox(width: 5),
-        Text(recipe.id.toString()),
-        Expanded(child: Center(child: Text(recipe.name))),
+        Expanded(child: Text(recipe.name)),
         IconRow(icon: Icons.group, label: recipe.nbOfPeople.toString()),
         SizedBox(width: 20),
         Row(
