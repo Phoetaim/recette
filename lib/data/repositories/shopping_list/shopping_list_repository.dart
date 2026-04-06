@@ -51,6 +51,11 @@ class ShoppingListRepository {
     }
   }
 
+  Future<bool> checkAlreadyInShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
+
+    return true;
+  }
+
   Future<Result<void>> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
     try {
       await _database.updateShoppingIngredientStatus(shoppingIngredient.id!);

@@ -1,3 +1,5 @@
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/raw_shopping_ingredient.dart';
@@ -71,6 +73,18 @@ class DatabaseShoppingIngredientService {
   Future<void> emptyBoughtShoppingList() async {
     Database database = await _databaseService.getDatabase();
     await database.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
+  }
+
+  Future<void> checkIngredientAlreadyInShoppingList(RawIngredientWithQuantity rawIngredientWithQuantity) async {
+    Database database = await _databaseService.getDatabase();
+    await database.rawQuery('''
+    SELECT * FROM
+      shoppingIngredient AS S 
+      LEFT JOIN ingredientWithQuantity AS I
+    WHERE S.bought = 0 
+      AND I.ingredientId = ?
+    ''', [rawIngredientWithQuantity.ingredientId]);
+
   }
 
   Future<void> close() async {
