@@ -23,12 +23,18 @@ class DatabaseService {
     return _database!;
   }
 
+  void _onConfigure(Database db) async {
+    // Add support for cascade delete
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
   Future<void> open() async {
     try {
       // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
+          onConfigure: _onConfigure,
           onCreate: (db, version) {
             db.execute('''
                 CREATE TABLE ${TableNames.ingredients}(

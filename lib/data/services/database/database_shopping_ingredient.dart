@@ -1,3 +1,4 @@
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/raw_shopping_ingredient.dart';
@@ -37,6 +38,14 @@ class DatabaseShoppingIngredientService {
     return entries.map((element) => RawShoppingIngredient.fromJson(element)).toList();
   }
 
+  Future<RawShoppingIngredient> getShoppingIngredientById(int id) async {
+    Database database = await _databaseService.getDatabase();
+    final entries = await database.query(TableNames.shoppingIngredient,
+    where: 'id = ?',
+    whereArgs: [id]);
+    return RawShoppingIngredient.fromJson(entries.first);
+  }
+
   Future<void> updateShoppingIngredientStatus(int id) async {
     Database database = await _databaseService.getDatabase();
     final rowsUpdated = await database.update(
@@ -73,7 +82,31 @@ class DatabaseShoppingIngredientService {
     await database.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
   }
 
+  Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId) async {
+    Database database = await _databaseService.getDatabase();
+    final entries = await database.rawQuery('''
+    SELECT S.id as shoppingIngredientId, I.id, I.ingredientId, I.unit, I.quantity
+    FROM shoppingIngredient AS S 
+      LEFT JOIN ingredientWithQuantity AS I
+    WHERE S.bought = 0
+      AND S.ingredientWithQuantityId = I.id
+      AND I.ingredientId = ?
+    ''', [ingredientId]);
+    if (entries.isEmpty){
+      return null;
+    } else {
+      final entry = entries.first;
+      return DuplicateShoppingIngredientResult(rawIngredientWithQuantity: RawIngredientWithQuantity.fromJson(entry), shoppingIngredientId: entry['shoppingIngredientId'] as int);
+    }
+  }
+
   Future<void> close() async {
     await _databaseService.close();
   }
+}
+
+class DuplicateShoppingIngredientResult {
+  final RawIngredientWithQuantity rawIngredientWithQuantity;
+  final int shoppingIngredientId;
+  DuplicateShoppingIngredientResult({required this.rawIngredientWithQuantity, required this.shoppingIngredientId, });
 }

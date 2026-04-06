@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/models/ingredient/ingredient.dart';
@@ -9,6 +11,7 @@ class IngredientRepository {
   final DatabaseIngredientService _database;
 
   final List<Ingredient> _cachedIngredients = [];
+  StreamController<Ingredient> newIngredient = StreamController.broadcast();
 
   bool initialized = false;
 
@@ -16,6 +19,7 @@ class IngredientRepository {
     try {
       var result = await _database.insertIngredient(ingredient);
       _cachedIngredients.add(result);
+      newIngredient.add(result);
       return Result.ok(result);
     } on Exception {
       return Result.error(IngredientRepositoryError('Could not add ingredient'));

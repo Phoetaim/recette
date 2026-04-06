@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fuzzy_search_engine/fuzzy_search_engine.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
@@ -16,49 +18,47 @@ class IngredientSearchViewModel extends ChangeNotifier {
   IngredientSearchViewModel({required IngredientRepository ingredientRepository})
     : _ingredientRepository = ingredientRepository {
     loadIngredients = Command0(_loadIngredients)..execute();
-    addIngredient = Command1(_addIngredient);
   }
 
   final IngredientRepository _ingredientRepository;
 
   late final Command0<void> loadIngredients;
-  late final Command1<void, Ingredient> addIngredient;
 
+  StreamSubscription? _subscription;
   late final List<Ingredient> _ingredients;
   late List<SearchableItem> _searchableIngredient;
 
+  List<SearchableItem> _getSearchableIngredients() {
+     return List<SearchableItem>.generate(
+      _ingredients.length,
+          (int index) =>
+          SearchableItem(id: _ingredients[index].id.toString(), name: _ingredients[index].name),
+    );
+  }
   Future<Result<void>> _loadIngredients() async {
     var result = await _ingredientRepository.getIngredients();
     switch (result) {
       case Ok<List<Ingredient>>():
+        // gets list of ingredients, not copy of list
         _ingredients = result.value;
-        _searchableIngredient = List<SearchableItem>.generate(
-          _ingredients.length,
-          (int index) =>
-              SearchableItem(id: _ingredients[index].id.toString(), name: _ingredients[index].name),
-        );
-
+        _searchableIngredient = _getSearchableIngredients();
+        _subscription ??= _ingredientRepository.newIngredient.stream.listen((
+            newIngredient,
+            ) {
+          final searchable = SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name);
+          if (!_searchableIngredient.contains(searchable)) {
+            _searchableIngredient.add(SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name));
+          }
+        });
         return Result.ok(null);
       case Error<List<Ingredient>>():
         return Result.error(result.error);
     }
   }
 
-  Future<Result<void>> _addIngredient(Ingredient ingredient) async {
-    var result = await _ingredientRepository.addIngredient(ingredient);
-    switch (result) {
-      case Ok<Ingredient>():
-        _ingredients.add(result.value);
-        notifyListeners();
-        return Result.ok(null);
-      case Error<Ingredient>():
-        return Result.error(result.error);
-    }
-  }
-
   IngredientSearchResult filterIngredients(String value) {
     late int quantity;
-    late final List<Ingredient> filteredIngredients;
+    late List<Ingredient> filteredIngredients;
     final match = ingredientRegex.firstMatch(value);
     if (match == null) {
       quantity = 1;
@@ -87,6 +87,12 @@ class IngredientSearchViewModel extends ChangeNotifier {
       results.length,
       (index) => _ingredients.where((item) => item.id == int.parse(results[index].id)).first,
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }
 
