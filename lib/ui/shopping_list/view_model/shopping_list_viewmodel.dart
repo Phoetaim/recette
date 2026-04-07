@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:recette/data/services/models/raw_shopping_ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
@@ -91,20 +92,23 @@ class ShoppingListViewModel extends ChangeNotifier {
     if (ingredientIndex == -1) {
       _shoppingList.add(shoppingIngredient);
     } else {
-      _shoppingList.removeAt(ingredientIndex);
+      _shoppingList[ingredientIndex] = shoppingIngredient;
     }
   }
 
   Future<void> addToShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
-    var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
-      ingredientWithQuantity,
-    );
-    switch (result) {
-      case Ok<IngredientWithQuantity>():
-        _shoppingListRepository.addShoppingIngredient(result.value);
-      case Error<IngredientWithQuantity>():
-        print('RIP: ${result.error}');
-        return;
+    final RawIngredientWithQuantity? rawAlreadyExistingIngredient = await _shoppingListRepository.handleIngredientAlreadyInShoppingList(ingredientWithQuantity);
+    if (rawAlreadyExistingIngredient == null) {
+      var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
+        ingredientWithQuantity,
+      );
+      switch (result) {
+        case Ok<IngredientWithQuantity>():
+          _shoppingListRepository.addShoppingIngredient(result.value);
+        case Error<IngredientWithQuantity>():
+          print('RIP: ${result.error}');
+          return;
+      }
     }
   }
 

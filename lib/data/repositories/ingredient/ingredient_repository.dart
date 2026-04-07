@@ -19,7 +19,6 @@ class IngredientRepository {
     try {
       var result = await _database.insertIngredient(ingredient);
       _cachedIngredients.add(result);
-      print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       newIngredient.add(result);
       return Result.ok(result);
     } on Exception {

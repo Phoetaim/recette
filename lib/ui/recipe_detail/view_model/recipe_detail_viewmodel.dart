@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../../../data/services/models/raw_recipe.dart';
@@ -73,8 +74,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<List<Map<Object, Object>>> loadIngredientsWithQuantity() async {
-    final result = await _ingredientWithQuantityUseCase
-        .getIngredientWithQuantityByIds(_rawRecipe.ingredientWithQuantityIds);
+    final result = await _ingredientWithQuantityUseCase.getIngredientWithQuantityByIds(
+      _rawRecipe.ingredientWithQuantityIds,
+    );
     switch (result) {
       case Ok<List<Map<Object, Object>>>():
         return result.value;
@@ -84,23 +86,19 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _saveRecipe() async {
-    if (_rawRecipe.ingredientWithQuantityIds.length !=
-        recipe.value.ingredients.length) {
+    if (_rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length) {
       for (var ingredientWithQuantity in recipe.value.ingredients) {
         if (ingredientWithQuantity.id! >= 0) {
           continue;
         }
-        var result = await _ingredientWithQuantityUseCase
-            .addIngredientWithQuantity(ingredientWithQuantity);
+        var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
+          ingredientWithQuantity,
+        );
         switch (result) {
           case Ok<IngredientWithQuantity>():
-            List<int> ingredientWithQuantityIds = List.from(
-              _rawRecipe.ingredientWithQuantityIds,
-            );
+            List<int> ingredientWithQuantityIds = List.from(_rawRecipe.ingredientWithQuantityIds);
             ingredientWithQuantityIds.add(result.value.id!);
-            _rawRecipe = _rawRecipe.copyWith(
-              ingredientWithQuantityIds: ingredientWithQuantityIds,
-            );
+            _rawRecipe = _rawRecipe.copyWith(ingredientWithQuantityIds: ingredientWithQuantityIds);
 
             List<IngredientWithQuantity> ingredientsWithQuantity = List.from(
               recipe.value.ingredients,
@@ -108,9 +106,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
             int index = ingredientsWithQuantity.indexOf(ingredientWithQuantity);
             ingredientsWithQuantity.removeAt(index);
             ingredientsWithQuantity.insert(index, result.value);
-            recipe.value = recipe.value.copyWith(
-              ingredients: ingredientsWithQuantity,
-            );
+            recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
           case Error<IngredientWithQuantity>():
             return Result.error(RecipeError('Could add new Ingredients'));
         }
@@ -127,10 +123,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
           return Result.error(RecipeError('Could not update recipe'));
       }
     } else {
-      Result<void> result = await _recipeRepository.updateRecipe(
-        _originalRecipe!,
-        _rawRecipe,
-      );
+      Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _rawRecipe);
       switch (result) {
         case Ok<void>():
           _originalRecipe = _rawRecipe;
@@ -148,8 +141,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   bool isRecipeUpdated() {
     return _rawRecipe != _originalRecipe ||
-        _rawRecipe.ingredientWithQuantityIds.length !=
-            recipe.value.ingredients.length;
+        _rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length;
   }
 
   // Update info tab
@@ -178,34 +170,20 @@ class RecipeDetailViewModel extends ChangeNotifier {
     recipe.value = recipe.value.copyWith(nbOfPeople: newNbOfPeople);
   }
 
-  void addIngredientWithQuantity(
-    IngredientWithQuantity ingredientWithQuantity,
-  ) async {
-    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(
-      recipe.value.ingredients,
-    );
-    ingredientsWithQuantity.add(
-      ingredientWithQuantity.copyWith(id: tmpIngredientId--),
-    );
+  void addIngredientWithQuantity(IngredientWithQuantity ingredientWithQuantity) async {
+    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(recipe.value.ingredients);
+    ingredientsWithQuantity.add(ingredientWithQuantity.copyWith(id: tmpIngredientId--));
     recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
   }
 
-  void removeIngredientWithQuantity(
-    IngredientWithQuantity ingredientWithQuantity,
-  ) {
-    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(
-      recipe.value.ingredients,
-    );
+  void removeIngredientWithQuantity(IngredientWithQuantity ingredientWithQuantity) {
+    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(recipe.value.ingredients);
     ingredientsWithQuantity.remove(ingredientWithQuantity);
     recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
 
-    List<int> ingredientWithQuantityIds = List.from(
-      _rawRecipe.ingredientWithQuantityIds,
-    );
+    List<int> ingredientWithQuantityIds = List.from(_rawRecipe.ingredientWithQuantityIds);
     ingredientWithQuantityIds.remove(ingredientWithQuantity.id);
-    _rawRecipe = _rawRecipe.copyWith(
-      ingredientWithQuantityIds: ingredientWithQuantityIds,
-    );
+    _rawRecipe = _rawRecipe.copyWith(ingredientWithQuantityIds: ingredientWithQuantityIds);
   }
 
   Future<Result<void>> _addRecipeToShoppingList() async {
@@ -213,18 +191,20 @@ class RecipeDetailViewModel extends ChangeNotifier {
     bool error = false;
     for (var ingredient in recipe.value.ingredients) {
       double newQuantity =
-          ingredient.quantity /
-          recipe.value.nbOfPeople *
-          currentNumberOfPeople.value;
-      IngredientWithQuantity ingredientToAdd = ingredient.copyWith(
-        quantity: newQuantity.round(),
-      );
-      final result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(ingredientToAdd);
-      switch (result) {
-        case Ok<IngredientWithQuantity>():
-          await _shoppingListRepository.addShoppingIngredient(result.value);
-        case Error<IngredientWithQuantity>():
-          error = true;
+          ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
+      IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
+      RawIngredientWithQuantity? alreadyExistingIngredient = await _shoppingListRepository
+          .handleIngredientAlreadyInShoppingList(ingredientToAdd);
+      if (alreadyExistingIngredient == null) {
+        final result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
+          ingredientToAdd,
+        );
+        switch (result) {
+          case Ok<IngredientWithQuantity>():
+            await _shoppingListRepository.addShoppingIngredient(result.value);
+          case Error<IngredientWithQuantity>():
+            error = true;
+        }
       }
     }
 

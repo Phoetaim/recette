@@ -39,7 +39,6 @@ class IngredientSearchViewModel extends ChangeNotifier {
     var result = await _ingredientRepository.getIngredients();
     switch (result) {
       case Ok<List<Ingredient>>():
-        print('Load Ingredients');
         // gets list of ingredients, not copy of list
         _ingredients = result.value;
         _searchableIngredient = _getSearchableIngredients();
@@ -58,9 +57,6 @@ class IngredientSearchViewModel extends ChangeNotifier {
   }
 
   IngredientSearchResult filterIngredients(String value) {
-    print(_ingredients);
-    print(_searchableIngredient);
-
     late int quantity;
     late List<Ingredient> filteredIngredients;
     final match = ingredientRegex.firstMatch(value);
