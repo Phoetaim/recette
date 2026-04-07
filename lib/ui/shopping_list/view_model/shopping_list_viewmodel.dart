@@ -99,12 +99,13 @@ class ShoppingListViewModel extends ChangeNotifier {
     return _shoppingListRepository.addShoppingIngredient(ingredientWithQuantity);
   }
 
-  Future<void> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
-    final result = await _shoppingListRepository.toggleShoppingIngredientStatus(shoppingIngredient);
+  Future<void> toggleShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
+    ShoppingIngredient newShoppingIngredient = shoppingIngredient.copyWith(bought: !shoppingIngredient.bought);
+    final result = await _shoppingListRepository.toggleShoppingIngredientStatus(newShoppingIngredient);
       switch (result) {
         case Ok<void>():
           _shoppingList.remove(shoppingIngredient);
-          _shoppingList.add(shoppingIngredient.copyWith(bought: !shoppingIngredient.bought));
+          _shoppingList.add(newShoppingIngredient);
           notifyListeners();
         case Error<void>():
           print('RIP: ${result.error}');

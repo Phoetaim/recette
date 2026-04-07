@@ -46,11 +46,11 @@ class DatabaseShoppingIngredientService {
     return RawShoppingIngredient.fromJson(entries.first);
   }
 
-  Future<void> updateShoppingIngredientStatus(int id) async {
+  Future<void> updateShoppingIngredientStatus(int id, bool bought) async {
     Database database = await _databaseService.getDatabase();
     final rowsUpdated = await database.update(
       TableNames.shoppingIngredient,
-      {'bought': 1},
+      {'bought': bought},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -79,19 +79,28 @@ class DatabaseShoppingIngredientService {
 
   Future<void> emptyBoughtShoppingList() async {
     Database database = await _databaseService.getDatabase();
-    await database.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
+    await database.rawDelete('''
+      DELETE FROM ${TableNames.ingredientWithQuantity}
+        WHERE id IN (
+          SELECT I.id 
+            FROM ${TableNames.ingredientWithQuantity} I
+              INNER JOIN ${TableNames.shoppingIngredient} S
+              ON I.id = S.ingredientWithQuantityId
+            WHERE S.bought = 1
+          )
+    ''');
   }
 
   Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId, String unit) async {
     Database database = await _databaseService.getDatabase();
     final entries = await database.rawQuery('''
     SELECT S.id as shoppingIngredientId, I.id, I.ingredientId, I.unit, I.quantity
-    FROM shoppingIngredient AS S 
-      LEFT JOIN ingredientWithQuantity AS I
-    WHERE S.bought = 0
-      AND S.ingredientWithQuantityId = I.id
-      AND I.ingredientId = ?
-      AND I.unit = ?
+      FROM ${TableNames.shoppingIngredient} S 
+        INNER JOIN ${TableNames.ingredientWithQuantity} I
+        ON I.id = S.ingredientWithQuantityId
+      WHERE S.bought = 0 
+        AND I.ingredientId = ?
+        AND I.unit = ?
     ''', [ingredientId, unit]);
     if (entries.isEmpty){
       return null;

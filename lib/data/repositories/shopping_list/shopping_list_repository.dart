@@ -112,7 +112,10 @@ class ShoppingListRepository {
 
   Future<Result<void>> toggleShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
     try {
-      await _shoppingDatabase.updateShoppingIngredientStatus(shoppingIngredient.id!);
+      await _shoppingDatabase.updateShoppingIngredientStatus(
+        shoppingIngredient.id!,
+        shoppingIngredient.bought,
+      );
       return Result.ok(null);
     } on Exception catch (e) {
       logger.warning(e);
