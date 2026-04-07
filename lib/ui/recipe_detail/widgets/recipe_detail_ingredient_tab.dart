@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../data/services/models/raw_ingredient_with_quantity.dart';
 import '../../../domain/models/ingredient/ingredient_with_quantity.dart';
 import '../../ingredient_search/view_model/ingredient_search_viewmodel.dart';
 import '../../ingredient_search/widgets/ingredient_search_widget.dart';
+import '../../ingredient_search/widgets/quantity_tile.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailIngredientTab extends StatelessWidget {
@@ -34,53 +34,65 @@ class IngredientsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: ValueListenableBuilder(
-          valueListenable: viewModel.currentNumberOfPeople,
-          builder: (context, value, child) {
-            return ValueListenableBuilder(
-              valueListenable: viewModel.recipe,
-              builder: (context, value, child) {
-                return ListView.separated(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: viewModel.recipe.value.ingredients.length,
-                  separatorBuilder: (BuildContext context, int index) => const Divider(),
-                  itemBuilder: (BuildContext context, int index) {
-                    IngredientWithQuantity ingredientWithQuantity =
-                        viewModel.recipe.value.ingredients[index];
-                    return Dismissible(
-                      key: Key(ingredientWithQuantity.id.toString()),
-                      onDismissed: (direction) {
-                        viewModel.removeIngredientWithQuantity(ingredientWithQuantity);
-                      },
-                      direction: DismissDirection.endToStart,
-                      background: Container(color: Colors.red),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          children: [
-                            Expanded(child: Text(ingredientWithQuantity.ingredient.name)),
-                            Builder(
-                              builder: (context) {
-                                double quantity = viewModel.currentNumberOfPeople.value * ingredientWithQuantity.quantity / viewModel.recipe.value.nbOfPeople;
-                                if (ingredientWithQuantity.unit == IngredientUnit.unit) {
-                                  return Text(quantity.toInt().toString());
-                                }
-                                return Text(
-                                  '${quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          }
+      child: ValueListenableBuilder(
+        valueListenable: viewModel.currentNumberOfPeople,
+        builder: (context, value, child) {
+          return ValueListenableBuilder(
+            valueListenable: viewModel.recipe,
+            builder: (context, value, child) {
+              return ListView.separated(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: viewModel.recipe.value.ingredients.length,
+                separatorBuilder: (BuildContext context, int index) => const Divider(),
+                itemBuilder: (BuildContext context, int index) {
+                  return IngredientCard(
+                    viewModel: viewModel,
+                    ingredientWithQuantity: viewModel.recipe.value.ingredients[index],
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class IngredientCard extends StatelessWidget {
+  const IngredientCard({super.key, required this.viewModel, required this.ingredientWithQuantity});
+  final RecipeDetailViewModel viewModel;
+  final IngredientWithQuantity ingredientWithQuantity;
+  @override
+  Widget build(BuildContext context) {
+    double quantity =
+        viewModel.currentNumberOfPeople.value *
+        ingredientWithQuantity.quantity /
+        viewModel.recipe.value.nbOfPeople;
+    return Dismissible(
+      key: Key(ingredientWithQuantity.id.toString()),
+      onDismissed: (direction) {
+        viewModel.removeIngredientWithQuantity(ingredientWithQuantity);
+      },
+      direction: DismissDirection.endToStart,
+      background: Container(color: Colors.red),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: Text(ingredientWithQuantity.ingredient.name),
+              ),
+            ),
+            QuantityTile(
+              ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
@@ -109,7 +121,9 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.viewModel.currentNumberOfPeople.value.toString());
+    _controller = TextEditingController(
+      text: widget.viewModel.currentNumberOfPeople.value.toString(),
+    );
   }
 
   @override
@@ -122,8 +136,8 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
   void _updateValue(int delta) {
     final newValue = widget.viewModel.currentNumberOfPeople.value + delta;
     if (newValue >= widget.minValue && newValue <= widget.maxValue) {
-        widget.viewModel.currentNumberOfPeople.value = newValue;
-        _controller.text = newValue.toString(); // Sync controller
+      widget.viewModel.currentNumberOfPeople.value = newValue;
+      _controller.text = newValue.toString(); // Sync controller
     }
   }
 
@@ -142,7 +156,7 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(width: 8,),
+          SizedBox(width: 8),
           Icon(Icons.group),
           // Decrement Button
           IconButton(
@@ -151,7 +165,7 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
                 ? () => _updateValue(-widget.step)
                 : null, // Disable when at min
           ),
-      
+
           // Numeric Input Field
           SizedBox(
             width: 60,
@@ -180,7 +194,7 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
               },
             ),
           ),
-      
+
           // Increment Button
           IconButton(
             icon: const Icon(Icons.add),
@@ -188,15 +202,16 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
                 ? () => _updateValue(widget.step)
                 : null, // Disable when at max
           ),
-        Tooltip(
-          message: 'Adding ingredients to shopping list will automatically save the recipe.',
-          margin: EdgeInsets.symmetric(vertical: 5.0),
-          showDuration: const Duration(seconds: 2),
-          child: IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () => widget.viewModel.addRecipeToShoppingList.execute(), // Disable when at max
+          Tooltip(
+            message: 'Adding ingredients to shopping list will automatically save the recipe.',
+            margin: EdgeInsets.symmetric(vertical: 5.0),
+            showDuration: const Duration(seconds: 2),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () =>
+                  widget.viewModel.addRecipeToShoppingList.execute(), // Disable when at max
+            ),
           ),
-        ),
         ],
       ),
     );

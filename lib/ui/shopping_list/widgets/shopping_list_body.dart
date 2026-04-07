@@ -4,7 +4,7 @@ import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
 import 'package:recette/ui/ingredient_search/view_model/ingredient_search_viewmodel.dart';
 import 'package:recette/ui/ingredient_search/widgets/ingredient_search_widget.dart';
-import '../../../data/services/models/raw_ingredient_with_quantity.dart';
+import '../../ingredient_search/widgets/quantity_tile.dart';
 import '../view_model/shopping_list_viewmodel.dart';
 
 class ShoppingListBody extends StatelessWidget {
@@ -114,26 +114,16 @@ class ShoppingIngredientCard extends StatelessWidget {
         viewModel.deleteShoppingIngredient(shoppingIngredient);
       },
       child: CheckboxListTile(
-        contentPadding: const EdgeInsets.all(6.0),
         controlAffinity: ListTileControlAffinity.leading,
         value: shoppingIngredient.bought,
         onChanged: (bool? value) {
-          viewModel.updateShoppingIngredientStatus(shoppingIngredient);
+          viewModel.toggleShoppingIngredientStatus(shoppingIngredient);
         },
         title: Text(ingredientWithQuantity.ingredient.name),
 
         secondary: Builder(
           builder: (context) {
-            return RichText(
-              text: TextSpan(
-                style: TextStyle(fontSize: 15, color: Colors.blueGrey),
-                children: <TextSpan>[
-                  TextSpan(text: ingredientWithQuantity.quantity.toInt().toString()),
-                  if (ingredientWithQuantity.unit != IngredientUnit.unit)
-                    TextSpan(text: ' ${ingredientWithQuantity.unit.name}'),
-                ],
-              ),
-            );
+            return QuantityTile(ingredientWithQuantity: shoppingIngredient.ingredientWithQuantity,);
           },
         ),
       ),
