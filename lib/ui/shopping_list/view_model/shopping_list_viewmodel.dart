@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:recette/data/services/models/raw_shopping_ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
@@ -96,36 +95,20 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addToShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
-    final RawIngredientWithQuantity? rawAlreadyExistingIngredient = await _shoppingListRepository.handleIngredientAlreadyInShoppingList(ingredientWithQuantity);
-    if (rawAlreadyExistingIngredient == null) {
-      var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
-        ingredientWithQuantity,
-      );
-      switch (result) {
-        case Ok<IngredientWithQuantity>():
-          _shoppingListRepository.addShoppingIngredient(result.value);
-        case Error<IngredientWithQuantity>():
-          print('RIP: ${result.error}');
-          return;
-      }
-    }
+  Future<Result<void>> addToShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
+    return _shoppingListRepository.addShoppingIngredient(ingredientWithQuantity);
   }
 
   Future<void> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
-    if (shoppingIngredient.bought) {
-      await addToShoppingList(shoppingIngredient.ingredientWithQuantity);
-    } else {
-      final result = await _shoppingListRepository.updateShoppingIngredientStatus(shoppingIngredient);
+    final result = await _shoppingListRepository.toggleShoppingIngredientStatus(shoppingIngredient);
       switch (result) {
         case Ok<void>():
           _shoppingList.remove(shoppingIngredient);
-          _shoppingList.add(shoppingIngredient.copyWith(bought: true));
+          _shoppingList.add(shoppingIngredient.copyWith(bought: !shoppingIngredient.bought));
           notifyListeners();
         case Error<void>():
           print('RIP: ${result.error}');
           return;
-      }
     }
   }
 

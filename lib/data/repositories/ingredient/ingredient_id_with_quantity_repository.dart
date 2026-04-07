@@ -23,10 +23,10 @@ class IngredientIdWithQuantityRepository {
   }
 
   Future<Result<void>> updateRawIngredientWithQuantity(
-    RawIngredientWithQuantity ingredientIdWithQuantity,
+    RawIngredientWithQuantity rawIngredientWithQuantity,
   ) async {
     try {
-      await _database.updateIngredientIdWithQuantity(ingredientIdWithQuantity);
+      await _database.updateIngredientWithQuantity(rawIngredientWithQuantity);
       return Result.ok(null);
     } on Exception {
       return Result.error(

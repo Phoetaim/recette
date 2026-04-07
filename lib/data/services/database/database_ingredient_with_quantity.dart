@@ -22,7 +22,7 @@ class DatabaseIngredientWithQuantityService {
     return ingredientIdWithQuantity.copyWith(id: id);
   }
 
-  Future<void> updateIngredientIdWithQuantity(
+  Future<void> updateIngredientWithQuantity(
     RawIngredientWithQuantity ingredientIdWithQuantity,
   ) async {
     Database database = await _databaseService.getDatabase();

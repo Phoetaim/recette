@@ -68,6 +68,14 @@ class IngredientWithQuantityUseCase {
     }
   }
 
+  Future<Result<void>> updateIngredientWithQuantity(
+      RawIngredientWithQuantity rawIngredientWithQuantity,
+      ) async {
+    return await _ingredientIdWithQuantityRepository.updateRawIngredientWithQuantity(
+      rawIngredientWithQuantity,
+    );
+  }
+
   Future<IngredientWithQuantity> _ensureIngredientExists(
     IngredientWithQuantity ingredientWithQuantity,
   ) async {

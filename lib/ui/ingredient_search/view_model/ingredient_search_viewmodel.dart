@@ -29,12 +29,13 @@ class IngredientSearchViewModel extends ChangeNotifier {
   late List<SearchableItem> _searchableIngredient;
 
   List<SearchableItem> _getSearchableIngredients() {
-     return List<SearchableItem>.generate(
+    return List<SearchableItem>.generate(
       _ingredients.length,
-          (int index) =>
+      (int index) =>
           SearchableItem(id: _ingredients[index].id.toString(), name: _ingredients[index].name),
     );
   }
+
   Future<Result<void>> _loadIngredients() async {
     var result = await _ingredientRepository.getIngredients();
     switch (result) {
@@ -42,12 +43,15 @@ class IngredientSearchViewModel extends ChangeNotifier {
         // gets list of ingredients, not copy of list
         _ingredients = result.value;
         _searchableIngredient = _getSearchableIngredients();
-        _subscription ??= _ingredientRepository.newIngredient.stream.listen((
-            newIngredient,
-            ) {
-          final searchable = SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name);
+        _subscription ??= _ingredientRepository.newIngredient.stream.listen((newIngredient) {
+          final searchable = SearchableItem(
+            id: newIngredient.id.toString(),
+            name: newIngredient.name,
+          );
           if (!_searchableIngredient.contains(searchable)) {
-            _searchableIngredient.add(SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name));
+            _searchableIngredient.add(
+              SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name),
+            );
           }
         });
         return Result.ok(null);
@@ -58,16 +62,18 @@ class IngredientSearchViewModel extends ChangeNotifier {
 
   IngredientSearchResult filterIngredients(String value) {
     late int quantity;
+    IngredientUnit unit = IngredientUnit.unit;
     late List<Ingredient> filteredIngredients;
     final match = ingredientRegex.firstMatch(value);
     if (match == null) {
       quantity = 1;
-
       final results = SearchEngine.fuzzySearch(_searchableIngredient, value);
       filteredIngredients = _formatResultsFromSearch(results);
     } else {
       quantity = int.parse(match.namedGroup('quantity')?.replaceAll(',', '.') ?? '1');
-
+      if (match.namedGroup('unit') != null) {
+        unit = IngredientUnit.values.byName(match.namedGroup('unit')!);
+      }
       final ingredient = match.namedGroup('name')?.trim();
       if (ingredient == null || ingredient.isEmpty) {
         filteredIngredients = _ingredients;
@@ -79,7 +85,7 @@ class IngredientSearchViewModel extends ChangeNotifier {
         }
       }
     }
-    return IngredientSearchResult(filteredIngredients, quantity);
+    return IngredientSearchResult(filteredIngredients, quantity, unit);
   }
 
   List<Ingredient> _formatResultsFromSearch(List<SearchableItem> results) {
@@ -100,7 +106,7 @@ class IngredientSearchResult {
   List<Ingredient> filteredIngredients;
   int quantity = 1;
   IngredientUnit unit = IngredientUnit.unit;
-  IngredientSearchResult(this.filteredIngredients, this.quantity);
+  IngredientSearchResult(this.filteredIngredients, this.quantity, this.unit);
 }
 
 class IngredientSearchError implements Exception {

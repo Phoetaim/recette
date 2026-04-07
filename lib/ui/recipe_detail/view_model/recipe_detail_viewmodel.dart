@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
-import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../../../data/services/models/raw_recipe.dart';
@@ -193,18 +192,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
       double newQuantity =
           ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
-      RawIngredientWithQuantity? alreadyExistingIngredient = await _shoppingListRepository
-          .handleIngredientAlreadyInShoppingList(ingredientToAdd);
-      if (alreadyExistingIngredient == null) {
-        final result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
-          ingredientToAdd,
-        );
-        switch (result) {
-          case Ok<IngredientWithQuantity>():
-            await _shoppingListRepository.addShoppingIngredient(result.value);
-          case Error<IngredientWithQuantity>():
+      var result = _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
+      if (result is Error<void>){
             error = true;
-        }
       }
     }
 

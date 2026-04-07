@@ -82,7 +82,7 @@ class DatabaseShoppingIngredientService {
     await database.delete(TableNames.shoppingIngredient, where: 'bought = ?', whereArgs: [1]);
   }
 
-  Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId) async {
+  Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId, String unit) async {
     Database database = await _databaseService.getDatabase();
     final entries = await database.rawQuery('''
     SELECT S.id as shoppingIngredientId, I.id, I.ingredientId, I.unit, I.quantity
@@ -91,7 +91,8 @@ class DatabaseShoppingIngredientService {
     WHERE S.bought = 0
       AND S.ingredientWithQuantityId = I.id
       AND I.ingredientId = ?
-    ''', [ingredientId]);
+      AND I.unit = ?
+    ''', [ingredientId, unit]);
     if (entries.isEmpty){
       return null;
     } else {

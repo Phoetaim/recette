@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import 'package:logging/logging.dart';
-import 'package:recette/data/services/database/database_ingredient_with_quantity.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/models/shopping_list/shopping_ingredient.dart';
 import '../../services/database/database_shopping_ingredient.dart';
-import '../../services/models/raw_ingredient_with_quantity.dart';
 import '../../services/models/raw_shopping_ingredient.dart';
 
 typedef RawShoppingList = List<RawShoppingIngredient>;
@@ -15,14 +14,13 @@ typedef RawShoppingList = List<RawShoppingIngredient>;
 class ShoppingListRepository {
   ShoppingListRepository({
     required DatabaseShoppingIngredientService shoppingDatabase,
-    required DatabaseIngredientWithQuantityService ingredientWithQuantityDatabase,
-  })
-    :   _shoppingDatabase = shoppingDatabase,
-        _ingredientWithQuantityDatabase = ingredientWithQuantityDatabase;
+    required IngredientWithQuantityUseCase ingredientWithQuantityUseCase,
+  }) : _shoppingDatabase = shoppingDatabase,
+       _ingredientWithQuantityUseCase = ingredientWithQuantityUseCase;
 
   var logger = Logger('ShoppingListRepository');
   final DatabaseShoppingIngredientService _shoppingDatabase;
-  final DatabaseIngredientWithQuantityService _ingredientWithQuantityDatabase;
+  final IngredientWithQuantityUseCase _ingredientWithQuantityUseCase;
 
   StreamController<ShoppingIngredient> updatedShoppingList = StreamController.broadcast();
 
@@ -36,7 +34,60 @@ class ShoppingListRepository {
     }
   }
 
-  Future<Result<RawShoppingIngredient>> addShoppingIngredient(
+  Future<Result<void>> addShoppingIngredient(IngredientWithQuantity ingredientWithQuantity) async {
+    if (_ingredientExists(ingredientWithQuantity)) {
+      final result = await _shoppingDatabase.checkIngredientAlreadyInShoppingList(
+        ingredientWithQuantity.ingredient.id!,
+        ingredientWithQuantity.unit.name,
+      );
+
+      if (result != null) {
+        return await _updateDuplicateShoppingIngredient(result, ingredientWithQuantity);
+      }
+    }
+
+    var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
+      ingredientWithQuantity,
+    );
+    switch (result) {
+      case Ok<IngredientWithQuantity>():
+        return await _addShoppingIngredientToDatabase(result.value);
+      case Error<IngredientWithQuantity>():
+        return Result.error(ShoppingIngredientRepositoryError('Could not add shopping ingredient'));
+    }
+  }
+
+  bool _ingredientExists(IngredientWithQuantity ingredientWithQuantity) {
+    return ingredientWithQuantity.ingredient.id != null;
+  }
+
+  Future<Result<void>> _updateDuplicateShoppingIngredient(
+    DuplicateShoppingIngredientResult result,
+    IngredientWithQuantity newIngredient,
+  ) async {
+    // Update ingredient with quantity
+    final rawIngredientWithQuantity = result.rawIngredientWithQuantity;
+    int newQuantity = rawIngredientWithQuantity.quantity + newIngredient.quantity;
+    var rawUpdatedIngredientWithQuantity = rawIngredientWithQuantity.copyWith(
+      quantity: newQuantity,
+    );
+    var updatedIngredientWithQuantity = newIngredient.copyWith(
+      id: rawIngredientWithQuantity.id,
+      quantity: newQuantity,
+    );
+    _ingredientWithQuantityUseCase.updateIngredientWithQuantity(rawUpdatedIngredientWithQuantity);
+
+    // Send updated shopping ingredient to shopping list
+    final updatedShoppingIngredient = ShoppingIngredient(
+      id: result.shoppingIngredientId,
+      ingredientWithQuantity: updatedIngredientWithQuantity,
+    );
+    updatedShoppingList.add(updatedShoppingIngredient);
+
+    return Result.ok(null);
+  }
+
+  Future<Result<void>> _addShoppingIngredientToDatabase(
     IngredientWithQuantity ingredientWithQuantity,
   ) async {
     RawShoppingIngredient rawShoppingIngredient = RawShoppingIngredient(
@@ -44,51 +95,22 @@ class ShoppingListRepository {
     );
     try {
       final response = await _shoppingDatabase.insertShoppingIngredient(rawShoppingIngredient);
+
+      // Send shopping ingredient to shopping list
       ShoppingIngredient shoppingIngredient = ShoppingIngredient(
         id: response.id,
         bought: response.bought == 1,
         ingredientWithQuantity: ingredientWithQuantity,
       );
       updatedShoppingList.add(shoppingIngredient);
-      return Result.ok(response);
+      return Result.ok(null);
     } on Exception catch (e) {
       logger.warning(e);
-      print(e);
       return Result.error(ShoppingIngredientRepositoryError('Could not add shopping ingredient'));
     }
   }
 
-  Future<RawIngredientWithQuantity?> handleIngredientAlreadyInShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
-    if (ingredientWithQuantity.ingredient.id != null) {
-      final DuplicateShoppingIngredientResult? result = await _shoppingDatabase.checkIngredientAlreadyInShoppingList(ingredientWithQuantity.ingredient.id!);
-      if (result == null) {
-        return null;
-      }
-      else {
-        if (result.rawIngredientWithQuantity.unit == ingredientWithQuantity.unit) {
-          await updateDuplicateShoppingIngredient(result, ingredientWithQuantity);
-        }
-        return result.rawIngredientWithQuantity;
-      }
-    }
-    return null;
-  }
-
-  Future<void> updateDuplicateShoppingIngredient(DuplicateShoppingIngredientResult result, IngredientWithQuantity newIngredient) async {
-    final rawIngredientWithQuantity = result.rawIngredientWithQuantity;
-    int newQuantity = rawIngredientWithQuantity.quantity + newIngredient.quantity;
-    var updatedRawIngredientWithQuantity = rawIngredientWithQuantity.copyWith(quantity: newQuantity);
-    var updatedIngredientWithQuantity = newIngredient.copyWith(id: rawIngredientWithQuantity.id, quantity: newQuantity);
-    _ingredientWithQuantityDatabase.updateIngredientIdWithQuantity(updatedRawIngredientWithQuantity);
-    final updatedShoppingIngredient = ShoppingIngredient(
-      id: result.shoppingIngredientId,
-      bought: false,
-      ingredientWithQuantity: updatedIngredientWithQuantity,
-    );
-
-    updatedShoppingList.add(updatedShoppingIngredient);
-  }
-  Future<Result<void>> updateShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
+  Future<Result<void>> toggleShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {
     try {
       await _shoppingDatabase.updateShoppingIngredientStatus(shoppingIngredient.id!);
       return Result.ok(null);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import '../view_model/ingredient_search_viewmodel.dart';
 
@@ -31,13 +32,21 @@ class IngredientSearch extends StatelessWidget {
               IngredientSearchResult searchResult = viewModel.filterIngredients(
                 controller.text.toLowerCase(),
               );
+              String unit = searchResult.unit == IngredientUnit.unit ? '': searchResult.unit.name;
+              Widget quantityWidget = Text('${searchResult.quantity} $unit');
               return List<ListTile>.generate(searchResult.filteredIngredients.length, (int index) {
                 return ListTile(
-                  title: Text(searchResult.filteredIngredients[index].name),
+                  title: Row(
+                    children: [
+                      Expanded(child: Text(searchResult.filteredIngredients[index].name)),
+                      quantityWidget,
+                    ],
+                  ),
                   onTap: () {
                     IngredientWithQuantity ingredientWithQuantity = IngredientWithQuantity(
                       ingredient: searchResult.filteredIngredients[index],
                       quantity: searchResult.quantity,
+                      unit: searchResult.unit,
                     );
                     callbackForIngredient(ingredientWithQuantity);
                     controller.clear();

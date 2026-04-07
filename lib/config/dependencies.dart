@@ -35,7 +35,7 @@ List<SingleChildWidget> get providersLocal {
     Provider(create: (context) => RecipeRepository(database: context.read())),
     Provider(create: (context) => IngredientRepository(database: context.read())),
     Provider(create: (context) => IngredientIdWithQuantityRepository(database: context.read())),
-    Provider(create: (context) => ShoppingListRepository(shoppingDatabase: context.read(), ingredientWithQuantityDatabase: context.read())),
     Provider(create: (context) => IngredientWithQuantityUseCase(ingredientRepository: context.read(), ingredientIdWithQuantityRepository: context.read())),
+    Provider(create: (context) => ShoppingListRepository(shoppingDatabase: context.read(), ingredientWithQuantityUseCase: context.read())),
   ];
 }
