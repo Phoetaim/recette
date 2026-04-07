@@ -38,17 +38,29 @@ class ShoppingListBody extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: ListTile(
                           title: Text('Ingrédients à acheter'),
-                            trailing: TextButton(onPressed: viewModel.clearShoppingList, child: Icon(Icons.checklist)),
+                          trailing: TextButton(
+                            onPressed: viewModel.clearShoppingList,
+                            child: Icon(Icons.checklist),
+                          ),
                         ),
                       ),
-                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingList),
+                      ShoppingListSlivers(
+                        viewModel: viewModel,
+                        shoppingList: viewModel.shoppingList,
+                      ),
                       SliverToBoxAdapter(
                         child: ListTile(
                           title: Text('Ingrédients récemment achetés'),
-                          trailing: TextButton(onPressed: viewModel.deleteAllBoughtIngredients, child: Icon(Icons.remove_shopping_cart)),
+                          trailing: TextButton(
+                            onPressed: viewModel.deleteAllBoughtIngredients,
+                            child: Icon(Icons.remove_shopping_cart),
+                          ),
                         ),
                       ),
-                      ShoppingListSlivers(viewModel: viewModel, shoppingList: viewModel.shoppingListBought.reversed.toList()),
+                      ShoppingListSlivers(
+                        viewModel: viewModel,
+                        shoppingList: viewModel.shoppingListBought.reversed.toList(),
+                      ),
                     ],
                   ),
                 );
@@ -67,17 +79,16 @@ class ShoppingListSlivers extends StatelessWidget {
   final ShoppingListViewModel viewModel;
   final ShoppingList shoppingList;
 
-
   @override
   Widget build(BuildContext context) {
     return SliverList.builder(
-        itemCount: shoppingList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ShoppingIngredientCard(
-            viewModel: viewModel,
-            shoppingIngredient: shoppingList[index],
-          );
-        },
+      itemCount: shoppingList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return ShoppingIngredientCard(
+          viewModel: viewModel,
+          shoppingIngredient: shoppingList[index],
+        );
+      },
     );
   }
 }
@@ -98,7 +109,7 @@ class ShoppingIngredientCard extends StatelessWidget {
     return Dismissible(
       key: Key(shoppingIngredient.id!.toString()),
       direction: DismissDirection.endToStart,
-      background: Container(color: Colors.red, child: Icon(Icons.remove_shopping_cart_outlined),),
+      background: Container(color: Colors.red, child: Icon(Icons.delete)),
       onDismissed: (direction) {
         viewModel.deleteShoppingIngredient(shoppingIngredient);
       },
@@ -113,11 +124,15 @@ class ShoppingIngredientCard extends StatelessWidget {
 
         secondary: Builder(
           builder: (context) {
-            if (ingredientWithQuantity.unit == IngredientUnit.unit) {
-              return Text(ingredientWithQuantity.quantity.toInt().toString());
-            }
-            return Text(
-              '${ingredientWithQuantity.quantity.toInt().toString()} ${ingredientWithQuantity.unit.name}',
+            return RichText(
+              text: TextSpan(
+                style: TextStyle(fontSize: 15, color: Colors.blueGrey),
+                children: <TextSpan>[
+                  TextSpan(text: ingredientWithQuantity.quantity.toInt().toString()),
+                  if (ingredientWithQuantity.unit != IngredientUnit.unit)
+                    TextSpan(text: ' ${ingredientWithQuantity.unit.name}'),
+                ],
+              ),
             );
           },
         ),
