@@ -77,6 +77,7 @@ class ShoppingListViewModel extends ChangeNotifier {
             rawShoppingIngredientMap,
           );
           _shoppingList.add(newShoppingIngredient);
+
         }
         return;
       case Error<List<Map<Object, Object>>>():
@@ -159,6 +160,10 @@ class ShoppingListViewModel extends ChangeNotifier {
     _subscription?.cancel();
     super.dispose();
   }
+}
+
+int sortShoppingList(ShoppingIngredient a, ShoppingIngredient b) {
+  return a.ingredientWithQuantity.ingredient.name.compareTo(b.ingredientWithQuantity.ingredient.name);
 }
 
 class ShoppingListError implements Exception {

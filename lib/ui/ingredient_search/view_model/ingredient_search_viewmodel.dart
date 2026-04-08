@@ -41,17 +41,18 @@ class IngredientSearchViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<List<Ingredient>>():
         // gets list of ingredients, not copy of list
-        _ingredients = result.value;
+        _ingredients = List.from(result.value);
         _searchableIngredient = _getSearchableIngredients();
         _subscription ??= _ingredientRepository.newIngredient.stream.listen((newIngredient) {
+          if (!_ingredients.contains(newIngredient)) {
+            _ingredients.add(newIngredient);
+          }
           final searchable = SearchableItem(
             id: newIngredient.id.toString(),
             name: newIngredient.name,
           );
           if (!_searchableIngredient.contains(searchable)) {
-            _searchableIngredient.add(
-              SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name),
-            );
+            _searchableIngredient.add(searchable);
           }
         });
         return Result.ok(null);

@@ -32,6 +32,8 @@ class ShoppingListBody extends StatelessWidget {
             return ListenableBuilder(
               listenable: viewModel,
               builder: (context, value) {
+                ShoppingList shoppingList = viewModel.shoppingList;
+                shoppingList.sort(sortShoppingList);
                 return Expanded(
                   child: CustomScrollView(
                     slivers: [
@@ -46,7 +48,7 @@ class ShoppingListBody extends StatelessWidget {
                       ),
                       ShoppingListSlivers(
                         viewModel: viewModel,
-                        shoppingList: viewModel.shoppingList,
+                        shoppingList: shoppingList,
                       ),
                       SliverToBoxAdapter(
                         child: ListTile(
