@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/services/models/raw_ingredient_with_quantity.dart';
+import '../../../domain/models/ingredient/ingredient_units.dart';
 import '../../../domain/models/ingredient/ingredient_with_quantity.dart';
 
 class QuantityTile extends StatelessWidget {
-  const QuantityTile({
-    super.key,
-    required this.ingredientWithQuantity,
-  });
+  const QuantityTile({super.key, required this.ingredientWithQuantity});
 
   final IngredientWithQuantity ingredientWithQuantity;
 
@@ -20,7 +17,7 @@ class QuantityTile extends StatelessWidget {
           style: TextStyle(fontSize: 15, color: Colors.blueGrey),
           children: <TextSpan>[
             TextSpan(text: ingredientWithQuantity.quantity.toInt().toString()),
-            if (ingredientWithQuantity.unit != IngredientUnit.unit)
+            if (ingredientWithQuantity.unit.id != defaultIngredientUnit.id)
               TextSpan(text: ' ${ingredientWithQuantity.unit.name}'),
           ],
         ),

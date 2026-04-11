@@ -26,6 +26,7 @@ GoRouter router() => GoRouter(
               path: Routes.shoppingList,
               builder: (context, state) {
                 return ShoppingListScreen(viewModel: ShoppingListViewModel(
+                  ingredientRepository: context.read(),
                   ingredientWithQuantityUseCase: context.read(),
                   shoppingListRepository: context.read(),
                 ));

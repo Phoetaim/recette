@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../domain/models/ingredient/ingredient_with_quantity.dart';
-import '../../ingredient_search/view_model/ingredient_search_viewmodel.dart';
-import '../../ingredient_search/widgets/ingredient_search_widget.dart';
-import '../../ingredient_search/widgets/quantity_tile.dart';
+import '../../ingredients_utils/view_model/ingredients_utils_viewmodel.dart';
+import '../../ingredients_utils/widgets/ingredient_search_widget.dart';
+import '../../ingredients_utils/widgets/quantity_tile.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailIngredientTab extends StatelessWidget {
@@ -17,7 +17,7 @@ class RecipeDetailIngredientTab extends StatelessWidget {
     return Column(
       children: [
         IngredientSearch(
-          viewModel: IngredientSearchViewModel(ingredientRepository: context.read()),
+          viewModel: IngredientsUtilsViewModel(ingredientRepository: context.read(), ingredientUnitsRepository: context.read()),
           callbackForIngredient: viewModel.addIngredientWithQuantity,
         ),
         IngredientsCard(viewModel: viewModel),

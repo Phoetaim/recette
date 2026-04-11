@@ -3,48 +3,53 @@ import 'package:sqflite/sqflite.dart';
 import '../models/raw_ingredient_with_quantity.dart';
 import 'database.dart';
 
-
 class DatabaseIngredientWithQuantityService {
-  DatabaseIngredientWithQuantityService({required DatabaseService databaseService})
-    : _databaseService = databaseService;
+  DatabaseIngredientWithQuantityService({
+    required DatabaseService databaseService,
+  }) : _databaseService = databaseService;
 
   final DatabaseService _databaseService;
 
   Future<RawIngredientWithQuantity> insertIngredientIdWithQuantity(
-    RawIngredientWithQuantity ingredientIdWithQuantity,
+    RawIngredientWithQuantity rawIngredientIdWithQuantity,
   ) async {
     Database database = await _databaseService.getDatabase();
     final id = await database.insert(TableNames.ingredientWithQuantity, {
-      'ingredientId': ingredientIdWithQuantity.ingredientId,
-      'quantity': ingredientIdWithQuantity.quantity,
-      'unit': ingredientIdWithQuantity.unit.name,
+      'ingredientId': rawIngredientIdWithQuantity.ingredientId,
+      'quantity': rawIngredientIdWithQuantity.quantity,
+      'unit': rawIngredientIdWithQuantity.unit,
     });
-    return ingredientIdWithQuantity.copyWith(id: id);
+    return rawIngredientIdWithQuantity.copyWith(id: id);
   }
 
   Future<void> updateIngredientWithQuantity(
-    RawIngredientWithQuantity ingredientIdWithQuantity,
+    RawIngredientWithQuantity rawIngredientIdWithQuantity,
   ) async {
     Database database = await _databaseService.getDatabase();
     await database.update(
       TableNames.ingredientWithQuantity,
       {
-        'ingredientId': ingredientIdWithQuantity.ingredientId,
-        'quantity': ingredientIdWithQuantity.quantity,
-        'unit': ingredientIdWithQuantity.unit.name,
+        'ingredientId': rawIngredientIdWithQuantity.ingredientId,
+        'quantity': rawIngredientIdWithQuantity.quantity,
+        'unit': rawIngredientIdWithQuantity.unit,
       },
       where: 'id = ?',
-      whereArgs: [ingredientIdWithQuantity.id],
+      whereArgs: [rawIngredientIdWithQuantity.id],
     );
   }
 
-  Future<List<RawIngredientWithQuantity>> getAllIngredientsIdWithQuantity() async {
+  Future<List<RawIngredientWithQuantity>>
+  getAllIngredientsIdWithQuantity() async {
     Database database = await _databaseService.getDatabase();
     final entries = await database.query(TableNames.ingredientWithQuantity);
-    return entries.map((element) => RawIngredientWithQuantity.fromJson(element)).toList();
+    return entries
+        .map((element) => RawIngredientWithQuantity.fromJson(element))
+        .toList();
   }
 
-  Future<List<RawIngredientWithQuantity>> getIngredientIdsWithQuantityByIds(List<int> ids) async {
+  Future<List<RawIngredientWithQuantity>> getIngredientIdsWithQuantityByIds(
+    List<int> ids,
+  ) async {
     Database database = await _databaseService.getDatabase();
     String placeholders = List.filled(ids.length, '?').join(',');
     final entries = await database.query(
@@ -52,7 +57,9 @@ class DatabaseIngredientWithQuantityService {
       where: 'id IN ($placeholders)',
       whereArgs: ids,
     );
-    return entries.map((element) => RawIngredientWithQuantity.fromJson(element)).toList();
+    return entries
+        .map((element) => RawIngredientWithQuantity.fromJson(element))
+        .toList();
   }
 
   Future<void> deleteIngredientIdWithQuantity(int id) async {

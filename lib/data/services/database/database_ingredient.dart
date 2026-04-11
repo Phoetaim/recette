@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../../domain/models/ingredient/ingredient.dart';
+import '../models/raw_ingredient.dart';
 import 'database.dart';
 
 
@@ -14,7 +15,7 @@ class DatabaseIngredientService {
     Database database = await _databaseService.getDatabase();
     final id = await database.insert(TableNames.ingredients, {
       'name': ingredient.name,
-      'type': ingredient.type.name,
+      'type': ingredient.type.id,
     });
     return ingredient.copyWith(id: id);
   }
@@ -23,16 +24,16 @@ class DatabaseIngredientService {
     Database database = await _databaseService.getDatabase();
     await database.update(
       TableNames.ingredients,
-      {'name': ingredient.name, 'type': ingredient.type.name},
+      {'name': ingredient.name, 'type': ingredient.type.id},
       where: 'id = ?',
       whereArgs: [ingredient.id],
     );
   }
 
-  Future<List<Ingredient>> getAllIngredients() async {
+  Future<List<RawIngredient>> getAllIngredients() async {
     Database database = await _databaseService.getDatabase();
     final entries = await database.query(TableNames.ingredients);
-    return entries.map((element) => Ingredient.fromJson(element)).toList();
+    return entries.map((element) => RawIngredient.fromJson(element)).toList();
   }
 
   Future<void> deleteIngredient(int id) async {

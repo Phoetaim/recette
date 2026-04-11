@@ -3,16 +3,21 @@ import 'dart:async';
 import 'package:recette/utils/result.dart';
 
 import '../../../domain/models/ingredient/ingredient.dart';
+import '../../../domain/models/ingredient/ingredient_types.dart';
 import '../../services/database/database_ingredient.dart';
+import 'ingredient_types_repository.dart';
 
 class IngredientRepository {
-  IngredientRepository({required DatabaseIngredientService database}) : _database = database;
+  IngredientRepository({required DatabaseIngredientService database, required IngredientTypesRepository ingredientTypesRepository}) : _database = database, _ingredientTypesRepository = ingredientTypesRepository;
 
   final DatabaseIngredientService _database;
+  final IngredientTypesRepository _ingredientTypesRepository;
 
   final List<Ingredient> _cachedIngredients = [];
   StreamController<Ingredient> newIngredient = StreamController.broadcast();
+  StreamController<Ingredient> updateIngredientStream = StreamController.broadcast();
 
+  Map<int, IngredientTypes> get ingredientTypes => _ingredientTypesRepository.ingredientTypes;
   bool initialized = false;
 
   Future<Result<Ingredient>> addIngredient(Ingredient ingredient) async {
@@ -29,8 +34,9 @@ class IngredientRepository {
   Future<Result<void>> updateIngredient(Ingredient ingredient) async {
     try {
       await _database.updateIngredient(ingredient);
-      _cachedIngredients.removeWhere((element) => element.id == ingredient.id);
-      _cachedIngredients.add(ingredient);
+      final index = _cachedIngredients.indexWhere((element) => element.id == ingredient.id);
+      _cachedIngredients[index] = (ingredient);
+      updateIngredientStream.add(ingredient);
       return Result.ok(null);
     } on Exception {
       return Result.error(IngredientRepositoryError('Could not update ingredient'));
@@ -40,10 +46,15 @@ class IngredientRepository {
   Future<Result<List<Ingredient>>> getIngredients() async {
     if (!initialized) {
       try {
-        var result = await _database.getAllIngredients();
-
+        await _ingredientTypesRepository.loadIngredientTypes();
+        var rawIngredients = await _database.getAllIngredients();
         _cachedIngredients.clear();
-        _cachedIngredients.addAll(result); // Add to cache
+        for (var rawIngredient in rawIngredients) {
+          Map<String, dynamic> ingredientJson = rawIngredient.toJson();
+          ingredientJson['type'] = _ingredientTypesRepository.ingredientTypes[rawIngredient.type]!.toJson();
+          Ingredient ingredient = Ingredient.fromJson(ingredientJson);
+          _cachedIngredients.add(ingredient);
+        }
         initialized = true;
       } on Exception {
         return Result.error(IngredientRepositoryError('Could fetch ingredients'));

@@ -38,7 +38,7 @@ class ShoppingListRepository {
     if (_ingredientExists(ingredientWithQuantity)) {
       final result = await _shoppingDatabase.checkIngredientAlreadyInShoppingList(
         ingredientWithQuantity.ingredient.id!,
-        ingredientWithQuantity.unit.name,
+        ingredientWithQuantity.unit.id!,
       );
 
       if (result != null) {

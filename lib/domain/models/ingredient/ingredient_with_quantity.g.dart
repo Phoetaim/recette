@@ -11,9 +11,9 @@ _IngredientWithQuantity _$IngredientWithQuantityFromJson(
 ) => _IngredientWithQuantity(
   id: (json['id'] as num?)?.toInt(),
   ingredient: Ingredient.fromJson(json['ingredient'] as Map<String, dynamic>),
-  unit:
-      $enumDecodeNullable(_$IngredientUnitEnumMap, json['unit']) ??
-      IngredientUnit.unit,
+  unit: json['unit'] == null
+      ? const IngredientUnit(id: 1)
+      : IngredientUnit.fromJson(json['unit'] as Map<String, dynamic>),
   quantity: (json['quantity'] as num?)?.toInt() ?? 1,
 );
 
@@ -22,21 +22,6 @@ Map<String, dynamic> _$IngredientWithQuantityToJson(
 ) => <String, dynamic>{
   'id': instance.id,
   'ingredient': instance.ingredient,
-  'unit': _$IngredientUnitEnumMap[instance.unit]!,
+  'unit': instance.unit,
   'quantity': instance.quantity,
-};
-
-const _$IngredientUnitEnumMap = {
-  IngredientUnit.unit: 'unit',
-  IngredientUnit.kg: 'kg',
-  IngredientUnit.g: 'g',
-  IngredientUnit.L: 'L',
-  IngredientUnit.dL: 'dL',
-  IngredientUnit.cL: 'cL',
-  IngredientUnit.mL: 'mL',
-  IngredientUnit.cm: 'cm',
-  IngredientUnit.tranche: 'tranche',
-  IngredientUnit.boite: 'boite',
-  IngredientUnit.cac: 'cac',
-  IngredientUnit.cas: 'cas',
 };

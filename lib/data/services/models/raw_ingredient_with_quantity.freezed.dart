@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RawIngredientWithQuantity {
 
- int? get id; int get ingredientId; IngredientUnit get unit; int get quantity;
+ int? get id; int get ingredientId; int get unit; int get quantity;
 /// Create a copy of RawIngredientWithQuantity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $RawIngredientWithQuantityCopyWith<$Res>  {
   factory $RawIngredientWithQuantityCopyWith(RawIngredientWithQuantity value, $Res Function(RawIngredientWithQuantity) _then) = _$RawIngredientWithQuantityCopyWithImpl;
 @useResult
 $Res call({
- int? id, int ingredientId, IngredientUnit unit, int quantity
+ int? id, int ingredientId, int unit, int quantity
 });
 
 
@@ -70,7 +70,7 @@ class _$RawIngredientWithQuantityCopyWithImpl<$Res>
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,ingredientId: null == ingredientId ? _self.ingredientId : ingredientId // ignore: cast_nullable_to_non_nullable
 as int,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
-as IngredientUnit,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as int,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -156,7 +156,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int ingredientId,  IngredientUnit unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int ingredientId,  int unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RawIngredientWithQuantity() when $default != null:
 return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
@@ -177,7 +177,7 @@ return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int ingredientId,  IngredientUnit unit,  int quantity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int ingredientId,  int unit,  int quantity)  $default,) {final _that = this;
 switch (_that) {
 case _RawIngredientWithQuantity():
 return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
@@ -197,7 +197,7 @@ return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int ingredientId,  IngredientUnit unit,  int quantity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int ingredientId,  int unit,  int quantity)?  $default,) {final _that = this;
 switch (_that) {
 case _RawIngredientWithQuantity() when $default != null:
 return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
@@ -212,12 +212,12 @@ return $default(_that.id,_that.ingredientId,_that.unit,_that.quantity);case _:
 @JsonSerializable()
 
 class _RawIngredientWithQuantity implements RawIngredientWithQuantity {
-  const _RawIngredientWithQuantity({this.id, required this.ingredientId, this.unit = IngredientUnit.unit, this.quantity = 1});
+  const _RawIngredientWithQuantity({this.id, required this.ingredientId, this.unit = 1, this.quantity = 1});
   factory _RawIngredientWithQuantity.fromJson(Map<String, dynamic> json) => _$RawIngredientWithQuantityFromJson(json);
 
 @override final  int? id;
 @override final  int ingredientId;
-@override@JsonKey() final  IngredientUnit unit;
+@override@JsonKey() final  int unit;
 @override@JsonKey() final  int quantity;
 
 /// Create a copy of RawIngredientWithQuantity
@@ -253,7 +253,7 @@ abstract mixin class _$RawIngredientWithQuantityCopyWith<$Res> implements $RawIn
   factory _$RawIngredientWithQuantityCopyWith(_RawIngredientWithQuantity value, $Res Function(_RawIngredientWithQuantity) _then) = __$RawIngredientWithQuantityCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, int ingredientId, IngredientUnit unit, int quantity
+ int? id, int ingredientId, int unit, int quantity
 });
 
 
@@ -275,7 +275,7 @@ class __$RawIngredientWithQuantityCopyWithImpl<$Res>
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,ingredientId: null == ingredientId ? _self.ingredientId : ingredientId // ignore: cast_nullable_to_non_nullable
 as int,unit: null == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
-as IngredientUnit,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
+as int,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

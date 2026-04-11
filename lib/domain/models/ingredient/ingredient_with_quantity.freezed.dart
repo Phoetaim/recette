@@ -52,7 +52,7 @@ $Res call({
 });
 
 
-$IngredientCopyWith<$Res> get ingredient;
+$IngredientCopyWith<$Res> get ingredient;$IngredientUnitCopyWith<$Res> get unit;
 
 }
 /// @nodoc
@@ -82,6 +82,15 @@ $IngredientCopyWith<$Res> get ingredient {
   
   return $IngredientCopyWith<$Res>(_self.ingredient, (value) {
     return _then(_self.copyWith(ingredient: value));
+  });
+}/// Create a copy of IngredientWithQuantity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IngredientUnitCopyWith<$Res> get unit {
+  
+  return $IngredientUnitCopyWith<$Res>(_self.unit, (value) {
+    return _then(_self.copyWith(unit: value));
   });
 }
 }
@@ -221,7 +230,7 @@ return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
 @JsonSerializable()
 
 class _IngredientWithQuantity implements IngredientWithQuantity {
-  const _IngredientWithQuantity({this.id, required this.ingredient, this.unit = IngredientUnit.unit, this.quantity = 1});
+  const _IngredientWithQuantity({this.id, required this.ingredient, this.unit = const IngredientUnit(id: 1), this.quantity = 1});
   factory _IngredientWithQuantity.fromJson(Map<String, dynamic> json) => _$IngredientWithQuantityFromJson(json);
 
 @override final  int? id;
@@ -266,7 +275,7 @@ $Res call({
 });
 
 
-@override $IngredientCopyWith<$Res> get ingredient;
+@override $IngredientCopyWith<$Res> get ingredient;@override $IngredientUnitCopyWith<$Res> get unit;
 
 }
 /// @nodoc
@@ -297,6 +306,15 @@ $IngredientCopyWith<$Res> get ingredient {
   
   return $IngredientCopyWith<$Res>(_self.ingredient, (value) {
     return _then(_self.copyWith(ingredient: value));
+  });
+}/// Create a copy of IngredientWithQuantity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IngredientUnitCopyWith<$Res> get unit {
+  
+  return $IngredientUnitCopyWith<$Res>(_self.unit, (value) {
+    return _then(_self.copyWith(unit: value));
   });
 }
 }

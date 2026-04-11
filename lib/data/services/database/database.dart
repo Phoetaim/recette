@@ -1,12 +1,28 @@
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+const String databaseDirectory = 'migrations';
+
+final List<String> databaseFilesV1 = [
+  '$databaseDirectory/1/ingredient_types.sql',
+  '$databaseDirectory/1/ingredient_units.sql',
+  '$databaseDirectory/1/ingredients.sql',
+  '$databaseDirectory/1/ingredient_with_quantity.sql',
+  '$databaseDirectory/1/shopping_ingredient.sql',
+  '$databaseDirectory/1/recipe.sql',
+  '$databaseDirectory/1/recipe_ingredient_with_quantity.sql',
+];
+
 abstract final class TableNames {
+  static const ingredientTypes = 'ingredientTypes';
+  static const ingredientUnits = 'ingredientUnits';
   static const ingredients = 'ingredients';
   static const ingredientWithQuantity = 'ingredientWithQuantity';
   static const shoppingIngredient = 'shoppingIngredient';
   static const recipes = 'recipes';
-  static const recipesIngredientsWithQuantity = 'recipesIngredientsWithQuantity';
+  static const recipesIngredientsWithQuantity =
+      'recipesIngredientsWithQuantity';
 }
 
 class DatabaseService {
@@ -23,11 +39,6 @@ class DatabaseService {
     return _database!;
   }
 
-  void _onConfigure(Database db) async {
-    // Add support for cascade delete
-    await db.execute('PRAGMA foreign_keys = ON');
-  }
-
   Future<void> open() async {
     try {
       // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
@@ -35,56 +46,36 @@ class DatabaseService {
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onConfigure: _onConfigure,
-          onCreate: (db, version) {
-            db.execute('''
-                CREATE TABLE ${TableNames.ingredients}(
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT NOT NULL,
-                  type TEXT
-                 );
-                 ''');
-            db.execute('''
-                CREATE TABLE ${TableNames.ingredientWithQuantity}(
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   ingredientId int NOT NULL,
-                   unit TEXT,
-                   quantity int,
-                   FOREIGN KEY (ingredientId) REFERENCES ${TableNames.ingredients} (id) ON DELETE CASCADE)
-                ''');
-            db.execute('''
-                CREATE TABLE ${TableNames.shoppingIngredient}(
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   ingredientWithQuantityId int NOT NULL,
-                   shoppingListId  int,
-                   bought BOOL,
-                   FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity} (id) ON DELETE CASCADE)
-                ''');
-            db.execute('''
-                CREATE TABLE ${TableNames.recipes}(
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT,
-                  preparationTime TEXT,
-                  cookingTime TEXT,
-                  nbOfPeople INTEGER,
-                  steps TEXT
-                 )
-            ''');
-            db.execute('''
-                CREATE TABLE ${TableNames.recipesIngredientsWithQuantity}(
-                  recipeId INTEGER,
-                  ingredientWithQuantityId INTEGER,
-                  PRIMARY KEY (recipeId, ingredientWithQuantityId),
-                  FOREIGN KEY (recipeId) REFERENCES ${TableNames.recipes}(id) ON DELETE CASCADE,
-                  FOREIGN KEY (ingredientWithQuantityId) REFERENCES ${TableNames.ingredientWithQuantity}(id) ON DELETE CASCADE
-                )
-            ''');
-          },
+          onCreate: _onCreate,
           version: 1,
         ),
       );
     } on Exception catch (e) {
       print(e);
     }
+  }
+
+  void _onConfigure(Database db) async {
+    // Add support for cascade delete
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    if (version == 1) {
+      for (String file in databaseFilesV1) {
+        await executeFromFile(db, file);
+      }
+    }
+  }
+
+  Future<void> executeFromFile(Database db, String file) async {
+    String sqlScript = await rootBundle.loadString(file);
+    final batch = db.batch();
+    final statements = sqlScript.split(';').where((s) => s.trim().isNotEmpty);
+    for (String query in statements) {
+      batch.execute(query);
+    }
+    batch.commit();
   }
 
   Future<void> close() async {

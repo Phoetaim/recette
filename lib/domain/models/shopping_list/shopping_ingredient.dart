@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:recette/domain/models/ingredient/ingredient.dart';
 
 import '../ingredient/ingredient_with_quantity.dart';
 
@@ -18,5 +19,14 @@ abstract class ShoppingIngredient with _$ShoppingIngredient {
     required IngredientWithQuantity ingredientWithQuantity,
   }) = _ShoppingIngredient;
 
-  factory ShoppingIngredient.fromJson(Map<String, Object?> json) => _$ShoppingIngredientFromJson(json);
+  factory ShoppingIngredient.fromJson(Map<String, Object?> json) =>
+      _$ShoppingIngredientFromJson(json);
 }
+
+int compareShoppingIngredients(
+  ShoppingIngredient shoppingIngredient1,
+  ShoppingIngredient shoppingIngredient2,
+) => compareIngredients(
+  shoppingIngredient1.ingredientWithQuantity.ingredient,
+  shoppingIngredient2.ingredientWithQuantity.ingredient,
+);

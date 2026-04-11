@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'ingredient.dart';
+part of 'raw_ingredient.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,22 +13,22 @@ part of 'ingredient.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$Ingredient {
+mixin _$RawIngredient {
 
- int? get id; String get name; IngredientTypes get type;
-/// Create a copy of Ingredient
+ int? get id; String get name; int get type;
+/// Create a copy of RawIngredient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$IngredientCopyWith<Ingredient> get copyWith => _$IngredientCopyWithImpl<Ingredient>(this as Ingredient, _$identity);
+$RawIngredientCopyWith<RawIngredient> get copyWith => _$RawIngredientCopyWithImpl<RawIngredient>(this as RawIngredient, _$identity);
 
-  /// Serializes this Ingredient to a JSON map.
+  /// Serializes this RawIngredient to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Ingredient&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RawIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,57 +37,48 @@ int get hashCode => Object.hash(runtimeType,id,name,type);
 
 @override
 String toString() {
-  return 'Ingredient(id: $id, name: $name, type: $type)';
+  return 'RawIngredient(id: $id, name: $name, type: $type)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $IngredientCopyWith<$Res>  {
-  factory $IngredientCopyWith(Ingredient value, $Res Function(Ingredient) _then) = _$IngredientCopyWithImpl;
+abstract mixin class $RawIngredientCopyWith<$Res>  {
+  factory $RawIngredientCopyWith(RawIngredient value, $Res Function(RawIngredient) _then) = _$RawIngredientCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, IngredientTypes type
+ int? id, String name, int type
 });
 
 
-$IngredientTypesCopyWith<$Res> get type;
+
 
 }
 /// @nodoc
-class _$IngredientCopyWithImpl<$Res>
-    implements $IngredientCopyWith<$Res> {
-  _$IngredientCopyWithImpl(this._self, this._then);
+class _$RawIngredientCopyWithImpl<$Res>
+    implements $RawIngredientCopyWith<$Res> {
+  _$RawIngredientCopyWithImpl(this._self, this._then);
 
-  final Ingredient _self;
-  final $Res Function(Ingredient) _then;
+  final RawIngredient _self;
+  final $Res Function(RawIngredient) _then;
 
-/// Create a copy of Ingredient
+/// Create a copy of RawIngredient
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? type = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as IngredientTypes,
+as int,
   ));
 }
-/// Create a copy of Ingredient
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$IngredientTypesCopyWith<$Res> get type {
-  
-  return $IngredientTypesCopyWith<$Res>(_self.type, (value) {
-    return _then(_self.copyWith(type: value));
-  });
-}
+
 }
 
 
-/// Adds pattern-matching-related methods to [Ingredient].
-extension IngredientPatterns on Ingredient {
+/// Adds pattern-matching-related methods to [RawIngredient].
+extension RawIngredientPatterns on RawIngredient {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -100,10 +91,10 @@ extension IngredientPatterns on Ingredient {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Ingredient value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RawIngredient value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _Ingredient() when $default != null:
+case _RawIngredient() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -122,10 +113,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Ingredient value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RawIngredient value)  $default,){
 final _that = this;
 switch (_that) {
-case _Ingredient():
+case _RawIngredient():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -143,10 +134,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Ingredient value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RawIngredient value)?  $default,){
 final _that = this;
 switch (_that) {
-case _Ingredient() when $default != null:
+case _RawIngredient() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -164,9 +155,9 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  IngredientTypes type)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  int type)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _Ingredient() when $default != null:
+case _RawIngredient() when $default != null:
 return $default(_that.id,_that.name,_that.type);case _:
   return orElse();
 
@@ -185,9 +176,9 @@ return $default(_that.id,_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  IngredientTypes type)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  int type)  $default,) {final _that = this;
 switch (_that) {
-case _Ingredient():
+case _RawIngredient():
 return $default(_that.id,_that.name,_that.type);case _:
   throw StateError('Unexpected subclass');
 
@@ -205,9 +196,9 @@ return $default(_that.id,_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  IngredientTypes type)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  int type)?  $default,) {final _that = this;
 switch (_that) {
-case _Ingredient() when $default != null:
+case _RawIngredient() when $default != null:
 return $default(_that.id,_that.name,_that.type);case _:
   return null;
 
@@ -219,28 +210,28 @@ return $default(_that.id,_that.name,_that.type);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _Ingredient implements Ingredient {
-  const _Ingredient({this.id, required this.name, this.type = const IngredientTypes(id: 0, name: 'other', color: 4292269782)});
-  factory _Ingredient.fromJson(Map<String, dynamic> json) => _$IngredientFromJson(json);
+class _RawIngredient implements RawIngredient {
+  const _RawIngredient({this.id, required this.name, this.type = 15});
+  factory _RawIngredient.fromJson(Map<String, dynamic> json) => _$RawIngredientFromJson(json);
 
 @override final  int? id;
 @override final  String name;
-@override@JsonKey() final  IngredientTypes type;
+@override@JsonKey() final  int type;
 
-/// Create a copy of Ingredient
+/// Create a copy of RawIngredient
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$IngredientCopyWith<_Ingredient> get copyWith => __$IngredientCopyWithImpl<_Ingredient>(this, _$identity);
+_$RawIngredientCopyWith<_RawIngredient> get copyWith => __$RawIngredientCopyWithImpl<_RawIngredient>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$IngredientToJson(this, );
+  return _$RawIngredientToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Ingredient&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RawIngredient&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -249,53 +240,44 @@ int get hashCode => Object.hash(runtimeType,id,name,type);
 
 @override
 String toString() {
-  return 'Ingredient(id: $id, name: $name, type: $type)';
+  return 'RawIngredient(id: $id, name: $name, type: $type)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$IngredientCopyWith<$Res> implements $IngredientCopyWith<$Res> {
-  factory _$IngredientCopyWith(_Ingredient value, $Res Function(_Ingredient) _then) = __$IngredientCopyWithImpl;
+abstract mixin class _$RawIngredientCopyWith<$Res> implements $RawIngredientCopyWith<$Res> {
+  factory _$RawIngredientCopyWith(_RawIngredient value, $Res Function(_RawIngredient) _then) = __$RawIngredientCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, IngredientTypes type
+ int? id, String name, int type
 });
 
 
-@override $IngredientTypesCopyWith<$Res> get type;
+
 
 }
 /// @nodoc
-class __$IngredientCopyWithImpl<$Res>
-    implements _$IngredientCopyWith<$Res> {
-  __$IngredientCopyWithImpl(this._self, this._then);
+class __$RawIngredientCopyWithImpl<$Res>
+    implements _$RawIngredientCopyWith<$Res> {
+  __$RawIngredientCopyWithImpl(this._self, this._then);
 
-  final _Ingredient _self;
-  final $Res Function(_Ingredient) _then;
+  final _RawIngredient _self;
+  final $Res Function(_RawIngredient) _then;
 
-/// Create a copy of Ingredient
+/// Create a copy of RawIngredient
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? type = null,}) {
-  return _then(_Ingredient(
+  return _then(_RawIngredient(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as IngredientTypes,
+as int,
   ));
 }
 
-/// Create a copy of Ingredient
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$IngredientTypesCopyWith<$Res> get type {
-  
-  return $IngredientTypesCopyWith<$Res>(_self.type, (value) {
-    return _then(_self.copyWith(type: value));
-  });
-}
+
 }
 
 // dart format on

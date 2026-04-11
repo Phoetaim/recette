@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:recette/domain/models/ingredient/ingredient_units.dart';
 
-import '../../../data/services/models/raw_ingredient_with_quantity.dart';
 import 'ingredient.dart';
 
 part 'ingredient_with_quantity.freezed.dart';
@@ -14,7 +14,7 @@ abstract class IngredientWithQuantity with _$IngredientWithQuantity {
 
     required Ingredient ingredient,
 
-    @Default(IngredientUnit.unit) IngredientUnit unit,
+    @Default(IngredientUnit(id: 1)) IngredientUnit unit,
 
     @Default(1) int quantity,
   }) = _IngredientWithQuantity;

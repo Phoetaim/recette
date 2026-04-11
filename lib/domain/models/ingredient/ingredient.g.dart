@@ -9,21 +9,14 @@ part of 'ingredient.dart';
 _Ingredient _$IngredientFromJson(Map<String, dynamic> json) => _Ingredient(
   id: (json['id'] as num?)?.toInt(),
   name: json['name'] as String,
-  type:
-      $enumDecodeNullable(_$IngredientTypeEnumMap, json['type']) ??
-      IngredientType.other,
+  type: json['type'] == null
+      ? const IngredientTypes(id: 0, name: 'other', color: 4292269782)
+      : IngredientTypes.fromJson(json['type'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$IngredientToJson(_Ingredient instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'type': _$IngredientTypeEnumMap[instance.type]!,
+      'type': instance.type,
     };
-
-const _$IngredientTypeEnumMap = {
-  IngredientType.other: 'other',
-  IngredientType.fruits: 'fruits',
-  IngredientType.meat: 'meat',
-  IngredientType.house: 'house',
-};

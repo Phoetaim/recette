@@ -1,3 +1,5 @@
+import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
+
 import '../../data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
 import '../../data/repositories/ingredient/ingredient_repository.dart';
 import '../../data/services/models/raw_ingredient_with_quantity.dart';
@@ -8,15 +10,19 @@ import '../models/ingredient/ingredient_with_quantity.dart';
 class IngredientWithQuantityUseCase {
   IngredientWithQuantityUseCase({
     required IngredientRepository ingredientRepository,
-    required IngredientIdWithQuantityRepository ingredientIdWithQuantityRepository,
+    required IngredientWithQuantityRepository ingredientWithQuantityRepository,
+    required IngredientUnitsRepository ingredientUnitsRepository,
   }) : _ingredientRepository = ingredientRepository,
-       _ingredientIdWithQuantityRepository = ingredientIdWithQuantityRepository;
+       _ingredientWithQuantityRepository = ingredientWithQuantityRepository,
+       _ingredientUnitsRepository = ingredientUnitsRepository;
 
   final IngredientRepository _ingredientRepository;
-  final IngredientIdWithQuantityRepository _ingredientIdWithQuantityRepository;
+  final IngredientWithQuantityRepository _ingredientWithQuantityRepository;
+  final IngredientUnitsRepository _ingredientUnitsRepository;
 
   Future<Result<List<Map<Object, Object>>>> getIngredientWithQuantityByIds(List<int> ids) async {
-    var ingredientIdWithQuantityResult = await _ingredientIdWithQuantityRepository
+    await _ingredientUnitsRepository.loadIngredientUnits();
+    var ingredientIdWithQuantityResult = await _ingredientWithQuantityRepository
         .getRawIngredientWithQuantityByIds(ids);
     switch (ingredientIdWithQuantityResult) {
       case Ok<List<RawIngredientWithQuantity>>():
@@ -30,8 +36,11 @@ class IngredientWithQuantityUseCase {
               var ingredientWithQuantityMap = Map<String, Object>.from(
                 rawIngredientWithQuantity.toJson(),
               );
+              ingredientWithQuantityMap['unit'] = _ingredientUnitsRepository.ingredientUnitsById[rawIngredientWithQuantity.unit]!.toJson();
+              var ingredientJson = ingredientResult.value.toJson();
+              ingredientJson['type'] = ingredientResult.value.type.toJson();
               ingredientWithQuantityMap.addEntries(
-                {'ingredient': ingredientResult.value.toJson()}.entries,
+                {'ingredient': ingredientJson}.entries,
               );
               ingredientWithQuantityMaps.add(ingredientWithQuantityMap);
             case Error<Ingredient>():
@@ -54,10 +63,10 @@ class IngredientWithQuantityUseCase {
     }
     RawIngredientWithQuantity ingredientIdWithQuantity = RawIngredientWithQuantity(
       quantity: ingredientWithQuantity.quantity,
-      unit: ingredientWithQuantity.unit,
+      unit: ingredientWithQuantity.unit.id!,
       ingredientId: ingredientWithQuantity.ingredient.id!,
     );
-    var result = await _ingredientIdWithQuantityRepository.addRawIngredientWithQuantity(
+    var result = await _ingredientWithQuantityRepository.addRawIngredientWithQuantity(
       ingredientIdWithQuantity,
     );
     switch (result) {
@@ -71,7 +80,7 @@ class IngredientWithQuantityUseCase {
   Future<Result<void>> updateIngredientWithQuantity(
       RawIngredientWithQuantity rawIngredientWithQuantity,
       ) async {
-    return await _ingredientIdWithQuantityRepository.updateRawIngredientWithQuantity(
+    return await _ingredientWithQuantityRepository.updateRawIngredientWithQuantity(
       rawIngredientWithQuantity,
     );
   }

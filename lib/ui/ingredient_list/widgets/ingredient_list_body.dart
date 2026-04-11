@@ -19,20 +19,26 @@ class IngredientListBody extends StatelessWidget {
         ),
         SizedBox(height: 10,),
         ListenableBuilder(
-          listenable: viewModel.loadIngredientList,
+          listenable: viewModel,
           builder: (context, child) {
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: viewModel.getFilteredIngredients.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: [
-                    Text(viewModel.getFilteredIngredients[index].name),
-                    Divider(),
-                  ],
-                );
-              },
+            return Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: viewModel.getFilteredIngredients.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        viewModel.getFilteredIngredients[index].type.getIcon(),
+                        SizedBox(width: 8,),
+                        Text(viewModel.getFilteredIngredients[index].name),
+                      ],
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

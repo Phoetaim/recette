@@ -3,8 +3,8 @@ import 'package:recette/utils/result.dart';
 
 import '../../services/database/database_ingredient_with_quantity.dart';
 
-class IngredientIdWithQuantityRepository {
-  IngredientIdWithQuantityRepository({required DatabaseIngredientWithQuantityService database})
+class IngredientWithQuantityRepository {
+  IngredientWithQuantityRepository({required DatabaseIngredientWithQuantityService database})
     : _database = database;
 
   final DatabaseIngredientWithQuantityService _database;

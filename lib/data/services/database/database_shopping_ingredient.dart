@@ -50,7 +50,7 @@ class DatabaseShoppingIngredientService {
     Database database = await _databaseService.getDatabase();
     final rowsUpdated = await database.update(
       TableNames.shoppingIngredient,
-      {'bought': bought},
+      {'bought': bought ? 1: 0},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -91,7 +91,7 @@ class DatabaseShoppingIngredientService {
     ''');
   }
 
-  Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId, String unit) async {
+  Future<DuplicateShoppingIngredientResult?> checkIngredientAlreadyInShoppingList(int ingredientId, int unit) async {
     Database database = await _databaseService.getDatabase();
     final entries = await database.rawQuery('''
     SELECT S.id as shoppingIngredientId, I.id, I.ingredientId, I.unit, I.quantity
