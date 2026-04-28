@@ -83,6 +83,7 @@ flutter:
     - migrations/1/recipe.sql
     - migrations/1/recipe_ingredient_with_quantity.sql
     - migrations/2/add_hygiene_type.sql
+    - migrations/3/recipe_planning.sql
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -15,6 +15,7 @@ import '../data/services/database/database_ingredient.dart';
 import '../data/services/database/database_ingredient_types.dart';
 import '../data/services/database/database_ingredient_with_quantity.dart';
 import '../data/services/database/database_recipe.dart';
+import '../data/services/database/database_recipe_planning.dart';
 import '../data/services/database/database_shopping_ingredient.dart';
 import '../data/services/local_service.dart';
 import '../data/services/database/database.dart';
@@ -41,6 +42,7 @@ List<SingleChildWidget> get providersLocal {
       create: (context) => DatabaseShoppingIngredientService(databaseService: context.read()),
     ),
     Provider(create: (context) => DatabaseRecipeService(databaseService: context.read())),
+    Provider(create: (context) => DatabaseRecipePlanningService(databaseService: context.read())),
     Provider(create: (context) => DatabaseIngredientTypeService(databaseService: context.read())),
     Provider(create: (context) => DatabaseIngredientUnitsService(databaseService: context.read())),
     Provider(create: (context) => RecipeRepository(database: context.read())),

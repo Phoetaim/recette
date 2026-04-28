@@ -16,7 +16,10 @@ final Map<int, List<String>> databaseFiles = <int, List<String>>{
   ],
   2: [
     'add_hygiene_type.sql',
-  ]
+  ],
+  3: [
+    'recipe_planning.sql'
+  ],
 };
 
 abstract final class TableNames {
@@ -28,6 +31,8 @@ abstract final class TableNames {
   static const recipes = 'recipes';
   static const recipesIngredientsWithQuantity =
       'recipesIngredientsWithQuantity';
+  static const recipePlanning =
+      'recipePlanning';
 }
 
 class DatabaseService {
@@ -50,7 +55,7 @@ class DatabaseService {
         options: OpenDatabaseOptions(
           onConfigure: _onConfigure,
           onUpgrade: _onUpgrade,
-          version: 2,
+          version: 3,
         ),
       );
   }
