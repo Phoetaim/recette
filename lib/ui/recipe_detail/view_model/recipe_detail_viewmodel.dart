@@ -51,6 +51,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
     if (recipeId == -1) {
       _rawRecipe = RawRecipe();
       _originalRecipe = null;
+      currentNumberOfPeople.value = recipe.value.nbOfPeople;
       return Result.ok(null);
     }
     final result = await _recipeRepository.getRecipe(recipeId);
