@@ -51,7 +51,7 @@ class IngredientSearch extends StatelessWidget {
     BuildContext context,
     SearchController controller,
   ) {
-    IngredientSearchResult searchResult = viewModel.filterIngredients(
+    IngredientSearchResult searchResult = viewModel.handleSearch(
       controller.text.toLowerCase(),
     );
     String unit = searchResult.unit.id == defaultIngredientUnit.id
