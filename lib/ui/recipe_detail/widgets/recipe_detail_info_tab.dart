@@ -117,9 +117,9 @@ class _HeaderTextFormFieldState extends State<HeaderTextFormField> {
         setState(() {
           _currentValue = value;
         });
+        widget.callback(_currentValue);
       },
       onTapOutside: (PointerDownEvent event) {
-        widget.callback(_currentValue);
         FocusScope.of(context).unfocus();
       },
     );
