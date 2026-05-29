@@ -75,7 +75,9 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
 
   void _onResult() {
     if (widget.viewModel.deleteIngredient.completed) {
-      context.go(Routes.recipeList);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Ingrédient supprimé'), duration: Duration(milliseconds: 150)));
     }
 
     if (widget.viewModel.deleteIngredient.error) {

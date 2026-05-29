@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:synchronized/synchronized.dart';
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
 import 'package:recette/data/services/models/raw_shopping_ingredient.dart';
@@ -8,6 +7,8 @@ import 'package:recette/domain/models/ingredient/ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
+import 'package:synchronized/synchronized.dart';
+
 import '../../../data/repositories/shopping_list/shopping_list_repository.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
@@ -31,12 +32,14 @@ class ShoppingListViewModel extends ChangeNotifier {
 
   StreamSubscription<ShoppingIngredient>? _newShoppingIngredientSubscription;
   StreamSubscription<Ingredient>? _updatedIngredientSubscription;
+  StreamSubscription? _deleteIngredientSubscription;
 
   var shoppingListLock = Lock();
   final ShoppingList _shoppingList = [];
 
   ShoppingList get shoppingList =>
       _shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought).toList();
+
   ShoppingList get shoppingListBought =>
       _shoppingList.where((shoppingIngredient) => shoppingIngredient.bought).toList();
 
@@ -52,10 +55,9 @@ class ShoppingListViewModel extends ChangeNotifier {
               (_shoppingList.any((ingredient) => ingredient.id == rawShoppingIngredient.id)),
         );
         await _loadShoppingIngredients(rawShoppingList);
-        _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream
-            .listen(_handleUpdatedIngredientStream);
-        _newShoppingIngredientSubscription ??= _shoppingListRepository.updatedShoppingList.stream
-            .listen(_handleNewShoppingIngredientStream);
+
+        _initSubscriptions();
+
         return Result.ok(null);
       case Error<RawShoppingList>():
         print('RIP: ${result.error}');
@@ -93,6 +95,17 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   }
 
+  void _initSubscriptions() {
+    _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream.listen(
+      _handleUpdatedIngredientStream,
+    );
+    _newShoppingIngredientSubscription ??= _shoppingListRepository.updatedShoppingList.stream
+        .listen(_handleNewShoppingIngredientStream);
+    _deleteIngredientSubscription ??= _ingredientRepository.deleteIngredientStream.stream.listen(
+      _handleDeletedIngredientStream,
+    );
+  }
+
   void _handleUpdatedIngredientStream(Ingredient ingredient) async {
     List<int> indexList = [];
     for (int index = 0; index < _shoppingList.length; index++) {
@@ -112,6 +125,15 @@ class ShoppingListViewModel extends ChangeNotifier {
       });
       notifyListeners();
     }
+  }
+
+  void _handleDeletedIngredientStream(Ingredient ingredient) async {
+    await shoppingListLock.synchronized(() async {
+      _shoppingList.removeWhere(
+        ((element) => element.ingredientWithQuantity.ingredient.id == ingredient.id),
+      );
+    });
+    notifyListeners();
   }
 
   void _handleNewShoppingIngredientStream(ShoppingIngredient shoppingIngredient) async {
@@ -207,5 +229,6 @@ class ShoppingListViewModel extends ChangeNotifier {
 
 class ShoppingListError implements Exception {
   String cause;
+
   ShoppingListError(this.cause);
 }

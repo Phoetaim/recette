@@ -14,8 +14,9 @@ class IngredientRepository {
   final IngredientTypesRepository _ingredientTypesRepository;
 
   final List<Ingredient> _cachedIngredients = [];
-  StreamController<Ingredient> newIngredient = StreamController.broadcast();
+  StreamController<Ingredient> newIngredientStream = StreamController.broadcast();
   StreamController<Ingredient> updateIngredientStream = StreamController.broadcast();
+  StreamController<Ingredient> deleteIngredientStream = StreamController.broadcast();
 
   Map<int, IngredientTypes> get ingredientTypes => _ingredientTypesRepository.ingredientTypes;
   bool initialized = false;
@@ -24,7 +25,7 @@ class IngredientRepository {
     try {
       var result = await _database.insertIngredient(ingredient);
       _cachedIngredients.add(result);
-      newIngredient.add(result);
+      newIngredientStream.add(result);
       return Result.ok(result);
     } on Exception {
       return Result.error(IngredientRepositoryError('Could not add ingredient'));
@@ -89,6 +90,7 @@ class IngredientRepository {
     try {
       await _database.deleteIngredient(ingredient.id!);
       _cachedIngredients.removeWhere((item) => item.id == ingredient.id);
+      deleteIngredientStream.add(ingredient);
       return Result.ok(null);
     } on Exception {
       return Result.error(IngredientRepositoryError('Could not remove ingredient'));

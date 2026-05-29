@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fuzzy_search_engine/fuzzy_search_engine.dart';
-import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
-import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
-import 'package:recette/domain/models/ingredient/ingredient_types.dart';
+
+import '../../../data/repositories/ingredient/ingredient_repository.dart';
+import '../../../data/repositories/ingredient/ingredient_units_repository.dart';
 import '../../../domain/models/ingredient/ingredient.dart';
+import '../../../domain/models/ingredient/ingredient_types.dart';
 import '../../../domain/models/ingredient/ingredient_units.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
@@ -15,7 +16,7 @@ const searchConfig = SearchConfig(fuzzyEnabled: true, caseSensitive: false, maxR
 class IngredientsUtilsViewModel extends ChangeNotifier {
   IngredientsUtilsViewModel({
     required IngredientRepository ingredientRepository,
-    required IngredientUnitsRepository ingredientUnitsRepository,
+    IngredientUnitsRepository? ingredientUnitsRepository,
   }) : _ingredientRepository = ingredientRepository,
        _ingredientUnitsRepository = ingredientUnitsRepository {
     loadIngredients = Command0(_loadIngredients)..execute();
@@ -23,15 +24,19 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   }
 
   final IngredientRepository _ingredientRepository;
-  final IngredientUnitsRepository _ingredientUnitsRepository;
+  final IngredientUnitsRepository? _ingredientUnitsRepository;
 
   late final Command0<void> loadIngredients;
   late final Command1<void, Ingredient> updateIngredient;
 
-  StreamSubscription? _subscription;
+  StreamSubscription? _newIngredientSubscription;
+  StreamSubscription? _updatedIngredientSubscription;
+  StreamSubscription? _deleteIngredientSubscription;
+  ValueNotifier<int> updatedIngredient = ValueNotifier(0);
+
   late final List<Ingredient> _ingredients;
   late List<SearchableItem> _searchableIngredient;
-  late List<Ingredient> _filteredIngredients;
+  List<Ingredient> _filteredIngredients = [];
 
   late final Map<String, IngredientUnit> _ingredientUnitsByName;
   late final RegExp _ingredientRegex;
@@ -56,18 +61,9 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
         // gets list of ingredients, not copy of list
         _ingredients = List.from(result.value);
         _searchableIngredient = _getSearchableIngredients();
-        _subscription ??= _ingredientRepository.newIngredient.stream.listen((newIngredient) {
-          if (!_ingredients.contains(newIngredient)) {
-            _ingredients.add(newIngredient);
-          }
-          final searchable = SearchableItem(
-            id: newIngredient.id.toString(),
-            name: newIngredient.name,
-          );
-          if (!_searchableIngredient.contains(searchable)) {
-            _searchableIngredient.add(searchable);
-          }
-        });
+
+        _initSubscriptions();
+
         return Result.ok(null);
       case Error<List<Ingredient>>():
         return Result.error(result.error);
@@ -75,6 +71,9 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   }
 
   Future<void> _loadIngredientUnits() async {
+    if (_ingredientUnitsRepository == null) {
+      return;
+    }
     await _ingredientUnitsRepository.loadIngredientUnits();
     _ingredientUnitsByName = _ingredientUnitsRepository.ingredientUnitsByName;
     _ingredientRegex = RegExp(
@@ -82,6 +81,43 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
           _formatIngredientTypesForRegex() +
           r")\s+)?(?:de |d')?(?<name>.*)",
     );
+  }
+
+  void _initSubscriptions(){
+    _newIngredientSubscription ??= _ingredientRepository.newIngredientStream.stream
+        .listen(_handleNewIngredientStream);
+    _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream
+        .listen(_handleUpdatedIngredientStream);
+    _deleteIngredientSubscription ??= _ingredientRepository.deleteIngredientStream.stream
+        .listen(_handleDeletedIngredientStream);
+  }
+
+  void _handleNewIngredientStream(Ingredient newIngredient) async {
+    if (!_ingredients.contains(newIngredient)) {
+      _ingredients.add(newIngredient);
+    }
+    final searchable = SearchableItem(id: newIngredient.id.toString(), name: newIngredient.name);
+    if (!_searchableIngredient.contains(searchable)) {
+      _searchableIngredient.add(searchable);
+    }
+  }
+
+  void _handleUpdatedIngredientStream(Ingredient ingredient) async {
+    int index = _ingredients.indexWhere((ingredient_) => ingredient_.id == ingredient.id);
+    if (index > -1) {
+      _ingredients[index] = ingredient;
+    }
+    final indexFiltered = _filteredIngredients.indexWhere((element) => element.id == ingredient.id);
+    if (indexFiltered > -1) {
+      _filteredIngredients[indexFiltered] = ingredient;
+      updatedIngredient.value++;
+    }
+  }
+
+  void _handleDeletedIngredientStream(Ingredient ingredient) async {
+    _ingredients.removeWhere((ingredient_) => ingredient_.id == ingredient.id);
+    _filteredIngredients.removeWhere((element) => element.id == ingredient.id);
+    notifyListeners();
   }
 
   Future<Result<void>> _updateIngredient(Ingredient ingredient) async {
@@ -93,10 +129,11 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
       final index = _ingredients.indexWhere((element) => element.id == ingredient.id);
       _ingredients[index] = ingredient;
     }
-    final indexFiltered = _filteredIngredients.indexWhere((element) => element.id == ingredient.id);
-    _filteredIngredients[indexFiltered] = ingredient;
 
-    notifyListeners();
+    final indexFiltered = _filteredIngredients.indexWhere((element) => element.id == ingredient.id);
+    if (indexFiltered > -1) {
+      _filteredIngredients[indexFiltered] = ingredient;
+    }
     return result;
   }
 
@@ -122,7 +159,6 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   List<Ingredient> filterIngredients(String? ingredientName) {
     late List<Ingredient> filteredIngredients;
     if (ingredientName == null || ingredientName.isEmpty) {
-      print('NULL???');
       filteredIngredients = List.from(_ingredients);
       filteredIngredients.sort(compareIngredientName);
     } else {
@@ -157,7 +193,9 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _newIngredientSubscription?.cancel();
+    _updatedIngredientSubscription?.cancel();
+    _deleteIngredientSubscription?.cancel();
     super.dispose();
   }
 }

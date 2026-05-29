@@ -14,22 +14,33 @@ class IngredientTypeWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: PopupMenuButton<IngredientTypes>(
-        initialValue: ingredient.type,
-        onSelected: (IngredientTypes ingredientType) {
-          viewModel.updateIngredient.execute(ingredient.copyWith(type: ingredientType));
-        },
-        itemBuilder: (BuildContext context) => viewModel.ingredientTypes
-            .map((element) => PopupMenuItem(value: element, child: Row(
-              children: [
-                element.getIcon(),
-                SizedBox(width: 8),
-                Text(element.name),
-              ],
-            )))
-            .toList(),
-        child: ingredient.type.getIcon(),
-      ),
+      child: GestureDetector(onLongPress: () => _showMenu(context), child: ingredient.type.getIcon())
     );
+  }
+
+  void _showMenu(BuildContext context) {
+    showMenu(
+        context: context,
+        items: _buildEntries(),
+        position: RelativeRect.fromLTRB(10, 50,50,50),
+        initialValue: ingredient.type,
+    ).then((
+      IngredientTypes? ingredientType,
+    ) {
+      if (ingredientType != null) {
+        viewModel.updateIngredient.execute(ingredient.copyWith(type: ingredientType));
+      }
+    });
+  }
+
+  List<PopupMenuEntry<IngredientTypes>> _buildEntries() {
+    return viewModel.ingredientTypes
+        .map(
+          (element) => PopupMenuItem(
+            value: element,
+            child: Row(children: [element.getIcon(), SizedBox(width: 8), Text(element.name)]),
+          ),
+        )
+        .toList();
   }
 }

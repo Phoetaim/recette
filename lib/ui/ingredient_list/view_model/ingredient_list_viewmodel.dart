@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
+
+import '../../../data/repositories/ingredient/ingredient_repository.dart';
 import '../../../domain/models/ingredient/ingredient.dart';
-import '../../../domain/models/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -17,20 +19,22 @@ class IngredientListViewModel extends ChangeNotifier {
 
   late final Command0<void> loadIngredientList;
   late final Command0<void> addIngredients;
-  late final Command1<void, Recipe> deleteIngredient;
+  late final Command1<void, Ingredient> deleteIngredient;
+
+  StreamSubscription? _updatedIngredientSubscription;
 
   late List<Ingredient> _ingredients;
   late List<Ingredient> _filteredIngredients;
 
-  List<Ingredient> get getFilteredIngredients => _filteredIngredients;
-
-
+  List<Ingredient> get filteredIngredients => _filteredIngredients;
 
   Future<Result<void>> _loadIngredientList() async {
     var result = await _ingredientRepository.getIngredients();
     switch (result) {
       case Ok<List<Ingredient>>():
         _ingredients = result.value;
+        _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream
+            .listen(_handleUpdatedIngredientStream);
         notifyListeners();
         return Result.ok(null);
       case Error<List<Ingredient>>():
@@ -38,13 +42,21 @@ class IngredientListViewModel extends ChangeNotifier {
     }
   }
 
+  void _handleUpdatedIngredientStream(Ingredient ingredient) async {
+    int index = _ingredients.indexWhere((ingredient_) => ingredient_.id == ingredient.id);
+    if (index > -1) {
+      _ingredients[index] = ingredient;
+      notifyListeners();
+    }
+  }
+
   void setFilteredIngredients(String filter) {
     if (filter.length < 2) {
       _filteredIngredients = _ingredients;
-    }
-    else {
-      _filteredIngredients = _ingredients.where((ingredient)
-      => ingredient.name.toLowerCase().contains(filter.toLowerCase())).toList();
+    } else {
+      _filteredIngredients = _ingredients
+          .where((ingredient) => ingredient.name.toLowerCase().contains(filter.toLowerCase()))
+          .toList();
     }
     _filteredIngredients.sort(compareIngredientName);
     notifyListeners();
@@ -54,9 +66,22 @@ class IngredientListViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
+  Future<Result<void>> _deleteIngredient(Ingredient ingredient) async {
+    final result = await _ingredientRepository.removeIngredient(ingredient);
+    switch (result) {
+      case Ok<void>():
+        _ingredients.removeWhere((element) => element.id == ingredient.id);
+        _filteredIngredients.removeWhere((element) => element.id == ingredient.id);
+        notifyListeners();
+        return Result.ok(null);
+      case Error<void>():
+        return Result.error(result.error);
+    }
+  }
 
-  Future<Result<void>> _deleteIngredient(Recipe recipe) async {
-    notifyListeners();
-    return Result.ok(null);
+  @override
+  void dispose() {
+    _updatedIngredientSubscription?.cancel();
+    super.dispose();
   }
 }
