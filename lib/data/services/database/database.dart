@@ -4,15 +4,17 @@ import 'package:sqflite/sqflite.dart';
 
 const String databaseDirectory = 'migrations';
 
-final List<String> databaseFilesV1 = [
-  '$databaseDirectory/1/ingredient_types.sql',
-  '$databaseDirectory/1/ingredient_units.sql',
-  '$databaseDirectory/1/ingredients.sql',
-  '$databaseDirectory/1/ingredient_with_quantity.sql',
-  '$databaseDirectory/1/shopping_ingredient.sql',
-  '$databaseDirectory/1/recipe.sql',
-  '$databaseDirectory/1/recipe_ingredient_with_quantity.sql',
-];
+final Map<int, List<String>> databaseFiles = <int, List<String>>{
+  1: [
+    'ingredient_types.sql',
+    'ingredient_units.sql',
+    'ingredients.sql',
+    'ingredient_with_quantity.sql',
+    'shopping_ingredient.sql',
+    'recipe.sql',
+    'recipe_ingredient_with_quantity.sql',
+  ],
+};
 
 abstract final class TableNames {
   static const ingredientTypes = 'ingredientTypes';
@@ -41,12 +43,11 @@ class DatabaseService {
 
   Future<void> open() async {
     try {
-      // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onConfigure: _onConfigure,
-          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
           version: 1,
         ),
       );
@@ -60,10 +61,13 @@ class DatabaseService {
     await db.execute('PRAGMA foreign_keys = ON');
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    if (version == 1) {
-      for (String file in databaseFilesV1) {
-        await executeFromFile(db, file);
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    for (var version = 1; version <= newVersion; newVersion++) {
+      if (oldVersion >= version) {
+        continue; // Skip version if already applied
+      }
+      for (String file in databaseFiles[version]!) {
+        await executeFromFile(db, '$databaseDirectory/$version/$file');
       }
     }
   }
