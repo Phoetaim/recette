@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-
 import '../view_model/recipe_detail_viewmodel.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
@@ -93,11 +92,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
                 children: [
                   SubmenuButton(
-                    menuChildren: _getMenuItemButtons(theme.colorScheme.onSecondaryContainer),
-                    child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
+                    menuChildren: _getMenuItemButtons(theme.colorScheme),
                     menuStyle: MenuStyle(
                       backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
                     ),
+                    child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
                   ),
                 ],
               ),
@@ -140,21 +139,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  List<MenuItemButton> _getMenuItemButtons(Color color) {
+  List<MenuItemButton> _getMenuItemButtons(ColorScheme colorScheme) {
+    final color = colorScheme.onSecondaryContainer;
     final textStyle = TextStyle(color: color);
     return <MenuItemButton>[
       MenuItemButton(
         onPressed: null,
-        child: Row(
-          children: [
-            Icon(Icons.share, color: color),
-            SizedBox(width: 8),
-            Text('Partager', style: textStyle),
-          ],
-        ),
+        child: Row(children: [Icon(Icons.share), SizedBox(width: 8), Text('Partager')]),
       ),
       MenuItemButton(
-        onPressed: null,
+        onPressed: () {
+          widget.viewModel.exportRecipe();
+        },
         child: Row(
           children: [
             Icon(Icons.arrow_upward, color: color),
@@ -164,9 +160,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         ),
       ),
       MenuItemButton(
-        onPressed: () {
-          widget.viewModel.deleteRecipe.execute(widget.viewModel.recipe.value.id!);
-        },
+        onPressed: widget.viewModel.recipeExists()
+            ? () {
+                widget.viewModel.deleteRecipe.execute();
+              }
+            : null,
         child: Row(
           children: [
             Icon(Icons.delete, color: color),
