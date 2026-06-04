@@ -129,11 +129,14 @@ class ImportExportUseCase {
 
   Future<void> importData(String encodedImportData) async {
     ImportData importData = await _loadImportData(encodedImportData);
+    if (importData.version != 1) {
+      throw ImportExportError('Invalid version');
+    }
+
     Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
     Map<int, RawIngredientWithQuantity> mappedIngredientsWithQuantity =
         await _importIngredientsWithQuantity(importData, mappedIngredients);
     await _importRecipes(importData, mappedIngredientsWithQuantity);
-    print(mappedIngredientsWithQuantity);
   }
 
   Future<ImportData> _loadImportData(String encodedImportData) async {

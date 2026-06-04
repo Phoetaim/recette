@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+
 import '../view_model/recipe_list_viewmodel.dart';
 import 'recipe_list_body.dart';
 
-
-const String recipeBase64 = 'eyJyYXdSZWNpcGVzIjpbeyJpZCI6MTgsIm5hbWUiOiJUdSB2YXMgZXRyZSBpbXBvcnRlZSBiaXMiLCJwcmVwYXJhdGlvblRpbWUiOiI5OTk5aCIsImNvb2tpbmdUaW1lIjoiMTAnIiwibmJPZlBlb3BsZSI6NjY2LCJpbmdyZWRpZW50V2l0aFF1YW50aXR5SWRzIjpbMzIsMzMsMzQsMzVdLCJzdGVwcyI6IiJ9XSwicmF3U2hvcHBpbmdJbmdyZWRpZW50cyI6W10sInJhd0luZ3JlZGllbnRzV2l0aFF1YW50aXR5IjpbeyJpZCI6MzIsImluZ3JlZGllbnRJZCI6MTY3LCJ1bml0IjoxLCJxdWFudGl0eSI6MX0seyJpZCI6MzMsImluZ3JlZGllbnRJZCI6MTE4LCJ1bml0IjoyLCJxdWFudGl0eSI6M30seyJpZCI6MzQsImluZ3JlZGllbnRJZCI6Mzk5LCJ1bml0IjoxLCJxdWFudGl0eSI6MX0seyJpZCI6MzUsImluZ3JlZGllbnRJZCI6MTE4LCJ1bml0IjoxLCJxdWFudGl0eSI6MX1dLCJyYXdJbmdyZWRpZW50cyI6W3siaWQiOjE2NywibmFtZSI6InBhdGUgw6AgcGl6emEiLCJ0eXBlIjo1fSx7ImlkIjoxMTgsIm5hbWUiOiJjaG9yaXpvIiwidHlwZSI6M30seyJpZCI6Mzk5LCJuYW1lIjoieHpjenhjengiLCJ0eXBlIjoxNX1dLCJpbmdyZWRpZW50VW5pdHMiOlt7ImlkIjoxLCJuYW1lIjoidW5pdCJ9LHsiaWQiOjIsIm5hbWUiOiJrZyJ9XSwiaW5ncmVkaWVudFR5cGVzIjpbeyJpZCI6NSwibmFtZSI6ImZyZXNoIiwiY29sb3IiOjQyODY2OTg3NDZ9LHsiaWQiOjMsIm5hbWUiOiJjaGFyY3V0ZXJpZSIsImNvbG9yIjo0Mjk0OTI0MDY2fSx7ImlkIjoxNSwibmFtZSI6ImhvdXNlIiwiY29sb3IiOjQyODEzNDgxNDR9XX0=';
 class RecipeListScreen extends StatefulWidget {
   const RecipeListScreen({super.key, required this.viewModel});
 
@@ -16,6 +15,8 @@ class RecipeListScreen extends StatefulWidget {
 }
 
 class _RecipeListScreenState extends State<RecipeListScreen> {
+  String base64ImportData = '';
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +49,33 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
         ),
         title: const Text('Mes Recettes'),
         actions: [
-          TextButton(onPressed: () => widget.viewModel.importRecipes(recipeBase64), child: Icon(Icons.arrow_downward))
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => SimpleDialog(
+                  title: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        base64ImportData = value;
+                      });
+                    },
+                    decoration: InputDecoration(hintText: 'Paste base64 exported data'),
+                  ),
+                  children: <Widget>[
+                    SimpleDialogOption(
+                      onPressed: () {
+                        widget.viewModel.importRecipes(base64ImportData);
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
+                      child: const Icon(Icons.check),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: Icon(Icons.arrow_downward),
+          ),
         ],
         shadowColor: Colors.black,
         scrolledUnderElevation: 4,
@@ -62,7 +89,10 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           }
 
           if (widget.viewModel.loadRecipes.error) {
-            return TextButton(onPressed: widget.viewModel.loadRecipes.execute, child: Text('Retry?'));
+            return TextButton(
+              onPressed: widget.viewModel.loadRecipes.execute,
+              child: Text('Retry?'),
+            );
           }
           return child!;
         },
@@ -86,9 +116,9 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   void _onResult() {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Recette supprimée'), duration: Duration(microseconds: 1000)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Recette supprimée'), duration: Duration(microseconds: 1000)),
+      );
     }
 
     if (widget.viewModel.deleteRecipe.error) {

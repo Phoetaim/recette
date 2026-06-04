@@ -12,6 +12,8 @@ part 'import_data.g.dart';
 @freezed
 abstract class ImportData with _$ImportData {
   const factory ImportData({
+    @Default(0) int version,
+
     @Default([]) List<RawRecipe> rawRecipes,
 
     @Default([]) List<RawShoppingIngredient> rawShoppingIngredients,

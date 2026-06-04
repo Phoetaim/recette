@@ -7,6 +7,7 @@ part of 'import_data.dart';
 // **************************************************************************
 
 _ImportData _$ImportDataFromJson(Map<String, dynamic> json) => _ImportData(
+  version: (json['version'] as num?)?.toInt() ?? 0,
   rawRecipes:
       (json['rawRecipes'] as List<dynamic>?)
           ?.map((e) => RawRecipe.fromJson(e as Map<String, dynamic>))
@@ -46,6 +47,7 @@ _ImportData _$ImportDataFromJson(Map<String, dynamic> json) => _ImportData(
 
 Map<String, dynamic> _$ImportDataToJson(_ImportData instance) =>
     <String, dynamic>{
+      'version': instance.version,
       'rawRecipes': instance.rawRecipes,
       'rawShoppingIngredients': instance.rawShoppingIngredients,
       'rawIngredientsWithQuantity': instance.rawIngredientsWithQuantity,
