@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 
 import '../../../data/repositories/recipe/recipe_repository.dart';
@@ -12,16 +10,16 @@ import '../../../domain/models/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
-Codec<String, String> stringToBase64 = utf8.fuse(base64);
-
 class RecipeDetailViewModel extends ChangeNotifier {
   RecipeDetailViewModel({
     required RecipeRepository recipeRepository,
     required IngredientWithQuantityUseCase ingredientWithQuantityUseCase,
     required ShoppingListRepository shoppingListRepository,
+    required ImportExportUseCase importExportUseCase,
   }) : _recipeRepository = recipeRepository,
        _ingredientWithQuantityUseCase = ingredientWithQuantityUseCase,
-       _shoppingListRepository = shoppingListRepository {
+       _shoppingListRepository = shoppingListRepository,
+       _importExportUseCase = importExportUseCase {
     loadRecipeById = Command1(_loadRecipeById);
     saveRecipe = Command0(_saveRecipe);
     deleteRecipe = Command0(_deleteRecipe);
@@ -30,6 +28,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   final RecipeRepository _recipeRepository;
   final IngredientWithQuantityUseCase _ingredientWithQuantityUseCase;
+  final ImportExportUseCase _importExportUseCase;
   final ShoppingListRepository _shoppingListRepository;
 
   late final Command1<void, String> loadRecipeById;
@@ -75,6 +74,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
     jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
     recipe.value = Recipe.fromJson(jsonRawRecipe);
     currentNumberOfPeople.value = recipe.value.nbOfPeople;
+    print(_rawRecipe);
     notifyListeners();
     return Result.ok(null);
   }
@@ -147,25 +147,23 @@ class RecipeDetailViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  bool recipeExists() {
-    print(_rawRecipe);
-    return _rawRecipe.id != null;
-  }
-
   bool isRecipeUpdated() {
     return _rawRecipe != _originalRecipe ||
         _rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length;
   }
 
-  void exportRecipe() {
-    final exportedRecipe = stringToBase64.encode(jsonEncode([recipe.value.toJson()]));
-    Clipboard.setData(new ClipboardData(text: exportedRecipe));
+  Future<void> exportRecipe() async {
+    await _saveRecipe();
+    await _importExportUseCase.exportRecipes([_rawRecipe]);
+    notifyListeners();
   }
+
   // Update info tab
   void updateRecipeName(String newName) async {
     _rawRecipe = _rawRecipe.copyWith(name: newName);
     recipe.value = recipe.value.copyWith(name: newName);
   }
+
   void updateRecipePreparationTime(String newPrepTime) async {
     _rawRecipe = _rawRecipe.copyWith(preparationTime: newPrepTime);
     recipe.value = recipe.value.copyWith(preparationTime: newPrepTime);

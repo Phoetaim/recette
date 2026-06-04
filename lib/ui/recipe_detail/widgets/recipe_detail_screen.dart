@@ -160,11 +160,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         ),
       ),
       MenuItemButton(
-        onPressed: widget.viewModel.recipeExists()
-            ? () {
-                widget.viewModel.deleteRecipe.execute();
-              }
-            : null,
+        onPressed: widget.viewModel.deleteRecipe.execute,
         child: Row(
           children: [
             Icon(Icons.delete, color: color),

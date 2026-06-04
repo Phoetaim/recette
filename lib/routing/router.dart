@@ -6,30 +6,33 @@ import 'package:recette/ui/ingredient_list/widgets/ingredient_list_screen.dart';
 import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
 import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
 import 'package:recette/ui/shopping_list/widgets/shopping_list_screen.dart';
+
 import '../ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 import '../ui/recipe_detail/widgets/recipe_detail_screen.dart';
 import '../ui/recipe_list/widgets/recipe_list_screen.dart';
-
 import 'routes.dart';
 
 GoRouter router() => GoRouter(
   initialLocation: Routes.shoppingList,
   routes: <RouteBase>[
     StatefulShellRoute.indexedStack(
-      builder: (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
-        return ScaffoldBottomNavigationBar(navigationShell: navigationShell);
-      },
+      builder:
+          (BuildContext context, GoRouterState state, StatefulNavigationShell navigationShell) {
+            return ScaffoldBottomNavigationBar(navigationShell: navigationShell);
+          },
       branches: <StatefulShellBranch>[
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
               path: Routes.shoppingList,
               builder: (context, state) {
-                return ShoppingListScreen(viewModel: ShoppingListViewModel(
-                  ingredientRepository: context.read(),
-                  ingredientWithQuantityUseCase: context.read(),
-                  shoppingListRepository: context.read(),
-                ));
+                return ShoppingListScreen(
+                  viewModel: ShoppingListViewModel(
+                    ingredientRepository: context.read(),
+                    ingredientWithQuantityUseCase: context.read(),
+                    shoppingListRepository: context.read(),
+                  ),
+                );
               },
             ),
           ],
@@ -39,7 +42,12 @@ GoRouter router() => GoRouter(
             GoRoute(
               path: Routes.recipeList,
               builder: (context, state) {
-                return RecipeListScreen(viewModel: RecipeListViewModel(recipeRepository: context.read()));
+                return RecipeListScreen(
+                  viewModel: RecipeListViewModel(
+                    recipeRepository: context.read(),
+                    importExportUseCase: context.read(),
+                  ),
+                );
               },
               routes: [
                 GoRoute(
@@ -51,6 +59,7 @@ GoRouter router() => GoRouter(
                         recipeRepository: context.read(),
                         ingredientWithQuantityUseCase: context.read(),
                         shoppingListRepository: context.read(),
+                        importExportUseCase: context.read(),
                       ),
                       recipeId: state.pathParameters['recipeId'],
                     );
@@ -65,14 +74,15 @@ GoRouter router() => GoRouter(
             GoRoute(
               path: Routes.ingredientList,
               builder: (context, state) {
-                return IngredientListScreen(viewModel: IngredientListViewModel(ingredientRepository: context.read()));
+                return IngredientListScreen(
+                  viewModel: IngredientListViewModel(ingredientRepository: context.read()),
+                );
               },
             ),
           ],
         ),
       ],
     ),
-
   ],
 );
 

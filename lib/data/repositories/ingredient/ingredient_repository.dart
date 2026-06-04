@@ -8,7 +8,11 @@ import '../../services/database/database_ingredient.dart';
 import 'ingredient_types_repository.dart';
 
 class IngredientRepository {
-  IngredientRepository({required DatabaseIngredientService database, required IngredientTypesRepository ingredientTypesRepository}) : _database = database, _ingredientTypesRepository = ingredientTypesRepository;
+  IngredientRepository({
+    required DatabaseIngredientService database,
+    required IngredientTypesRepository ingredientTypesRepository,
+  }) : _database = database,
+       _ingredientTypesRepository = ingredientTypesRepository;
 
   final DatabaseIngredientService _database;
   final IngredientTypesRepository _ingredientTypesRepository;
@@ -52,7 +56,8 @@ class IngredientRepository {
         _cachedIngredients.clear();
         for (var rawIngredient in rawIngredients) {
           Map<String, dynamic> ingredientJson = rawIngredient.toJson();
-          ingredientJson['type'] = _ingredientTypesRepository.ingredientTypes[rawIngredient.type]!.toJson();
+          ingredientJson['type'] = _ingredientTypesRepository.ingredientTypes[rawIngredient.type]!
+              .toJson();
           Ingredient ingredient = Ingredient.fromJson(ingredientJson);
           _cachedIngredients.add(ingredient);
         }
@@ -100,5 +105,6 @@ class IngredientRepository {
 
 class IngredientRepositoryError implements Exception {
   String cause;
+
   IngredientRepositoryError(this.cause);
 }
