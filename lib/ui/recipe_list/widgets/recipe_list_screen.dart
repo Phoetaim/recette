@@ -53,8 +53,9 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => SimpleDialog(
-                  title: TextField(
+                builder: (context) => AlertDialog(
+                  content: TextField(
+                    autofocus: true,
                     onChanged: (value) {
                       setState(() {
                         base64ImportData = value;
@@ -62,11 +63,11 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                     },
                     decoration: InputDecoration(hintText: 'Paste base64 exported data'),
                   ),
-                  children: <Widget>[
-                    SimpleDialogOption(
+                  actions: <Widget>[
+                    TextButton(
                       onPressed: () {
-                        widget.viewModel.importRecipes(base64ImportData);
-                        Navigator.of(context, rootNavigator: true).pop();
+                        widget.viewModel.importRecipes.execute(base64ImportData);
+                        Navigator.of(context).pop();
                       },
                       child: const Icon(Icons.check),
                     ),

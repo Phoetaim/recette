@@ -140,9 +140,7 @@ class StepCard extends StatelessWidget {
           children: [
             Text('Etapes:'),
             TextButton(
-              onPressed: () {
-                print('modify steps');
-              },
+              onPressed: null,
               child: Icon(Icons.edit),
             ),
           ],

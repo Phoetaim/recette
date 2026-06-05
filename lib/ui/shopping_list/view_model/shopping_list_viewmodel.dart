@@ -60,7 +60,6 @@ class ShoppingListViewModel extends ChangeNotifier {
 
         return Result.ok(null);
       case Error<RawShoppingList>():
-        print('RIP: ${result.error}');
         return Result.error(ShoppingIngredientRepositoryError('Could not init shopping list'));
     }
   }
@@ -169,7 +168,6 @@ class ShoppingListViewModel extends ChangeNotifier {
         });
         notifyListeners();
       case Error<void>():
-        print('RIP: ${result.error}');
         return;
     }
   }

@@ -129,7 +129,7 @@ class ImportExportUseCase {
 
   Future<void> importData(String encodedImportData) async {
     ImportData importData = await _loadImportData(encodedImportData);
-    if (importData.version != 1) {
+    if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
 
@@ -156,7 +156,6 @@ class ImportExportUseCase {
         ingredientToImport,
         importData.ingredientTypes,
       );
-      print(importData);
       ingredientsUsedInImports[ingredientToImport.id!] = ingredient;
     }
     return ingredientsUsedInImports;
@@ -210,7 +209,6 @@ class ImportExportUseCase {
     List<IngredientTypes> ingredientTypes,
   ) async {
     final result = await _ingredientRepository.getIngredientByName(ingredientToImport.name);
-    print(result);
     switch (result) {
       case Ok<Ingredient>():
         return result.value;

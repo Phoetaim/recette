@@ -16,6 +16,7 @@ class RecipeListViewModel extends ChangeNotifier {
        _importExportUseCase = importExportUseCase {
     loadRecipes = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
+    importRecipes = Command1(_importRecipes);
   }
 
   final RecipeRepository _recipeRepository;
@@ -27,6 +28,7 @@ class RecipeListViewModel extends ChangeNotifier {
   List<RawRecipe> get recipes => _recipes;
   late final Command0 loadRecipes;
   late final Command1<void, int> deleteRecipe;
+  late final Command1<void, String> importRecipes;
 
   Future<Result<void>> _loadRecipeList() async {
     final result = await _recipeRepository.getRecipeList();
@@ -69,13 +71,13 @@ class RecipeListViewModel extends ChangeNotifier {
     try {
       return recipes[index];
     } on IndexError {
-      print('No index $index returning first recipe');
       return recipes[0];
     }
   }
 
-  Future<void> importRecipes(String recipeBase64) async {
+  Future<Result<void>> _importRecipes(String recipeBase64) async {
     await _importExportUseCase.importData(recipeBase64);
+    return Result.ok(null);
   }
 
   @override

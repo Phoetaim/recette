@@ -42,7 +42,6 @@ class DatabaseService {
   }
 
   Future<void> open() async {
-    try {
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
@@ -51,9 +50,6 @@ class DatabaseService {
           version: 1,
         ),
       );
-    } on Exception catch (e) {
-      print(e);
-    }
   }
 
   void _onConfigure(Database db) async {

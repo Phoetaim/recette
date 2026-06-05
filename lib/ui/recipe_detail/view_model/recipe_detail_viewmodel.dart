@@ -74,7 +74,6 @@ class RecipeDetailViewModel extends ChangeNotifier {
     jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
     recipe.value = Recipe.fromJson(jsonRawRecipe);
     currentNumberOfPeople.value = recipe.value.nbOfPeople;
-    print(_rawRecipe);
     notifyListeners();
     return Result.ok(null);
   }
