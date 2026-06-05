@@ -17,6 +17,7 @@ class RecipeListViewModel extends ChangeNotifier {
     loadRecipes = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
     importRecipes = Command1(_importRecipes);
+    exportRecipes = Command0(_exportRecipes);
   }
 
   final RecipeRepository _recipeRepository;
@@ -25,10 +26,14 @@ class RecipeListViewModel extends ChangeNotifier {
 
   StreamSubscription? _subscription;
 
+  ValueNotifier<bool> isSelecting = ValueNotifier(false);
+  Set<int> selectedRecipes = {};
+
   List<RawRecipe> get recipes => _recipes;
   late final Command0 loadRecipes;
   late final Command1<void, int> deleteRecipe;
   late final Command1<void, String> importRecipes;
+  late final Command0<void> exportRecipes;
 
   Future<Result<void>> _loadRecipeList() async {
     final result = await _recipeRepository.getRecipeList();
@@ -78,6 +83,38 @@ class RecipeListViewModel extends ChangeNotifier {
   Future<Result<void>> _importRecipes(String recipeBase64) async {
     await _importExportUseCase.importData(recipeBase64);
     return Result.ok(null);
+  }
+
+  Future<Result<void>> _exportRecipes() async {
+    await _importExportUseCase.exportRecipes(_recipes.where((element) => selectedRecipes.contains(element.id!)).toList());
+    quitSelection();
+    return Result.ok(null);
+  }
+
+  void enterSelection(int id) {
+    selectedRecipes.add(id);
+    isSelecting.value = true;
+  }
+
+  void updateSelection(int id) {
+    if (!selectedRecipes.remove(id)){
+      selectedRecipes.add(id);
+    }
+    notifyListeners();
+  }
+  void toggleSelectionAll() {
+    selectedRecipes = _recipes.map((element) => element.id!).toSet();
+    notifyListeners();
+  }
+    
+  void clearSelection() {
+    selectedRecipes.clear();
+    notifyListeners();
+  }
+
+  void quitSelection() {
+    selectedRecipes.clear();
+    isSelecting.value = false;
   }
 
   @override
