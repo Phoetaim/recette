@@ -1,10 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:recette/data/services/models/raw_ingredient.dart';
-import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
-import 'package:recette/data/services/models/raw_recipe.dart';
-import 'package:recette/data/services/models/raw_shopping_ingredient.dart' hide IngredientUnit;
-import 'package:recette/domain/models/ingredient/ingredient_types.dart';
-import 'package:recette/domain/models/ingredient/ingredient_units.dart';
+
+import '../../../domain/models/ingredient/ingredient_types.dart';
+import '../../../domain/models/ingredient/ingredient_units.dart';
+import 'raw_ingredient.dart';
+import 'raw_ingredient_with_quantity.dart';
+import 'raw_recipe.dart';
 
 part 'import_data.freezed.dart';
 part 'import_data.g.dart';
@@ -16,7 +16,7 @@ abstract class ImportData with _$ImportData {
 
     @Default([]) List<RawRecipe> rawRecipes,
 
-    @Default([]) List<RawShoppingIngredient> rawShoppingIngredients,
+    @Default(false) bool isShoppingList,
 
     @Default([]) List<RawIngredientWithQuantity> rawIngredientsWithQuantity,
 

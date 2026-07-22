@@ -13,13 +13,7 @@ _ImportData _$ImportDataFromJson(Map<String, dynamic> json) => _ImportData(
           ?.map((e) => RawRecipe.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  rawShoppingIngredients:
-      (json['rawShoppingIngredients'] as List<dynamic>?)
-          ?.map(
-            (e) => RawShoppingIngredient.fromJson(e as Map<String, dynamic>),
-          )
-          .toList() ??
-      const [],
+  isShoppingList: json['isShoppingList'] as bool? ?? false,
   rawIngredientsWithQuantity:
       (json['rawIngredientsWithQuantity'] as List<dynamic>?)
           ?.map(
@@ -49,7 +43,7 @@ Map<String, dynamic> _$ImportDataToJson(_ImportData instance) =>
     <String, dynamic>{
       'version': instance.version,
       'rawRecipes': instance.rawRecipes,
-      'rawShoppingIngredients': instance.rawShoppingIngredients,
+      'isShoppingList': instance.isShoppingList,
       'rawIngredientsWithQuantity': instance.rawIngredientsWithQuantity,
       'rawIngredients': instance.rawIngredients,
       'ingredientUnits': instance.ingredientUnits,

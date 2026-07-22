@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ImportData {
 
- int get version; List<RawRecipe> get rawRecipes; List<RawShoppingIngredient> get rawShoppingIngredients; List<RawIngredientWithQuantity> get rawIngredientsWithQuantity; List<RawIngredient> get rawIngredients; List<IngredientUnit> get ingredientUnits; List<IngredientTypes> get ingredientTypes;
+ int get version; List<RawRecipe> get rawRecipes; bool get isShoppingList; List<RawIngredientWithQuantity> get rawIngredientsWithQuantity; List<RawIngredient> get rawIngredients; List<IngredientUnit> get ingredientUnits; List<IngredientTypes> get ingredientTypes;
 /// Create a copy of ImportData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ImportDataCopyWith<ImportData> get copyWith => _$ImportDataCopyWithImpl<ImportD
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportData&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.rawRecipes, rawRecipes)&&const DeepCollectionEquality().equals(other.rawShoppingIngredients, rawShoppingIngredients)&&const DeepCollectionEquality().equals(other.rawIngredientsWithQuantity, rawIngredientsWithQuantity)&&const DeepCollectionEquality().equals(other.rawIngredients, rawIngredients)&&const DeepCollectionEquality().equals(other.ingredientUnits, ingredientUnits)&&const DeepCollectionEquality().equals(other.ingredientTypes, ingredientTypes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ImportData&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other.rawRecipes, rawRecipes)&&(identical(other.isShoppingList, isShoppingList) || other.isShoppingList == isShoppingList)&&const DeepCollectionEquality().equals(other.rawIngredientsWithQuantity, rawIngredientsWithQuantity)&&const DeepCollectionEquality().equals(other.rawIngredients, rawIngredients)&&const DeepCollectionEquality().equals(other.ingredientUnits, ingredientUnits)&&const DeepCollectionEquality().equals(other.ingredientTypes, ingredientTypes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,version,const DeepCollectionEquality().hash(rawRecipes),const DeepCollectionEquality().hash(rawShoppingIngredients),const DeepCollectionEquality().hash(rawIngredientsWithQuantity),const DeepCollectionEquality().hash(rawIngredients),const DeepCollectionEquality().hash(ingredientUnits),const DeepCollectionEquality().hash(ingredientTypes));
+int get hashCode => Object.hash(runtimeType,version,const DeepCollectionEquality().hash(rawRecipes),isShoppingList,const DeepCollectionEquality().hash(rawIngredientsWithQuantity),const DeepCollectionEquality().hash(rawIngredients),const DeepCollectionEquality().hash(ingredientUnits),const DeepCollectionEquality().hash(ingredientTypes));
 
 @override
 String toString() {
-  return 'ImportData(version: $version, rawRecipes: $rawRecipes, rawShoppingIngredients: $rawShoppingIngredients, rawIngredientsWithQuantity: $rawIngredientsWithQuantity, rawIngredients: $rawIngredients, ingredientUnits: $ingredientUnits, ingredientTypes: $ingredientTypes)';
+  return 'ImportData(version: $version, rawRecipes: $rawRecipes, isShoppingList: $isShoppingList, rawIngredientsWithQuantity: $rawIngredientsWithQuantity, rawIngredients: $rawIngredients, ingredientUnits: $ingredientUnits, ingredientTypes: $ingredientTypes)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ImportDataCopyWith<$Res>  {
   factory $ImportDataCopyWith(ImportData value, $Res Function(ImportData) _then) = _$ImportDataCopyWithImpl;
 @useResult
 $Res call({
- int version, List<RawRecipe> rawRecipes, List<RawShoppingIngredient> rawShoppingIngredients, List<RawIngredientWithQuantity> rawIngredientsWithQuantity, List<RawIngredient> rawIngredients, List<IngredientUnit> ingredientUnits, List<IngredientTypes> ingredientTypes
+ int version, List<RawRecipe> rawRecipes, bool isShoppingList, List<RawIngredientWithQuantity> rawIngredientsWithQuantity, List<RawIngredient> rawIngredients, List<IngredientUnit> ingredientUnits, List<IngredientTypes> ingredientTypes
 });
 
 
@@ -65,12 +65,12 @@ class _$ImportDataCopyWithImpl<$Res>
 
 /// Create a copy of ImportData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? version = null,Object? rawRecipes = null,Object? rawShoppingIngredients = null,Object? rawIngredientsWithQuantity = null,Object? rawIngredients = null,Object? ingredientUnits = null,Object? ingredientTypes = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? version = null,Object? rawRecipes = null,Object? isShoppingList = null,Object? rawIngredientsWithQuantity = null,Object? rawIngredients = null,Object? ingredientUnits = null,Object? ingredientTypes = null,}) {
   return _then(_self.copyWith(
 version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
 as int,rawRecipes: null == rawRecipes ? _self.rawRecipes : rawRecipes // ignore: cast_nullable_to_non_nullable
-as List<RawRecipe>,rawShoppingIngredients: null == rawShoppingIngredients ? _self.rawShoppingIngredients : rawShoppingIngredients // ignore: cast_nullable_to_non_nullable
-as List<RawShoppingIngredient>,rawIngredientsWithQuantity: null == rawIngredientsWithQuantity ? _self.rawIngredientsWithQuantity : rawIngredientsWithQuantity // ignore: cast_nullable_to_non_nullable
+as List<RawRecipe>,isShoppingList: null == isShoppingList ? _self.isShoppingList : isShoppingList // ignore: cast_nullable_to_non_nullable
+as bool,rawIngredientsWithQuantity: null == rawIngredientsWithQuantity ? _self.rawIngredientsWithQuantity : rawIngredientsWithQuantity // ignore: cast_nullable_to_non_nullable
 as List<RawIngredientWithQuantity>,rawIngredients: null == rawIngredients ? _self.rawIngredients : rawIngredients // ignore: cast_nullable_to_non_nullable
 as List<RawIngredient>,ingredientUnits: null == ingredientUnits ? _self.ingredientUnits : ingredientUnits // ignore: cast_nullable_to_non_nullable
 as List<IngredientUnit>,ingredientTypes: null == ingredientTypes ? _self.ingredientTypes : ingredientTypes // ignore: cast_nullable_to_non_nullable
@@ -159,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int version,  List<RawRecipe> rawRecipes,  List<RawShoppingIngredient> rawShoppingIngredients,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int version,  List<RawRecipe> rawRecipes,  bool isShoppingList,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ImportData() when $default != null:
-return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
+return $default(_that.version,_that.rawRecipes,_that.isShoppingList,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
   return orElse();
 
 }
@@ -180,10 +180,10 @@ return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int version,  List<RawRecipe> rawRecipes,  List<RawShoppingIngredient> rawShoppingIngredients,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int version,  List<RawRecipe> rawRecipes,  bool isShoppingList,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)  $default,) {final _that = this;
 switch (_that) {
 case _ImportData():
-return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
+return $default(_that.version,_that.rawRecipes,_that.isShoppingList,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +200,10 @@ return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int version,  List<RawRecipe> rawRecipes,  List<RawShoppingIngredient> rawShoppingIngredients,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int version,  List<RawRecipe> rawRecipes,  bool isShoppingList,  List<RawIngredientWithQuantity> rawIngredientsWithQuantity,  List<RawIngredient> rawIngredients,  List<IngredientUnit> ingredientUnits,  List<IngredientTypes> ingredientTypes)?  $default,) {final _that = this;
 switch (_that) {
 case _ImportData() when $default != null:
-return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
+return $default(_that.version,_that.rawRecipes,_that.isShoppingList,_that.rawIngredientsWithQuantity,_that.rawIngredients,_that.ingredientUnits,_that.ingredientTypes);case _:
   return null;
 
 }
@@ -215,7 +215,7 @@ return $default(_that.version,_that.rawRecipes,_that.rawShoppingIngredients,_tha
 @JsonSerializable()
 
 class _ImportData implements ImportData {
-  const _ImportData({this.version = 0, final  List<RawRecipe> rawRecipes = const [], final  List<RawShoppingIngredient> rawShoppingIngredients = const [], final  List<RawIngredientWithQuantity> rawIngredientsWithQuantity = const [], final  List<RawIngredient> rawIngredients = const [], final  List<IngredientUnit> ingredientUnits = const [], final  List<IngredientTypes> ingredientTypes = const []}): _rawRecipes = rawRecipes,_rawShoppingIngredients = rawShoppingIngredients,_rawIngredientsWithQuantity = rawIngredientsWithQuantity,_rawIngredients = rawIngredients,_ingredientUnits = ingredientUnits,_ingredientTypes = ingredientTypes;
+  const _ImportData({this.version = 0, final  List<RawRecipe> rawRecipes = const [], this.isShoppingList = false, final  List<RawIngredientWithQuantity> rawIngredientsWithQuantity = const [], final  List<RawIngredient> rawIngredients = const [], final  List<IngredientUnit> ingredientUnits = const [], final  List<IngredientTypes> ingredientTypes = const []}): _rawRecipes = rawRecipes,_rawIngredientsWithQuantity = rawIngredientsWithQuantity,_rawIngredients = rawIngredients,_ingredientUnits = ingredientUnits,_ingredientTypes = ingredientTypes;
   factory _ImportData.fromJson(Map<String, dynamic> json) => _$ImportDataFromJson(json);
 
 @override@JsonKey() final  int version;
@@ -226,13 +226,7 @@ class _ImportData implements ImportData {
   return EqualUnmodifiableListView(_rawRecipes);
 }
 
- final  List<RawShoppingIngredient> _rawShoppingIngredients;
-@override@JsonKey() List<RawShoppingIngredient> get rawShoppingIngredients {
-  if (_rawShoppingIngredients is EqualUnmodifiableListView) return _rawShoppingIngredients;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_rawShoppingIngredients);
-}
-
+@override@JsonKey() final  bool isShoppingList;
  final  List<RawIngredientWithQuantity> _rawIngredientsWithQuantity;
 @override@JsonKey() List<RawIngredientWithQuantity> get rawIngredientsWithQuantity {
   if (_rawIngredientsWithQuantity is EqualUnmodifiableListView) return _rawIngredientsWithQuantity;
@@ -275,16 +269,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImportData&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other._rawRecipes, _rawRecipes)&&const DeepCollectionEquality().equals(other._rawShoppingIngredients, _rawShoppingIngredients)&&const DeepCollectionEquality().equals(other._rawIngredientsWithQuantity, _rawIngredientsWithQuantity)&&const DeepCollectionEquality().equals(other._rawIngredients, _rawIngredients)&&const DeepCollectionEquality().equals(other._ingredientUnits, _ingredientUnits)&&const DeepCollectionEquality().equals(other._ingredientTypes, _ingredientTypes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ImportData&&(identical(other.version, version) || other.version == version)&&const DeepCollectionEquality().equals(other._rawRecipes, _rawRecipes)&&(identical(other.isShoppingList, isShoppingList) || other.isShoppingList == isShoppingList)&&const DeepCollectionEquality().equals(other._rawIngredientsWithQuantity, _rawIngredientsWithQuantity)&&const DeepCollectionEquality().equals(other._rawIngredients, _rawIngredients)&&const DeepCollectionEquality().equals(other._ingredientUnits, _ingredientUnits)&&const DeepCollectionEquality().equals(other._ingredientTypes, _ingredientTypes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,version,const DeepCollectionEquality().hash(_rawRecipes),const DeepCollectionEquality().hash(_rawShoppingIngredients),const DeepCollectionEquality().hash(_rawIngredientsWithQuantity),const DeepCollectionEquality().hash(_rawIngredients),const DeepCollectionEquality().hash(_ingredientUnits),const DeepCollectionEquality().hash(_ingredientTypes));
+int get hashCode => Object.hash(runtimeType,version,const DeepCollectionEquality().hash(_rawRecipes),isShoppingList,const DeepCollectionEquality().hash(_rawIngredientsWithQuantity),const DeepCollectionEquality().hash(_rawIngredients),const DeepCollectionEquality().hash(_ingredientUnits),const DeepCollectionEquality().hash(_ingredientTypes));
 
 @override
 String toString() {
-  return 'ImportData(version: $version, rawRecipes: $rawRecipes, rawShoppingIngredients: $rawShoppingIngredients, rawIngredientsWithQuantity: $rawIngredientsWithQuantity, rawIngredients: $rawIngredients, ingredientUnits: $ingredientUnits, ingredientTypes: $ingredientTypes)';
+  return 'ImportData(version: $version, rawRecipes: $rawRecipes, isShoppingList: $isShoppingList, rawIngredientsWithQuantity: $rawIngredientsWithQuantity, rawIngredients: $rawIngredients, ingredientUnits: $ingredientUnits, ingredientTypes: $ingredientTypes)';
 }
 
 
@@ -295,7 +289,7 @@ abstract mixin class _$ImportDataCopyWith<$Res> implements $ImportDataCopyWith<$
   factory _$ImportDataCopyWith(_ImportData value, $Res Function(_ImportData) _then) = __$ImportDataCopyWithImpl;
 @override @useResult
 $Res call({
- int version, List<RawRecipe> rawRecipes, List<RawShoppingIngredient> rawShoppingIngredients, List<RawIngredientWithQuantity> rawIngredientsWithQuantity, List<RawIngredient> rawIngredients, List<IngredientUnit> ingredientUnits, List<IngredientTypes> ingredientTypes
+ int version, List<RawRecipe> rawRecipes, bool isShoppingList, List<RawIngredientWithQuantity> rawIngredientsWithQuantity, List<RawIngredient> rawIngredients, List<IngredientUnit> ingredientUnits, List<IngredientTypes> ingredientTypes
 });
 
 
@@ -312,12 +306,12 @@ class __$ImportDataCopyWithImpl<$Res>
 
 /// Create a copy of ImportData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? version = null,Object? rawRecipes = null,Object? rawShoppingIngredients = null,Object? rawIngredientsWithQuantity = null,Object? rawIngredients = null,Object? ingredientUnits = null,Object? ingredientTypes = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? version = null,Object? rawRecipes = null,Object? isShoppingList = null,Object? rawIngredientsWithQuantity = null,Object? rawIngredients = null,Object? ingredientUnits = null,Object? ingredientTypes = null,}) {
   return _then(_ImportData(
 version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
 as int,rawRecipes: null == rawRecipes ? _self._rawRecipes : rawRecipes // ignore: cast_nullable_to_non_nullable
-as List<RawRecipe>,rawShoppingIngredients: null == rawShoppingIngredients ? _self._rawShoppingIngredients : rawShoppingIngredients // ignore: cast_nullable_to_non_nullable
-as List<RawShoppingIngredient>,rawIngredientsWithQuantity: null == rawIngredientsWithQuantity ? _self._rawIngredientsWithQuantity : rawIngredientsWithQuantity // ignore: cast_nullable_to_non_nullable
+as List<RawRecipe>,isShoppingList: null == isShoppingList ? _self.isShoppingList : isShoppingList // ignore: cast_nullable_to_non_nullable
+as bool,rawIngredientsWithQuantity: null == rawIngredientsWithQuantity ? _self._rawIngredientsWithQuantity : rawIngredientsWithQuantity // ignore: cast_nullable_to_non_nullable
 as List<RawIngredientWithQuantity>,rawIngredients: null == rawIngredients ? _self._rawIngredients : rawIngredients // ignore: cast_nullable_to_non_nullable
 as List<RawIngredient>,ingredientUnits: null == ingredientUnits ? _self._ingredientUnits : ingredientUnits // ignore: cast_nullable_to_non_nullable
 as List<IngredientUnit>,ingredientTypes: null == ingredientTypes ? _self._ingredientTypes : ingredientTypes // ignore: cast_nullable_to_non_nullable

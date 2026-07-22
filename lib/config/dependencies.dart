@@ -45,7 +45,7 @@ List<SingleChildWidget> get providersLocal {
     Provider(create: (context) => IngredientUnitsRepository(database: context.read())),
     Provider(create: (context) => IngredientWithQuantityRepository(database: context.read())),
     Provider(create: (context) => IngredientWithQuantityUseCase(ingredientRepository: context.read(), ingredientWithQuantityRepository: context.read(), ingredientUnitsRepository: context.read())),
-    Provider(create: (context) => ImportExportUseCase(ingredientRepository: context.read(), ingredientWithQuantityRepository: context.read(), ingredientUnitsRepository: context.read(), recipeRepository: context.read())),
     Provider(create: (context) => ShoppingListRepository(shoppingDatabase: context.read(), ingredientWithQuantityUseCase: context.read())),
+    Provider(create: (context) => ImportExportUseCase(ingredientRepository: context.read(), ingredientWithQuantityRepository: context.read(), ingredientUnitsRepository: context.read(), recipeRepository: context.read(), ingredientWithQuantityUseCase: context.read(), shoppingListRepository: context.read())),
   ];
 }
