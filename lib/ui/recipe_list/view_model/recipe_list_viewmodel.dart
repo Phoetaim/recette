@@ -81,12 +81,14 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _importRecipes(String recipeBase64) async {
-    await _importExportUseCase.importData(recipeBase64);
+    await _importExportUseCase.importRecipes(recipeBase64);
     return Result.ok(null);
   }
 
   Future<Result<void>> _exportRecipes() async {
-    await _importExportUseCase.exportRecipes(_recipes.where((element) => selectedRecipes.contains(element.id!)).toList());
+    await _importExportUseCase.exportRecipes(
+      _recipes.where((element) => selectedRecipes.contains(element.id!)).toList(),
+    );
     quitSelection();
     return Result.ok(null);
   }
@@ -97,16 +99,17 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   void updateSelection(int id) {
-    if (!selectedRecipes.remove(id)){
+    if (!selectedRecipes.remove(id)) {
       selectedRecipes.add(id);
     }
     notifyListeners();
   }
+
   void toggleSelectionAll() {
     selectedRecipes = _recipes.map((element) => element.id!).toSet();
     notifyListeners();
   }
-    
+
   void clearSelection() {
     selectedRecipes.clear();
     notifyListeners();

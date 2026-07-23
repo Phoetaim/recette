@@ -31,6 +31,7 @@ GoRouter router() => GoRouter(
                     ingredientRepository: context.read(),
                     ingredientWithQuantityUseCase: context.read(),
                     shoppingListRepository: context.read(),
+                    importExportUseCase: context.read(),
                   ),
                 );
               },

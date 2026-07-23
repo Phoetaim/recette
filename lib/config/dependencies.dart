@@ -34,18 +34,44 @@ List<SingleChildWidget> get providersLocal {
     Provider.value(value: LocalDataService()),
     Provider.value(value: databaseService),
     Provider(create: (context) => DatabaseIngredientService(databaseService: context.read())),
-    Provider(create: (context) => DatabaseIngredientWithQuantityService(databaseService: context.read())),
-    Provider(create: (context) => DatabaseShoppingIngredientService(databaseService: context.read())),
+    Provider(
+      create: (context) => DatabaseIngredientWithQuantityService(databaseService: context.read()),
+    ),
+    Provider(
+      create: (context) => DatabaseShoppingIngredientService(databaseService: context.read()),
+    ),
     Provider(create: (context) => DatabaseRecipeService(databaseService: context.read())),
     Provider(create: (context) => DatabaseIngredientTypeService(databaseService: context.read())),
     Provider(create: (context) => DatabaseIngredientUnitsService(databaseService: context.read())),
     Provider(create: (context) => RecipeRepository(database: context.read())),
     Provider(create: (context) => IngredientTypesRepository(database: context.read())),
-    Provider(create: (context) => IngredientRepository(database: context.read(), ingredientTypesRepository: context.read())),
+    Provider(
+      create: (context) =>
+          IngredientRepository(database: context.read(), ingredientTypesRepository: context.read()),
+    ),
     Provider(create: (context) => IngredientUnitsRepository(database: context.read())),
     Provider(create: (context) => IngredientWithQuantityRepository(database: context.read())),
-    Provider(create: (context) => IngredientWithQuantityUseCase(ingredientRepository: context.read(), ingredientWithQuantityRepository: context.read(), ingredientUnitsRepository: context.read())),
-    Provider(create: (context) => ShoppingListRepository(shoppingDatabase: context.read(), ingredientWithQuantityUseCase: context.read())),
-    Provider(create: (context) => ImportExportUseCase(ingredientRepository: context.read(), ingredientWithQuantityRepository: context.read(), ingredientUnitsRepository: context.read(), recipeRepository: context.read(), ingredientWithQuantityUseCase: context.read(), shoppingListRepository: context.read())),
+    Provider(
+      create: (context) => IngredientWithQuantityUseCase(
+        ingredientRepository: context.read(),
+        ingredientWithQuantityRepository: context.read(),
+        ingredientUnitsRepository: context.read(),
+      ),
+    ),
+    Provider(
+      create: (context) => ShoppingListRepository(
+        shoppingDatabase: context.read(),
+        ingredientWithQuantityUseCase: context.read(),
+      ),
+    ),
+    Provider(
+      create: (context) => ImportExportUseCase(
+        ingredientRepository: context.read(),
+        ingredientWithQuantityRepository: context.read(),
+        ingredientUnitsRepository: context.read(),
+        recipeRepository: context.read(),
+        shoppingListRepository: context.read(),
+      ),
+    ),
   ];
 }

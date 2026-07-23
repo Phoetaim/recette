@@ -6,6 +6,7 @@ import 'package:recette/data/services/models/raw_shopping_ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
+import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -19,15 +20,19 @@ class ShoppingListViewModel extends ChangeNotifier {
   ShoppingListViewModel({
     required IngredientRepository ingredientRepository,
     required IngredientWithQuantityUseCase ingredientWithQuantityUseCase,
+    required ImportExportUseCase importExportUseCase,
     required ShoppingListRepository shoppingListRepository,
   }) : _ingredientRepository = ingredientRepository,
        _ingredientWithQuantityUseCase = ingredientWithQuantityUseCase,
+       _importExportUseCase = importExportUseCase,
        _shoppingListRepository = shoppingListRepository {
     initShoppingList = Command0(_initShoppingList)..execute();
+    importShoppingList = Command1(_importShoppingList);
   }
 
   final IngredientRepository _ingredientRepository;
   final IngredientWithQuantityUseCase _ingredientWithQuantityUseCase;
+  final ImportExportUseCase _importExportUseCase;
   final ShoppingListRepository _shoppingListRepository;
 
   StreamSubscription<ShoppingIngredient>? _newShoppingIngredientSubscription;
@@ -36,7 +41,6 @@ class ShoppingListViewModel extends ChangeNotifier {
 
   var shoppingListLock = Lock();
   final ShoppingList _shoppingList = [];
-
   ShoppingList get shoppingList =>
       _shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought).toList();
 
@@ -44,6 +48,7 @@ class ShoppingListViewModel extends ChangeNotifier {
       _shoppingList.where((shoppingIngredient) => shoppingIngredient.bought).toList();
 
   late final Command0<void> initShoppingList;
+  late final Command1<void, String> importShoppingList;
 
   Future<Result<void>> _initShoppingList() async {
     final result = await _shoppingListRepository.getShoppingList();
@@ -151,6 +156,15 @@ class ShoppingListViewModel extends ChangeNotifier {
 
   Future<Result<void>> addToShoppingList(IngredientWithQuantity ingredientWithQuantity) async {
     return _shoppingListRepository.addShoppingIngredient(ingredientWithQuantity);
+  }
+
+  Future<void> exportShoppingList() async {
+    await _importExportUseCase.exportShoppingList(shoppingList);
+  }
+
+  Future<Result<void>> _importShoppingList(String data) async {
+    await _importExportUseCase.importShoppingList(data);
+    return Result.ok(null);
   }
 
   Future<void> toggleShoppingIngredientStatus(ShoppingIngredient shoppingIngredient) async {

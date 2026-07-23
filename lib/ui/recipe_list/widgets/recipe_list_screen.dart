@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 
+import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 import 'recipe_list_body.dart';
 
@@ -109,7 +110,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   }
 
   List<Widget> _getActionList() {
-    return [ImportButton(viewModel: widget.viewModel)];
+    return [ImportButton(callback: widget.viewModel.importRecipes)];
   }
 }
 
@@ -127,51 +128,6 @@ class ExportButton extends StatelessWidget {
   }
 }
 
-class ImportButton extends StatefulWidget {
-  const ImportButton({super.key, required this.viewModel});
-
-  final RecipeListViewModel viewModel;
-
-  @override
-  State<ImportButton> createState() => _ImportButtonState();
-}
-
-class _ImportButtonState extends State<ImportButton> {
-  String base64ImportData = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: TextField(
-              autofocus: true,
-              onChanged: (value) {
-                setState(() {
-                  base64ImportData = value;
-                });
-              },
-              decoration: InputDecoration(hintText: 'Paste base64 exported data'),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  widget.viewModel.importRecipes.execute(base64ImportData);
-                  Navigator.of(context).pop();
-                },
-                child: const Icon(Icons.check),
-              ),
-            ],
-          ),
-        );
-      },
-      child: Icon(Icons.arrow_downward),
-    );
-  }
-}
-
 class SelectionFloatingActionButton extends StatelessWidget {
   const SelectionFloatingActionButton({super.key, required this.viewModel});
 
@@ -184,13 +140,15 @@ class SelectionFloatingActionButton extends StatelessWidget {
       builder: (context, value) {
         return Stack(
           children: [
-            if(viewModel.selectedRecipes.isNotEmpty)
-            SmallActionButton(
-              title: 'Exporter',
-              icon: Icons.arrow_upward,
-              onPressed: viewModel.selectedRecipes.isNotEmpty ? viewModel.exportRecipes.execute : null,
-              index: 2,
-            ),
+            if (viewModel.selectedRecipes.isNotEmpty)
+              SmallActionButton(
+                title: 'Exporter',
+                icon: Icons.arrow_upward,
+                onPressed: viewModel.selectedRecipes.isNotEmpty
+                    ? viewModel.exportRecipes.execute
+                    : null,
+                index: 2,
+              ),
             SmallActionButton(
               title: 'Désélectionne tout',
               icon: Icons.check_box_outline_blank,
@@ -214,7 +172,7 @@ class SelectionFloatingActionButton extends StatelessWidget {
             ),
           ],
         );
-      }
+      },
     );
   }
 }
