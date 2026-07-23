@@ -83,17 +83,26 @@ class IngredientCard extends StatelessWidget {
       onDismissed: (direction) {
         showDialog(
           context: context,
-          builder: (context) => SimpleDialog(
+          builder: (context) => AlertDialog(
             title: Text(
               'Voulez-vous vraiment supprimer l\'ingrédient ${ingredient.name} ? Il sera également supprimé des recettes et différentes listes',
             ),
-            children: <Widget>[
-              SimpleDialogOption(
+            actions: <Widget>[
+              MaterialButton(
+                color: Colors.red,
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  },
+                child:const Icon(Icons.clear, color: Colors.white,),
+
+              ),
+              MaterialButton(
+                color: Colors.green,
                 onPressed: () {
                   viewModel.deleteIngredient.execute(ingredient);
                   Navigator.of(context, rootNavigator: true).pop();
                   },
-                child: const Icon(Icons.check),
+                child: const Icon(Icons.check, color: Colors.white,),
               ),
             ],
           ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
+
 import '../../../data/repositories/recipe/recipe_repository.dart';
 import '../../../data/services/models/raw_recipe.dart';
-import '../../../domain/models/recipe/recipe.dart';
 import '../../../domain/models/ingredient/ingredient_with_quantity.dart';
+import '../../../domain/models/recipe/recipe.dart';
 import '../../../utils/commands.dart';
 import '../../../utils/result.dart';
 
@@ -13,22 +15,25 @@ class RecipeDetailViewModel extends ChangeNotifier {
     required RecipeRepository recipeRepository,
     required IngredientWithQuantityUseCase ingredientWithQuantityUseCase,
     required ShoppingListRepository shoppingListRepository,
+    required ImportExportUseCase importExportUseCase,
   }) : _recipeRepository = recipeRepository,
        _ingredientWithQuantityUseCase = ingredientWithQuantityUseCase,
-       _shoppingListRepository = shoppingListRepository {
+       _shoppingListRepository = shoppingListRepository,
+       _importExportUseCase = importExportUseCase {
     loadRecipeById = Command1(_loadRecipeById);
     saveRecipe = Command0(_saveRecipe);
-    deleteRecipe = Command1(_deleteRecipe);
+    deleteRecipe = Command0(_deleteRecipe);
     addRecipeToShoppingList = Command0(_addRecipeToShoppingList);
   }
 
   final RecipeRepository _recipeRepository;
   final IngredientWithQuantityUseCase _ingredientWithQuantityUseCase;
+  final ImportExportUseCase _importExportUseCase;
   final ShoppingListRepository _shoppingListRepository;
 
   late final Command1<void, String> loadRecipeById;
   late final Command0<void> saveRecipe;
-  late final Command1<void, int> deleteRecipe;
+  late final Command0<void> deleteRecipe;
   late final Command0<void> addRecipeToShoppingList;
 
   late RawRecipe _rawRecipe;
@@ -134,14 +139,22 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<void>> _deleteRecipe(int id) async {
-    _recipeRepository.deleteRecipe(id);
+  Future<Result<void>> _deleteRecipe() async {
+    if (_rawRecipe.id != null) {
+      _recipeRepository.deleteRecipe(_rawRecipe.id!);
+    }
     return Result.ok(null);
   }
 
   bool isRecipeUpdated() {
     return _rawRecipe != _originalRecipe ||
         _rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length;
+  }
+
+  Future<void> exportRecipe() async {
+    await _saveRecipe();
+    await _importExportUseCase.exportRecipes([_rawRecipe]);
+    notifyListeners();
   }
 
   // Update info tab
@@ -194,8 +207,8 @@ class RecipeDetailViewModel extends ChangeNotifier {
           ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
       var result = _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
-      if (result is Error<void>){
-            error = true;
+      if (result is Error<void>) {
+        error = true;
       }
     }
 
@@ -208,5 +221,6 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
 class RecipeError implements Exception {
   String cause;
+
   RecipeError(this.cause);
 }

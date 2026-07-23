@@ -183,7 +183,6 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   }
 
   List<Ingredient> _formatResultsFromSearch(List<SearchableItem> results) {
-    print(results);
     final ingredients = List<Ingredient>.generate(
       results.length,
       (index) => _ingredients.where((item) => item.id == int.parse(results[index].id)).first,
