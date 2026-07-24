@@ -14,6 +14,9 @@ final Map<int, List<String>> databaseFiles = <int, List<String>>{
     'recipe.sql',
     'recipe_ingredient_with_quantity.sql',
   ],
+  2: [
+    'add_hygiene_type.sql',
+  ]
 };
 
 abstract final class TableNames {
@@ -42,13 +45,12 @@ class DatabaseService {
   }
 
   Future<void> open() async {
-      await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onConfigure: _onConfigure,
           onUpgrade: _onUpgrade,
-          version: 1,
+          version: 2,
         ),
       );
   }
@@ -60,7 +62,6 @@ class DatabaseService {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     for (var version = 1; version <= newVersion; version++) {
-      print(oldVersion);
       if (oldVersion >= version) {
         continue; // Skip version if already applied
       }

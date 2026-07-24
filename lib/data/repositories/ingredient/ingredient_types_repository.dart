@@ -21,11 +21,10 @@ class IngredientTypesRepository {
     try {
       var result = await _database.getAllIngredientTypes();
       for (var ingredientType in result) {
-      _ingredientTypes[ingredientType.id!] = ingredientType;
+        _ingredientTypes[ingredientType.id!] = ingredientType;
       }
       return Result.ok(null);
     } on Exception {
-
       return Result.error(IngredientTypeRepositoryError('Could not add ingredient type'));
     }
   }
@@ -33,5 +32,6 @@ class IngredientTypesRepository {
 
 class IngredientTypeRepositoryError implements Exception {
   String cause;
+
   IngredientTypeRepositoryError(this.cause);
 }
