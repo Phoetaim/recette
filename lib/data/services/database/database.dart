@@ -42,6 +42,7 @@ class DatabaseService {
   }
 
   Future<void> open() async {
+      await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
       _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
@@ -58,7 +59,8 @@ class DatabaseService {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    for (var version = 1; version <= newVersion; newVersion++) {
+    for (var version = 1; version <= newVersion; version++) {
+      print(oldVersion);
       if (oldVersion >= version) {
         continue; // Skip version if already applied
       }
