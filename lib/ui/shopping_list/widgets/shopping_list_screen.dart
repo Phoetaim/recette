@@ -40,7 +40,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     return [
       TextButton.icon(
         onPressed: () => widget.viewModel.exportShoppingList(),
-        label: Icon(Icons.arrow_upward),
+        label: Icon(exportIcon),
       ),
       ImportButton(callback: widget.viewModel.importShoppingList),
     ];

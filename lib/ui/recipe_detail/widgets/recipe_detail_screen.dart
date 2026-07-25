@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
@@ -153,7 +154,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         },
         child: Row(
           children: [
-            Icon(Icons.arrow_upward, color: color),
+            Icon(exportIcon, color: color),
             SizedBox(width: 8),
             Text('Exporter', style: textStyle),
           ],

@@ -123,7 +123,7 @@ class ExportButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => viewModel.exportRecipes.execute(),
-      child: Icon(Icons.arrow_upward),
+      child: Icon(exportIcon),
     );
   }
 }
@@ -143,7 +143,7 @@ class SelectionFloatingActionButton extends StatelessWidget {
             if (viewModel.selectedRecipes.isNotEmpty)
               SmallActionButton(
                 title: 'Exporter',
-                icon: Icons.arrow_upward,
+                icon: exportIcon,
                 onPressed: viewModel.selectedRecipes.isNotEmpty
                     ? viewModel.exportRecipes.execute
                     : null,

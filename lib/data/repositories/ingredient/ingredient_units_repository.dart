@@ -27,7 +27,7 @@ class IngredientUnitsRepository {
       var result = await _database.getAllIngredientUnits();
       for (var ingredientUnit in result) {
       _ingredientUnitsById[ingredientUnit.id!] = ingredientUnit;
-      _ingredientUnitsByName[ingredientUnit.name] = ingredientUnit;
+      _ingredientUnitsByName[ingredientUnit.name.toLowerCase()] = ingredientUnit;
       }
       initialized = true;
       return Result.ok(null);

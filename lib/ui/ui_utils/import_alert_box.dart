@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../utils/commands.dart';
 
@@ -42,7 +43,9 @@ class _ImportButtonState extends State<ImportButton> {
           ),
         );
       },
-      child: Icon(Icons.arrow_downward),
+      child: Icon(CupertinoIcons.arrow_down_left),
     );
   }
 }
+
+final exportIcon = CupertinoIcons.arrow_up_right;

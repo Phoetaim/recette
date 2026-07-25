@@ -50,7 +50,7 @@ class ShoppingListBody extends StatelessWidget {
                       title: Text('Ingrédients récemment achetés'),
                       trailing: TextButton(
                         onPressed: viewModel.deleteAllBoughtIngredients,
-                        child: Icon(Icons.remove_shopping_cart),
+                        child: Icon(Icons.delete_forever_rounded),
                       ),
                     ),
                   ),
