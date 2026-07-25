@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,17 @@ GoRouter router() => GoRouter(
                   ),
                 );
               },
+              routes: <RouteBase>[
+                GoRoute(
+                  name: Routes.ingredientList,
+                  path: Routes.ingredientList,
+                  builder: (context, state) {
+                    return IngredientListScreen(
+                      viewModel: IngredientListViewModel(ingredientRepository: context.read()),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -70,18 +82,6 @@ GoRouter router() => GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(
-          routes: <RouteBase>[
-            GoRoute(
-              path: Routes.ingredientList,
-              builder: (context, state) {
-                return IngredientListScreen(
-                  viewModel: IngredientListViewModel(ingredientRepository: context.read()),
-                );
-              },
-            ),
-          ],
-        ),
       ],
     ),
   ],
@@ -99,9 +99,8 @@ class ScaffoldBottomNavigationBar extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), label: 'Liste'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Recettes'),
-          BottomNavigationBarItem(icon: Icon(Icons.food_bank), label: 'Ingrédients'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), label: 'Courses'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.book_fill), label: 'Recettes'),
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int tappedIndex) {

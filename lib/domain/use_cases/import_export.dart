@@ -211,7 +211,7 @@ class ImportExportUseCase {
     for (var ingredientUnit in ingredientUnits) {
       try {
         mappedIngredientsUnits[ingredientUnit.id!] =
-            _ingredientUnitsRepository.ingredientUnitsByName[ingredientUnit.name]!;
+            _ingredientUnitsRepository.ingredientUnitsByName[ingredientUnit.name.toLowerCase()]!;
       } on Exception {
         throw ImportExportError('Ingredients unit unknown');
       }

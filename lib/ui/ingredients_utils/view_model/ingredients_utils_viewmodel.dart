@@ -81,7 +81,6 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
           _formatIngredientTypesForRegex() +
           r")\s+)?(?:de |d')?(?<name>.*)",
     );
-    print(_ingredientRegex.pattern);
   }
 
   void _initSubscriptions(){
