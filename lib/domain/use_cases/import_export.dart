@@ -1,22 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-
-import '../../data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
-import '../../data/repositories/ingredient/ingredient_repository.dart';
-import '../../data/repositories/ingredient/ingredient_units_repository.dart';
-import '../../data/repositories/recipe/recipe_repository.dart';
-import '../../data/repositories/shopping_list/shopping_list_repository.dart';
-import '../../data/services/models/import_data.dart';
-import '../../data/services/models/raw_ingredient.dart';
-import '../../data/services/models/raw_ingredient_with_quantity.dart';
-import '../../data/services/models/raw_recipe.dart';
-import '../../ui/shopping_list/view_model/shopping_list_viewmodel.dart';
-import '../../utils/result.dart';
-import '../models/ingredient/ingredient.dart';
-import '../models/ingredient/ingredient_types.dart';
-import '../models/ingredient/ingredient_units.dart';
-import '../models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
+import 'package:recette/data/repositories/recipe/recipe_repository.dart';
+import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/models/import_data.dart';
+import 'package:recette/data/services/models/raw_ingredient.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
+import 'package:recette/domain/models/ingredient/ingredient.dart';
+import 'package:recette/domain/models/ingredient/ingredient_types.dart';
+import 'package:recette/domain/models/ingredient/ingredient_units.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
+import 'package:recette/utils/result.dart';
 
 Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
@@ -183,13 +182,13 @@ class ImportExportUseCase {
 
   // Import
   Future<ImportData> _loadImportData(String encodedImportData) async {
-    final recipesAsString = stringToBase64.decode(encodedImportData);
-    final json = await _loadStringRecipe(recipesAsString);
+    final jsonAsString = stringToBase64.decode(encodedImportData);
+    final json = await _loadStringRecipe(jsonAsString);
     return ImportData.fromJson(json);
   }
 
-  Future<Map<String, dynamic>> _loadStringRecipe(String recipesAsString) async {
-    return jsonDecode(recipesAsString) as Map<String, dynamic>;
+  Future<Map<String, dynamic>> _loadStringRecipe(String jsonAsString) async {
+    return jsonDecode(jsonAsString) as Map<String, dynamic>;
   }
 
   Future<Map<int, Ingredient>> _importIngredients(ImportData importData) async {

@@ -1,10 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:recette/domain/models/ingredient/ingredient.dart';
-
-import '../ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 
 part 'shopping_ingredient.freezed.dart';
-
 part 'shopping_ingredient.g.dart';
 
 @freezed
@@ -16,6 +14,7 @@ abstract class ShoppingIngredient with _$ShoppingIngredient {
     @Default(false) bool bought,
 
     // Ingredient def
+    @JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson)
     required IngredientWithQuantity ingredientWithQuantity,
   }) = _ShoppingIngredient;
 

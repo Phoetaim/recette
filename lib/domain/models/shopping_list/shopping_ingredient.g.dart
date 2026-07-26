@@ -11,7 +11,7 @@ _ShoppingIngredient _$ShoppingIngredientFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num?)?.toInt(),
       bought: json['bought'] as bool? ?? false,
       ingredientWithQuantity: IngredientWithQuantity.fromJson(
-        json['ingredientWithQuantity'] as Map<String, dynamic>,
+        json['ingredientWithQuantity'] as Map<String, Object?>,
       ),
     );
 
@@ -19,5 +19,7 @@ Map<String, dynamic> _$ShoppingIngredientToJson(_ShoppingIngredient instance) =>
     <String, dynamic>{
       'id': instance.id,
       'bought': instance.bought,
-      'ingredientWithQuantity': instance.ingredientWithQuantity,
+      'ingredientWithQuantity': ingredientWithQuantityToJson(
+        instance.ingredientWithQuantity,
+      ),
     };

@@ -20,8 +20,7 @@ mixin _$Recipe {
  String get name;/// e.g. '1h'
  String get preparationTime;/// e.g. '45''
  String get cookingTime;/// e.g. 4
- int get nbOfPeople;/// e.g. ['Mountain', 'Off-the-beaten-path', 'Wildlife watching']
- List<IngredientWithQuantity> get ingredients;/// e.g. ['Prépare la tarte', 'Cuis la']
+ int get nbOfPeople;@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> get ingredients;/// e.g. ['Prépare la tarte', 'Cuis la']
  List<String> get steps;
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
@@ -55,7 +54,7 @@ abstract mixin class $RecipeCopyWith<$Res>  {
   factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) _then) = _$RecipeCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<IngredientWithQuantity> ingredients, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, List<String> steps
 });
 
 
@@ -166,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -187,7 +186,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<IngredientWithQuantity> ingredients,  List<String> steps)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)  $default,) {final _that = this;
 switch (_that) {
 case _Recipe():
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -207,7 +206,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople,  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -222,7 +221,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 @JsonSerializable()
 
 class _Recipe implements Recipe {
-  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, final  List<IngredientWithQuantity> ingredients = const [], final  List<String> steps = const []}): _ingredients = ingredients,_steps = steps;
+  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) final  List<IngredientWithQuantity> ingredients = const [], final  List<String> steps = const []}): _ingredients = ingredients,_steps = steps;
   factory _Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
 /// e.g. 0
@@ -235,10 +234,8 @@ class _Recipe implements Recipe {
 @override@JsonKey() final  String cookingTime;
 /// e.g. 4
 @override@JsonKey() final  int nbOfPeople;
-/// e.g. ['Mountain', 'Off-the-beaten-path', 'Wildlife watching']
  final  List<IngredientWithQuantity> _ingredients;
-/// e.g. ['Mountain', 'Off-the-beaten-path', 'Wildlife watching']
-@override@JsonKey() List<IngredientWithQuantity> get ingredients {
+@override@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> get ingredients {
   if (_ingredients is EqualUnmodifiableListView) return _ingredients;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_ingredients);
@@ -287,7 +284,7 @@ abstract mixin class _$RecipeCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   factory _$RecipeCopyWith(_Recipe value, $Res Function(_Recipe) _then) = __$RecipeCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople, List<IngredientWithQuantity> ingredients, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, List<String> steps
 });
 
 

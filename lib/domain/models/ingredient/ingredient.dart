@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:recette/data/services/models/raw_ingredient.dart';
 
-import '../../../data/services/models/raw_ingredient.dart';
 import 'ingredient_types.dart';
 
 part 'ingredient.freezed.dart';
@@ -13,12 +13,15 @@ abstract class Ingredient with _$Ingredient {
     int? id,
 
     required String name,
-
-    @Default(IngredientTypes(id: 0, name: 'other', color: 4292269782)) IngredientTypes type,
+    @JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson)
+    @Default(IngredientTypes(id: 0, name: 'other', color: 4292269782))
+    IngredientTypes type,
   }) = _Ingredient;
 
   factory Ingredient.fromJson(Map<String, Object?> json) => _$IngredientFromJson(json);
 }
+
+Map<String, dynamic> ingredientToJson(Ingredient ingredient) => ingredient.toJson();
 
 int compareIngredientType(Ingredient ingredient1, Ingredient ingredient2) =>
     ingredient1.type.name.compareTo(ingredient2.type.name);

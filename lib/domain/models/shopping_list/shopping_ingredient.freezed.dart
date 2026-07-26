@@ -17,7 +17,7 @@ mixin _$ShoppingIngredient {
 
  int? get id;// If the item is checked
  bool get bought;// Ingredient def
- IngredientWithQuantity get ingredientWithQuantity;
+@JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson) IngredientWithQuantity get ingredientWithQuantity;
 /// Create a copy of ShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -50,7 +50,7 @@ abstract mixin class $ShoppingIngredientCopyWith<$Res>  {
   factory $ShoppingIngredientCopyWith(ShoppingIngredient value, $Res Function(ShoppingIngredient) _then) = _$ShoppingIngredientCopyWithImpl;
 @useResult
 $Res call({
- int? id, bool bought, IngredientWithQuantity ingredientWithQuantity
+ int? id, bool bought,@JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson) IngredientWithQuantity ingredientWithQuantity
 });
 
 
@@ -166,7 +166,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  bool bought,  IngredientWithQuantity ingredientWithQuantity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  bool bought, @JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson)  IngredientWithQuantity ingredientWithQuantity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ShoppingIngredient() when $default != null:
 return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
@@ -187,7 +187,7 @@ return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  bool bought,  IngredientWithQuantity ingredientWithQuantity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  bool bought, @JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson)  IngredientWithQuantity ingredientWithQuantity)  $default,) {final _that = this;
 switch (_that) {
 case _ShoppingIngredient():
 return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
@@ -207,7 +207,7 @@ return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  bool bought,  IngredientWithQuantity ingredientWithQuantity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  bool bought, @JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson)  IngredientWithQuantity ingredientWithQuantity)?  $default,) {final _that = this;
 switch (_that) {
 case _ShoppingIngredient() when $default != null:
 return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
@@ -222,14 +222,14 @@ return $default(_that.id,_that.bought,_that.ingredientWithQuantity);case _:
 @JsonSerializable()
 
 class _ShoppingIngredient implements ShoppingIngredient {
-  const _ShoppingIngredient({this.id, this.bought = false, required this.ingredientWithQuantity});
+  const _ShoppingIngredient({this.id, this.bought = false, @JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson) required this.ingredientWithQuantity});
   factory _ShoppingIngredient.fromJson(Map<String, dynamic> json) => _$ShoppingIngredientFromJson(json);
 
 @override final  int? id;
 // If the item is checked
 @override@JsonKey() final  bool bought;
 // Ingredient def
-@override final  IngredientWithQuantity ingredientWithQuantity;
+@override@JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson) final  IngredientWithQuantity ingredientWithQuantity;
 
 /// Create a copy of ShoppingIngredient
 /// with the given fields replaced by the non-null parameter values.
@@ -264,7 +264,7 @@ abstract mixin class _$ShoppingIngredientCopyWith<$Res> implements $ShoppingIngr
   factory _$ShoppingIngredientCopyWith(_ShoppingIngredient value, $Res Function(_ShoppingIngredient) _then) = __$ShoppingIngredientCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, bool bought, IngredientWithQuantity ingredientWithQuantity
+ int? id, bool bought,@JsonKey(toJson: ingredientWithQuantityToJson, fromJson: IngredientWithQuantity.fromJson) IngredientWithQuantity ingredientWithQuantity
 });
 
 

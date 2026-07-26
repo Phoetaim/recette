@@ -16,6 +16,8 @@ import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/models/ingredient/ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_types.dart';
 import 'package:recette/domain/models/ingredient/ingredient_units.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/shopping_list/shopping_ingredient.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/utils/result.dart';
 
@@ -47,6 +49,7 @@ void main() {
     registerFallbackValue(<int>[]);
     registerFallbackValue(const RawRecipe());
     registerFallbackValue(const Ingredient(name: 'fallback'));
+    registerFallbackValue(const IngredientWithQuantity(ingredient: Ingredient(name: 'fallback')));
   });
 
   setUp(() {
@@ -67,7 +70,7 @@ void main() {
     clipboardArguments = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
-          (MethodCall call) async {
+      (MethodCall call) async {
         if (call.method == 'Clipboard.setData') {
           clipboardArguments = call.arguments as Map<Object?, Object?>;
         }
@@ -103,17 +106,15 @@ void main() {
       const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
 
       when(
-            () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+        () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
         ),
       ).thenAnswer((_) async => const Result.ok([rawIngredientWithQuantity]));
       when(
-            () => mockIngredientRepository.getIngredientById(100),
+        () => mockIngredientRepository.getIngredientById(100),
       ).thenAnswer((_) async => const Result.ok(ingredient));
       when(() => mockIngredientRepository.ingredientTypes).thenReturn({3: ingredientType});
-      when(
-            () => mockIngredientUnitsRepository.ingredientUnitsById,
-      ).thenReturn({5: ingredientUnit});
+      when(() => mockIngredientUnitsRepository.ingredientUnitsById).thenReturn({5: ingredientUnit});
 
       await useCase.exportRecipes([recipe]);
 
@@ -142,17 +143,15 @@ void main() {
       const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
 
       when(
-            () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+        () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
         ),
       ).thenAnswer((_) async => const Result.ok([rawIngredientWithQuantity]));
       when(
-            () => mockIngredientRepository.getIngredientById(100),
+        () => mockIngredientRepository.getIngredientById(100),
       ).thenAnswer((_) async => const Result.ok(ingredient));
       when(() => mockIngredientRepository.ingredientTypes).thenReturn({3: ingredientType});
-      when(
-            () => mockIngredientUnitsRepository.ingredientUnitsById,
-      ).thenReturn({5: ingredientUnit});
+      when(() => mockIngredientUnitsRepository.ingredientUnitsById).thenReturn({5: ingredientUnit});
 
       await useCase.exportRecipes([recipeA, recipeB]);
 
@@ -176,12 +175,12 @@ void main() {
       );
 
       when(
-            () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+        () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
         ),
       ).thenAnswer((_) async => const Result.ok([rawIngredientWithQuantity]));
       when(
-            () => mockIngredientRepository.getIngredientById(100),
+        () => mockIngredientRepository.getIngredientById(100),
       ).thenAnswer((_) async => Result.error(Exception('not found')));
 
       expect(() => useCase.exportRecipes([recipe]), throwsA(isA<ImportExportError>()));
@@ -189,7 +188,7 @@ void main() {
 
     test('exporte une liste de recettes vide sans planter', () async {
       when(
-            () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+        () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[])),
         ),
       ).thenAnswer((_) async => const Result.ok(<RawIngredientWithQuantity>[]));
@@ -214,10 +213,12 @@ void main() {
 
     test(
       'crée un nouvel ingrédient, mappe unité/quantité et importe la recette avec les bons ids',
-          () async {
+      () async {
         const importData = ImportData(
           version: 0,
-          rawRecipes: [RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10])],
+          rawRecipes: [
+            RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]),
+          ],
           rawIngredientsWithQuantity: [
             RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
           ],
@@ -233,16 +234,16 @@ void main() {
 
         // Pas trouvé par nom -> le use case doit le créer.
         when(
-              () => mockIngredientRepository.getIngredientByName('Carotte'),
+          () => mockIngredientRepository.getIngredientByName('Carotte'),
         ).thenAnswer((_) async => Result.error(Exception('not found')));
         when(() => mockIngredientRepository.ingredientTypes).thenReturn({});
         when(
-              () => mockIngredientRepository.addIngredient(newIngredient),
+          () => mockIngredientRepository.addIngredient(newIngredient),
         ).thenAnswer((_) async => const Result.ok(createdIngredient));
 
         const existingUnit = IngredientUnit(id: 55, name: 'dL');
         when(
-              () => mockIngredientUnitsRepository.ingredientUnitsByName,
+          () => mockIngredientUnitsRepository.ingredientUnitsByName,
         ).thenReturn({'dl': existingUnit});
 
         const mappedRawIngredientWithQuantity = RawIngredientWithQuantity(
@@ -258,19 +259,19 @@ void main() {
           quantity: 2,
         );
         when(
-              () => mockIngredientWithQuantityRepository.addRawIngredientWithQuantity(
+          () => mockIngredientWithQuantityRepository.addRawIngredientWithQuantity(
             mappedRawIngredientWithQuantity,
           ),
         ).thenAnswer((_) async => const Result.ok(savedRawIngredientWithQuantity));
 
         when(
-              () => mockRecipeRepository.addRecipe(any()),
+          () => mockRecipeRepository.addRecipe(any()),
         ).thenAnswer((_) async => const Result.ok(RawRecipe(id: 1)));
 
         await useCase.importRecipes(encoded);
 
         verify(
-              () => mockRecipeRepository.addRecipe(
+          () => mockRecipeRepository.addRecipe(
             const RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [777]),
           ),
         ).called(1);
@@ -280,7 +281,9 @@ void main() {
     test('réutilise un ingrédient existant trouvé par son nom (pas de création)', () async {
       const importData = ImportData(
         version: 0,
-        rawRecipes: [RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10])],
+        rawRecipes: [
+          RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]),
+        ],
         rawIngredientsWithQuantity: [
           RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
         ],
@@ -296,12 +299,12 @@ void main() {
         type: IngredientTypes(id: 3, name: 'Légume', color: 123),
       );
       when(
-            () => mockIngredientRepository.getIngredientByName('Carotte'),
+        () => mockIngredientRepository.getIngredientByName('Carotte'),
       ).thenAnswer((_) async => const Result.ok(existingIngredient));
 
       const existingUnit = IngredientUnit(id: 55, name: 'dL');
       when(
-            () => mockIngredientUnitsRepository.ingredientUnitsByName,
+        () => mockIngredientUnitsRepository.ingredientUnitsByName,
       ).thenReturn({'dl': existingUnit});
 
       const mappedRawIngredientWithQuantity = RawIngredientWithQuantity(
@@ -311,39 +314,185 @@ void main() {
         quantity: 2,
       );
       when(
-            () => mockIngredientWithQuantityRepository.addRawIngredientWithQuantity(
+        () => mockIngredientWithQuantityRepository.addRawIngredientWithQuantity(
           mappedRawIngredientWithQuantity,
         ),
       ).thenAnswer((_) async => const Result.ok(mappedRawIngredientWithQuantity));
 
       when(
-            () => mockRecipeRepository.addRecipe(any()),
+        () => mockRecipeRepository.addRecipe(any()),
       ).thenAnswer((_) async => const Result.ok(RawRecipe(id: 1)));
 
       await useCase.importRecipes(encoded);
 
       verifyNever(() => mockIngredientRepository.addIngredient(any()));
       verify(
-            () => mockRecipeRepository.addRecipe(
+        () => mockRecipeRepository.addRecipe(
           const RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]),
         ),
       ).called(1);
     });
 
+    test('une unité inconnue lève ImportExportError', () async {
+      const importData = ImportData(
+        version: 0,
+        ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
+      );
+      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+
+      when(() => mockIngredientUnitsRepository.ingredientUnitsByName).thenReturn({});
+
+      expect(() => useCase.importRecipes(encoded), throwsA(isA<ImportExportError>()));
+    });
+  });
+
+  group('exportShoppingList', () {
+    // La construction des rawIngredients/types/unités passe par le même
+    // _getCommonImportData que exportRecipes, déjà testé en détail plus haut.
+    // On ne re-teste ici que ce qui est spécifique à exportShoppingList :
+    // le flag isShoppingList et l'absence de rawRecipes.
+    test('marque isShoppingList à true et n\'inclut aucune recette', () async {
+      const shoppingIngredient = ShoppingIngredient(
+        id: 1,
+        ingredientWithQuantity: IngredientWithQuantity(
+          id: 10,
+          ingredient: Ingredient(name: 'Carotte'),
+          quantity: 2,
+        ),
+      );
+
+      when(
+        () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+          any(that: equals(<int>[10])),
+        ),
+      ).thenAnswer((_) async => const Result.ok(<RawIngredientWithQuantity>[]));
+      when(() => mockIngredientRepository.ingredientTypes).thenReturn({});
+
+      await useCase.exportShoppingList([shoppingIngredient]);
+
+      final export = decodeClipboardExport();
+      expect(export.isShoppingList, isTrue);
+      expect(export.rawRecipes, isEmpty);
+    });
+  });
+
+  group('importShoppingList', () {
+    test('lève une ImportExportError si la version du format est invalide', () async {
+      const importData = ImportData(version: 1);
+      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+
+      expect(() => useCase.importShoppingList(encoded), throwsA(isA<ImportExportError>()));
+    });
+
     test(
-      'une unité inconnue devrait lever ImportExportError mais lève un '
-          'TypeError (voir explication dans la réponse)',
-          () async {
+      'ajoute les ingrédients importés à la liste de courses quand isShoppingList=true',
+      () async {
         const importData = ImportData(
           version: 0,
+          isShoppingList: true,
+          rawIngredientsWithQuantity: [
+            RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
+          ],
+          rawIngredients: [RawIngredient(id: 100, name: 'Carotte', type: 3)],
           ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
+          ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
         );
         final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
 
-        when(() => mockIngredientUnitsRepository.ingredientUnitsByName).thenReturn({});
+        // On réutilise le cas "ingrédient déjà existant" (moins de setup que
+        // le cas création, déjà couvert par les tests de importRecipes).
+        const existingIngredient = Ingredient(
+          id: 42,
+          name: 'Carotte',
+          type: IngredientTypes(id: 3, name: 'Légume', color: 123),
+        );
+        when(
+          () => mockIngredientRepository.getIngredientByName('Carotte'),
+        ).thenAnswer((_) async => const Result.ok(existingIngredient));
 
-        expect(() => useCase.importRecipes(encoded), throwsA(isA<ImportExportError>()));
+        const existingUnit = IngredientUnit(id: 55, name: 'dL');
+        when(
+          () => mockIngredientUnitsRepository.ingredientUnitsByName,
+        ).thenReturn({'dl': existingUnit});
+
+        when(
+          () => mockShoppingListRepository.addShoppingIngredient(any()),
+        ).thenAnswer((_) async => const Result.ok(null));
+
+        await useCase.importShoppingList(encoded);
+
+        verify(
+          () => mockShoppingListRepository.addShoppingIngredient(
+            const IngredientWithQuantity(
+              ingredient: existingIngredient,
+              unit: existingUnit,
+              quantity: 2,
+            ),
+          ),
+        ).called(1);
       },
     );
+
+    test('n\'ajoute rien à la liste de courses quand isShoppingList=false, même avec des '
+        'ingrédients dans l\'import', () async {
+      const importData = ImportData(
+        version: 0,
+        isShoppingList: false,
+        rawIngredientsWithQuantity: [
+          RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
+        ],
+        rawIngredients: [RawIngredient(id: 100, name: 'Carotte', type: 3)],
+        ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
+        ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
+      );
+      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+
+      const existingIngredient = Ingredient(
+        id: 42,
+        name: 'Carotte',
+        type: IngredientTypes(id: 3, name: 'Légume', color: 123),
+      );
+      when(
+        () => mockIngredientRepository.getIngredientByName('Carotte'),
+      ).thenAnswer((_) async => const Result.ok(existingIngredient));
+      when(
+        () => mockIngredientUnitsRepository.ingredientUnitsByName,
+      ).thenReturn({'dl': const IngredientUnit(id: 55, name: 'dL')});
+
+      await useCase.importShoppingList(encoded);
+
+      verifyNever(() => mockShoppingListRepository.addShoppingIngredient(any()));
+    });
+
+    test('lève une ImportExportError si au moins un ingrédient échoue à être ajouté', () async {
+      const importData = ImportData(
+        version: 0,
+        isShoppingList: true,
+        rawIngredientsWithQuantity: [
+          RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
+        ],
+        rawIngredients: [RawIngredient(id: 100, name: 'Carotte', type: 3)],
+        ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
+        ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
+      );
+      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+
+      const existingIngredient = Ingredient(
+        id: 42,
+        name: 'Carotte',
+        type: IngredientTypes(id: 3, name: 'Légume', color: 123),
+      );
+      when(
+        () => mockIngredientRepository.getIngredientByName('Carotte'),
+      ).thenAnswer((_) async => const Result.ok(existingIngredient));
+      when(
+        () => mockIngredientUnitsRepository.ingredientUnitsByName,
+      ).thenReturn({'dl': const IngredientUnit(id: 55, name: 'dL')});
+      when(
+        () => mockShoppingListRepository.addShoppingIngredient(any()),
+      ).thenAnswer((_) async => Result.error(Exception('db error')));
+
+      expect(() => useCase.importShoppingList(encoded), throwsA(isA<ImportExportError>()));
+    });
   });
 }

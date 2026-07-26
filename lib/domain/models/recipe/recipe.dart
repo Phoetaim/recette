@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 
 part 'recipe.freezed.dart';
 
@@ -24,7 +24,7 @@ abstract class Recipe with _$Recipe {
     /// e.g. 4
     @Default(4) int nbOfPeople,
 
-    /// e.g. ['Mountain', 'Off-the-beaten-path', 'Wildlife watching']
+    @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)
     @Default([]) List<IngredientWithQuantity> ingredients,
 
     /// e.g. ['Prépare la tarte', 'Cuis la']
