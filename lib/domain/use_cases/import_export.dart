@@ -76,7 +76,6 @@ class ImportExportUseCase {
     if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
-    print('import');
     Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
       importData.ingredientUnits,
@@ -264,7 +263,6 @@ class ImportExportUseCase {
     Map<int, Ingredient> mappedIngredients,
     Map<int, IngredientUnit> mappedUnits,
   ) async {
-    print('shopping list');
     if (!importData.isShoppingList) {
       return;
     }
