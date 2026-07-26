@@ -6,13 +6,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
-import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
 import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
 import 'package:recette/utils/result.dart';
 
 class MockRecipeRepository extends Mock implements RecipeRepository {}
-
-class MockIngredientWithQuantityUseCase extends Mock implements IngredientWithQuantityUseCase {}
 
 class MockImportExportUseCase extends Mock implements ImportExportUseCase {}
 
@@ -23,7 +20,6 @@ Future<void> flushMicrotasks() => Future<void>.delayed(Duration.zero);
 void main() {
   late MockRecipeRepository mockRepository;
   late MockImportExportUseCase mockImportExportUseCase;
-  late MockIngredientWithQuantityUseCase mockIngredientWithQuantityUseCase;
   late StreamController<RawRecipe> updatedRecipeListController;
 
   setUpAll(() {
@@ -33,8 +29,6 @@ void main() {
   setUp(() {
     mockRepository = MockRecipeRepository();
     mockImportExportUseCase = MockImportExportUseCase();
-    mockIngredientWithQuantityUseCase = MockIngredientWithQuantityUseCase()
-    ;
     updatedRecipeListController = StreamController<RawRecipe>.broadcast();
 
     when(

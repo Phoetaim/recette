@@ -28,7 +28,7 @@ abstract class Recipe with _$Recipe {
     @Default([]) List<IngredientWithQuantity> ingredients,
 
     /// e.g. ['Prépare la tarte', 'Cuis la']
-    @Default([]) List<String> steps,
+    @Default(['']) List<String> steps,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);

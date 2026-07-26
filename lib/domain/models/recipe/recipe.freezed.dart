@@ -221,7 +221,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 @JsonSerializable()
 
 class _Recipe implements Recipe {
-  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) final  List<IngredientWithQuantity> ingredients = const [], final  List<String> steps = const []}): _ingredients = ingredients,_steps = steps;
+  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) final  List<IngredientWithQuantity> ingredients = const [], final  List<String> steps = const ['']}): _ingredients = ingredients,_steps = steps;
   factory _Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
 /// e.g. 0

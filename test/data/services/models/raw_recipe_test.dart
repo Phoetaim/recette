@@ -24,14 +24,14 @@ void main() {
         cookingTime: '45min',
         nbOfPeople: 6,
         ingredientWithQuantityIds: [1, 2, 3],
-        steps: 'Étape 1. Étape 2.',
+        steps: 'Étape 1.\n Étape 2.',
       );
 
       expect(recipe.id, 1);
       expect(recipe.name, 'Tarte à la tomate');
       expect(recipe.nbOfPeople, 6);
       expect(recipe.ingredientWithQuantityIds, [1, 2, 3]);
-      expect(recipe.steps, 'Étape 1. Étape 2.');
+      expect(recipe.steps, 'Étape 1.\n Étape 2.');
     });
   });
 

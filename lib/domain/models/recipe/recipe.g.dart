@@ -19,7 +19,7 @@ _Recipe _$RecipeFromJson(Map<String, dynamic> json) => _Recipe(
         ),
   steps:
       (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
+      const [''],
 );
 
 Map<String, dynamic> _$RecipeToJson(_Recipe instance) => <String, dynamic>{
