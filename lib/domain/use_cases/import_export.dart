@@ -43,7 +43,7 @@ class ImportExportUseCase {
     List<int> ingredientWithQuantityIds = await _getIngredientWithQuantityIds(rawRecipes);
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
 
-    _copyToClipboard(export.copyWith(rawRecipes: rawRecipes));
+    await _copyToClipboard(export.copyWith(rawRecipes: rawRecipes));
   }
 
   Future<void> exportShoppingList(ShoppingList shoppingList) async {
@@ -53,7 +53,7 @@ class ImportExportUseCase {
 
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
 
-    _copyToClipboard(export.copyWith(isShoppingList: true));
+    await _copyToClipboard(export.copyWith(isShoppingList: true));
   }
 
   Future<void> importRecipes(String encodedImportData) async {
@@ -128,9 +128,9 @@ class ImportExportUseCase {
     );
   }
 
-  void _copyToClipboard(ImportData data) {
+  Future<void> _copyToClipboard(ImportData data) async {
     final encodedData = stringToBase64.encode(jsonEncode(data.toJson()));
-    Clipboard.setData(ClipboardData(text: encodedData));
+    await Clipboard.setData(ClipboardData(text: encodedData));
   }
 
   Future<List<RawIngredient>> _getRawIngredients(

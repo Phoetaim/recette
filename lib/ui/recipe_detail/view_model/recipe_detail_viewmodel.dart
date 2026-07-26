@@ -128,7 +128,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
           _rawRecipe = _originalRecipe!;
           return Result.ok(null);
         case Error<RawRecipe>():
-          return Result.error(RecipeError('Could not update recipe'));
+          return Result.error(RecipeError('Could not create recipe'));
       }
     } else {
       Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _rawRecipe);
@@ -144,7 +144,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _deleteRecipe() async {
     if (_rawRecipe.id != null) {
-      _recipeRepository.deleteRecipe(_rawRecipe.id!);
+      await _recipeRepository.deleteRecipe(_rawRecipe.id!);
     }
     return Result.ok(null);
   }
@@ -209,7 +209,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
       double newQuantity =
           ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
-      var result = _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
+      var result = await _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
       if (result is Error<void>) {
         error = true;
       }

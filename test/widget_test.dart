@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:recette/config/dependencies.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/main.dart';
-import 'package:recette/ui/recipe_list/widgets/recipe_list_body.dart';
+import 'package:recette/ui/recipe_list/widgets/recipe_card.dart';
 
 const recipe = RawRecipe(
   name: 'Recette de test',

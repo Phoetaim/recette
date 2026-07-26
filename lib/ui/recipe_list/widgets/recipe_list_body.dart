@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/routing/routes.dart';
+import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
 
-import '../../../data/services/models/raw_recipe.dart';
-import '../view_model/recipe_list_viewmodel.dart';
+import 'recipe_card.dart';
 
 class RecipeListBody extends StatelessWidget {
   const RecipeListBody({super.key, required this.viewModel});
@@ -92,52 +93,11 @@ class RecipeFullCard extends StatelessWidget {
               );
             },
           );
-        }
-        else {
+        } else {
           return child!;
         }
       },
       child: childWidget,
     );
-  }
-}
-
-class RecipeCard extends StatelessWidget {
-  const RecipeCard({super.key, required this.recipe});
-
-  final RawRecipe recipe;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(width: 5),
-        Expanded(child: Text(recipe.name)),
-        IconRow(icon: Icons.group, label: recipe.nbOfPeople.toString()),
-        SizedBox(width: 20),
-        Row(
-          children: [
-            Column(
-              children: [
-                IconRow(icon: Icons.timer_outlined, label: recipe.preparationTime),
-                IconRow(icon: Icons.thermostat, label: recipe.cookingTime),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class IconRow extends StatelessWidget {
-  const IconRow({super.key, required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [Icon(icon), SizedBox(width: 3), Text(label)]);
   }
 }

@@ -75,7 +75,7 @@ class ShoppingListRepository {
       id: rawIngredientWithQuantity.id,
       quantity: newQuantity,
     );
-    _ingredientWithQuantityUseCase.updateIngredientWithQuantity(rawUpdatedIngredientWithQuantity);
+    await _ingredientWithQuantityUseCase.updateIngredientWithQuantity(rawUpdatedIngredientWithQuantity);
 
     // Send updated shopping ingredient to shopping list
     final updatedShoppingIngredient = ShoppingIngredient(
