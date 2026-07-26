@@ -100,7 +100,7 @@ void main() {
       );
       const ingredientType = IngredientTypes(id: 3, name: 'Légume', color: 123);
       const ingredient = Ingredient(id: 100, name: 'Carotte', type: ingredientType);
-      const ingredientUnit = IngredientUnit(id: 5, name: 'kg');
+      const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
 
       when(
             () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
@@ -121,6 +121,45 @@ void main() {
       final export = decodeClipboardExport();
 
       expect(export.rawRecipes, [recipe]);
+      expect(export.rawIngredientsWithQuantity, [rawIngredientWithQuantity]);
+      expect(export.rawIngredients, [const RawIngredient(id: 100, name: 'Carotte', type: 3)]);
+      expect(export.ingredientTypes, [ingredientType]);
+      expect(export.ingredientUnits, [ingredientUnit]);
+      expect(export.isShoppingList, isFalse);
+    });
+
+    test('exporte 2 recettes avec le même ingredient', () async {
+      const recipeA = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]);
+      const recipeB = RawRecipe(id: 2, name: 'Grosse soupe', ingredientWithQuantityIds: [10]);
+      const rawIngredientWithQuantity = RawIngredientWithQuantity(
+        id: 10,
+        ingredientId: 100,
+        unit: 5,
+        quantity: 2,
+      );
+      const ingredientType = IngredientTypes(id: 3, name: 'Légume', color: 123);
+      const ingredient = Ingredient(id: 100, name: 'Carotte', type: ingredientType);
+      const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
+
+      when(
+            () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
+          any(that: equals(<int>[10])),
+        ),
+      ).thenAnswer((_) async => const Result.ok([rawIngredientWithQuantity]));
+      when(
+            () => mockIngredientRepository.getIngredientById(100),
+      ).thenAnswer((_) async => const Result.ok(ingredient));
+      when(() => mockIngredientRepository.ingredientTypes).thenReturn({3: ingredientType});
+      when(
+            () => mockIngredientUnitsRepository.ingredientUnitsById,
+      ).thenReturn({5: ingredientUnit});
+
+      await useCase.exportRecipes([recipeA, recipeB]);
+
+      expect(clipboardArguments, isNotNull);
+      final export = decodeClipboardExport();
+
+      expect(export.rawRecipes, [recipeA, recipeB]);
       expect(export.rawIngredientsWithQuantity, [rawIngredientWithQuantity]);
       expect(export.rawIngredients, [const RawIngredient(id: 100, name: 'Carotte', type: 3)]);
       expect(export.ingredientTypes, [ingredientType]);
@@ -183,7 +222,7 @@ void main() {
             RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
           ],
           rawIngredients: [RawIngredient(id: 100, name: 'Carotte', type: 3)],
-          ingredientUnits: [IngredientUnit(id: 5, name: 'kg')],
+          ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
           ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
         );
         final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
@@ -201,10 +240,10 @@ void main() {
               () => mockIngredientRepository.addIngredient(newIngredient),
         ).thenAnswer((_) async => const Result.ok(createdIngredient));
 
-        const existingUnit = IngredientUnit(id: 55, name: 'kg');
+        const existingUnit = IngredientUnit(id: 55, name: 'dL');
         when(
               () => mockIngredientUnitsRepository.ingredientUnitsByName,
-        ).thenReturn({'kg': existingUnit});
+        ).thenReturn({'dl': existingUnit});
 
         const mappedRawIngredientWithQuantity = RawIngredientWithQuantity(
           id: 10,
@@ -246,7 +285,7 @@ void main() {
           RawIngredientWithQuantity(id: 10, ingredientId: 100, unit: 5, quantity: 2),
         ],
         rawIngredients: [RawIngredient(id: 100, name: 'Carotte', type: 3)],
-        ingredientUnits: [IngredientUnit(id: 5, name: 'kg')],
+        ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
       final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
@@ -260,10 +299,10 @@ void main() {
             () => mockIngredientRepository.getIngredientByName('Carotte'),
       ).thenAnswer((_) async => const Result.ok(existingIngredient));
 
-      const existingUnit = IngredientUnit(id: 55, name: 'kg');
+      const existingUnit = IngredientUnit(id: 55, name: 'dL');
       when(
             () => mockIngredientUnitsRepository.ingredientUnitsByName,
-      ).thenReturn({'kg': existingUnit});
+      ).thenReturn({'dl': existingUnit});
 
       const mappedRawIngredientWithQuantity = RawIngredientWithQuantity(
         id: 10,
@@ -297,7 +336,7 @@ void main() {
           () async {
         const importData = ImportData(
           version: 0,
-          ingredientUnits: [IngredientUnit(id: 5, name: 'kg')],
+          ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         );
         final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
 
