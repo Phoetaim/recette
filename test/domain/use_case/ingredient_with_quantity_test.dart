@@ -64,7 +64,7 @@ void main() {
         const ingredientType = IngredientTypes(id: 3, name: 'Légume', color: 123);
         const ingredient = Ingredient(id: 100, name: 'Carotte', type: ingredientType);
         const unit = IngredientUnit(id: 5, name: 'kg');
-        const ingredientWithQuantity = IngredientWithQuantity(ingredient: ingredient, unit: unit, quantity: 2);
+        const ingredientWithQuantity = IngredientWithQuantity(id: 10, ingredient: ingredient, unit: unit, quantity: 2);
 
         when(
               () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(

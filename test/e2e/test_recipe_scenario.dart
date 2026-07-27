@@ -5,6 +5,7 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +22,7 @@ const recipe = RawRecipe(
 );
 
 Future<void> addRecipe(WidgetTester tester) async {
-  await tester.tap(find.byIcon(Icons.list));
+  await tester.tap(find.byIcon(CupertinoIcons.book_fill));
   await tester.pump();
 
   expect(find.text('Mes Recettes'), findsOneWidget);
@@ -57,8 +58,5 @@ void main() {
     expect(find.text(recipe.preparationTime), findsOneWidget);
     expect(find.text(recipe.cookingTime), findsOneWidget);
     expect(find.text(recipe.nbOfPeople.toString()), findsOneWidget);
-
-    await tester.tap(find.text(recipe.name));
-    await tester.pump();
   });
 }
