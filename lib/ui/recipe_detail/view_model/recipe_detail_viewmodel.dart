@@ -144,7 +144,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _deleteRecipe() async {
     if (_rawRecipe.id != null) {
-      await _recipeRepository.deleteRecipe(_rawRecipe.id!);
+      return await _recipeRepository.deleteRecipe(_rawRecipe.id!);
     }
     return Result.ok(null);
   }

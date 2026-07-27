@@ -310,8 +310,7 @@ void main() {
     });
 
     test(
-      'BUG: still reports success even if the repository deletion fails, because '
-          'the call is not awaited',
+      'Report error if the repository deletion fails',
           () async {
         const rawRecipe = RawRecipe(id: 1);
 
@@ -334,9 +333,6 @@ void main() {
         viewModel.deleteRecipe.execute();
         await flushMicrotasks();
 
-        // `_deleteRecipe` calls `_recipeRepository.deleteRecipe(...)` without `await`,
-        // then unconditionally returns `Result.ok(null)`. A failing deletion is never
-        // surfaced to the UI.
         expect(viewModel.deleteRecipe.error, isTrue);
         expect(viewModel.deleteRecipe.completed, isFalse);
       },

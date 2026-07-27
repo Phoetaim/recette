@@ -99,7 +99,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recette supprimée'), duration: Duration(microseconds: 1000)),
+        SnackBar(content: Text('Recette supprimée'), duration: Duration(milliseconds: 500)),
       );
     }
 
@@ -121,10 +121,7 @@ class ExportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () => viewModel.exportRecipes.execute(),
-      child: Icon(exportIcon),
-    );
+    return TextButton(onPressed: () => viewModel.exportRecipes.execute(), child: Icon(exportIcon));
   }
 }
 
@@ -200,10 +197,13 @@ class SmallActionButton extends StatelessWidget {
       right: 5,
       child: Row(
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(title, style: TextStyle(color: theme.colorScheme.onSecondaryContainer)),
+          TextButton(
+            onPressed: onPressed != null ? () => onPressed!() : null,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(title, style: TextStyle(color: theme.colorScheme.onSecondaryContainer)),
+              ),
             ),
           ),
           FloatingActionButton.small(

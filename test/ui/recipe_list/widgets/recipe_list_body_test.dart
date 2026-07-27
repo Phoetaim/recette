@@ -18,10 +18,6 @@ class MockRecipeRepository extends Mock implements RecipeRepository {}
 
 class MockImportExportUseCase extends Mock implements ImportExportUseCase {}
 
-/// Laisse le temps aux Futures/microtasks en attente (ex: le chargement
-/// déclenché dans le constructeur du viewmodel) de se résoudre.
-Future<void> flushMicrotasks() => Future<void>.delayed(Duration.zero);
-
 void main() {
   late MockRecipeRepository mockRecipeRepository;
   late MockImportExportUseCase mockImportExportUseCase;
@@ -36,7 +32,7 @@ void main() {
     // Comportement par défaut : liste vide. Les tests qui ont besoin d'un contenu
     // spécifique redéfinissent ce stub.
     when(
-      () => mockRecipeRepository.getRecipeList(),
+          () => mockRecipeRepository.getRecipeList(),
     ).thenAnswer((_) async => const Result.ok(<RawRecipe>[]));
   });
 
@@ -84,12 +80,13 @@ void main() {
 
   testWidgets('renders one RecipeCard per recipe from the viewModel', (tester) async {
     when(() => mockRecipeRepository.getRecipeList()).thenAnswer(
-      (_) async =>
-          const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]),
+          (_) async => const Result.ok([
+        RawRecipe(id: 1, name: 'Soupe'),
+        RawRecipe(id: 2, name: 'Salade'),
+      ]),
     );
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
@@ -101,7 +98,6 @@ void main() {
 
   testWidgets('renders nothing when the recipe list is empty', (tester) async {
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
@@ -109,13 +105,14 @@ void main() {
     expect(find.byType(RecipeCard), findsNothing);
   });
 
-  testWidgets('tapping a recipe navigates to its detail screen with the right id', (tester) async {
+  testWidgets('tapping a recipe navigates to its detail screen with the right id', (
+      tester,
+      ) async {
     when(
-      () => mockRecipeRepository.getRecipeList(),
+          () => mockRecipeRepository.getRecipeList(),
     ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
@@ -128,11 +125,10 @@ void main() {
 
   testWidgets('long-pressing a recipe enters selection mode and selects it', (tester) async {
     when(
-      () => mockRecipeRepository.getRecipeList(),
+          () => mockRecipeRepository.getRecipeList(),
     ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
@@ -149,11 +145,10 @@ void main() {
 
   testWidgets('tapping the checkbox in selection mode toggles the selection', (tester) async {
     when(
-      () => mockRecipeRepository.getRecipeList(),
+          () => mockRecipeRepository.getRecipeList(),
     ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
     viewModel.enterSelection(42);
 
     await tester.pumpWidget(buildTestApp(viewModel));
@@ -170,16 +165,17 @@ void main() {
     expect(viewModel.selectedRecipes, isEmpty);
   });
 
-  testWidgets('tapping the delete icon removes the recipe from the displayed list', (tester) async {
+  testWidgets('tapping the delete icon removes the recipe from the displayed list', (
+      tester,
+      ) async {
     when(
-      () => mockRecipeRepository.getRecipeList(),
-    ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
+          () => mockRecipeRepository.getRecipeList(),
+    ).thenAnswer((_) async => Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
     when(
-      () => mockRecipeRepository.deleteRecipe(42),
+          () => mockRecipeRepository.deleteRecipe(42),
     ).thenAnswer((_) async => const Result.ok(null));
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
@@ -195,14 +191,13 @@ void main() {
 
   testWidgets('keeps the recipe displayed if deletion fails', (tester) async {
     when(
-      () => mockRecipeRepository.getRecipeList(),
+          () => mockRecipeRepository.getRecipeList(),
     ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
     when(
-      () => mockRecipeRepository.deleteRecipe(42),
+          () => mockRecipeRepository.deleteRecipe(42),
     ).thenAnswer((_) async => Result.error(RecipeRepositoryError('db error')));
 
     final viewModel = createViewModel();
-    await flushMicrotasks();
 
     await tester.pumpWidget(buildTestApp(viewModel));
     await tester.pump();
