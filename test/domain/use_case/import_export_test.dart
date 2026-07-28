@@ -93,7 +93,7 @@ void main() {
   }
 
   group('exportRecipes', () {
-    test('copie un export complet et cohérent dans le presse-papier', () async {
+    test('Export of full export and pasted in copy-paste', () async {
       const recipe = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]);
       const rawIngredientWithQuantity = RawIngredientWithQuantity(
         id: 10,
@@ -106,6 +106,11 @@ void main() {
       const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
 
       when(
+        () => mockRecipeRepository.getRecipe(
+          any(that: equals(recipe.id)),
+        ),
+      ).thenAnswer((_) async => const Result.ok(recipe));
+      when(
         () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
         ),
@@ -116,7 +121,7 @@ void main() {
       when(() => mockIngredientRepository.ingredientTypes).thenReturn({3: ingredientType});
       when(() => mockIngredientUnitsRepository.ingredientUnitsById).thenReturn({5: ingredientUnit});
 
-      await useCase.exportRecipes([recipe]);
+      await useCase.exportRecipes({recipe.id!});
 
       expect(clipboardArguments, isNotNull);
       final export = decodeClipboardExport();
@@ -129,7 +134,7 @@ void main() {
       expect(export.isShoppingList, isFalse);
     });
 
-    test('exporte 2 recettes avec le même ingredient', () async {
+    test('Export 2 recipes with the same ingredient', () async {
       const recipeA = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]);
       const recipeB = RawRecipe(id: 2, name: 'Grosse soupe', ingredientWithQuantityIds: [10]);
       const rawIngredientWithQuantity = RawIngredientWithQuantity(
@@ -141,7 +146,13 @@ void main() {
       const ingredientType = IngredientTypes(id: 3, name: 'Légume', color: 123);
       const ingredient = Ingredient(id: 100, name: 'Carotte', type: ingredientType);
       const ingredientUnit = IngredientUnit(id: 5, name: 'dL');
-
+      
+      final answers = [Result.ok(recipeA), Result.ok(recipeB)];
+      when(
+            () => mockRecipeRepository.getRecipe(
+          any(),
+        ),
+      ).thenAnswer((_) async => answers.removeAt(0));
       when(
         () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
@@ -153,7 +164,7 @@ void main() {
       when(() => mockIngredientRepository.ingredientTypes).thenReturn({3: ingredientType});
       when(() => mockIngredientUnitsRepository.ingredientUnitsById).thenReturn({5: ingredientUnit});
 
-      await useCase.exportRecipes([recipeA, recipeB]);
+      await useCase.exportRecipes({recipeA.id!, recipeB.id!});
 
       expect(clipboardArguments, isNotNull);
       final export = decodeClipboardExport();
@@ -166,14 +177,29 @@ void main() {
       expect(export.isShoppingList, isFalse);
     });
 
-    test('lève une ImportExportError si un ingrédient référencé n\'existe plus', () async {
+    test('Throws an ImportExportError if one recipe fails to be retrieved', () async {
+      const recipe = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]);
+      when(
+            () => mockRecipeRepository.getRecipe(
+          any(that: equals(recipe.id)),
+        ),
+      ).thenAnswer((_) async => Result.error(Exception('not found')));
+
+      expect(() => useCase.exportRecipes({recipe.id!}), throwsA(isA<ImportExportError>()));
+    });
+
+    test('Throws an ImportExportError if an ingredient does not exists', () async {
       const recipe = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [10]);
       const rawIngredientWithQuantity = RawIngredientWithQuantity(
         id: 10,
         ingredientId: 100,
         unit: 5,
       );
-
+      when(
+            () => mockRecipeRepository.getRecipe(
+          any(that: equals(recipe.id)),
+        ),
+      ).thenAnswer((_) async => const Result.ok(recipe));
       when(
         () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[10])),
@@ -183,19 +209,18 @@ void main() {
         () => mockIngredientRepository.getIngredientById(100),
       ).thenAnswer((_) async => Result.error(Exception('not found')));
 
-      expect(() => useCase.exportRecipes([recipe]), throwsA(isA<ImportExportError>()));
+      expect(() => useCase.exportRecipes({recipe.id!}), throwsA(isA<ImportExportError>()));
     });
 
-    test('exporte une liste de recettes vide sans planter', () async {
+    test('Export empty recipe list does not crash the app', () async {
       when(
         () => mockIngredientWithQuantityRepository.getRawIngredientWithQuantityByIds(
           any(that: equals(<int>[])),
         ),
       ).thenAnswer((_) async => const Result.ok(<RawIngredientWithQuantity>[]));
-      // Accédé inconditionnellement par _getIngredientTypes même sans ingrédient.
       when(() => mockIngredientRepository.ingredientTypes).thenReturn({});
 
-      await useCase.exportRecipes(const []);
+      await useCase.exportRecipes(const {});
 
       final export = decodeClipboardExport();
       expect(export.rawRecipes, isEmpty);
@@ -204,7 +229,7 @@ void main() {
   });
 
   group('importRecipes', () {
-    test('lève une ImportExportError si la version du format est invalide', () async {
+    test('Throws an ImportExportError if invalid version', () async {
       const importData = ImportData(version: 1);
       final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
 
@@ -212,7 +237,7 @@ void main() {
     });
 
     test(
-      'crée un nouvel ingrédient, mappe unité/quantité et importe la recette avec les bons ids',
+      'Correctly import recipe, ingredients, units and types',
       () async {
         const importData = ImportData(
           version: 0,
@@ -278,7 +303,7 @@ void main() {
       },
     );
 
-    test('réutilise un ingrédient existant trouvé par son nom (pas de création)', () async {
+    test('Reuse already existing ingredient in export (does not reate a new one)', () async {
       const importData = ImportData(
         version: 0,
         rawRecipes: [
@@ -333,7 +358,7 @@ void main() {
       ).called(1);
     });
 
-    test('une unité inconnue lève ImportExportError', () async {
+    test('Throws an ImportExportError on unknown unit', () async {
       const importData = ImportData(
         version: 0,
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
@@ -351,7 +376,7 @@ void main() {
     // _getCommonImportData que exportRecipes, déjà testé en détail plus haut.
     // On ne re-teste ici que ce qui est spécifique à exportShoppingList :
     // le flag isShoppingList et l'absence de rawRecipes.
-    test('marque isShoppingList à true et n\'inclut aucune recette', () async {
+    test('Correctly export shopping list (isShoppingList == true)', () async {
       const shoppingIngredient = ShoppingIngredient(
         id: 1,
         ingredientWithQuantity: IngredientWithQuantity(
@@ -377,7 +402,7 @@ void main() {
   });
 
   group('importShoppingList', () {
-    test('lève une ImportExportError si la version du format est invalide', () async {
+    test('Throws an ImportExportError if the version is invalid', () async {
       const importData = ImportData(version: 1);
       final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
 
@@ -385,7 +410,7 @@ void main() {
     });
 
     test(
-      'ajoute les ingrédients importés à la liste de courses quand isShoppingList=true',
+      'Correctly import shopping list if isShoppingList == true',
       () async {
         const importData = ImportData(
           version: 0,
@@ -433,8 +458,7 @@ void main() {
       },
     );
 
-    test('n\'ajoute rien à la liste de courses quand isShoppingList=false, même avec des '
-        'ingrédients dans l\'import', () async {
+    test('Do not add anything to shopping list is isShoppingList == false', () async {
       const importData = ImportData(
         version: 0,
         isShoppingList: false,
@@ -464,7 +488,7 @@ void main() {
       verifyNever(() => mockShoppingListRepository.addShoppingIngredient(any()));
     });
 
-    test('lève une ImportExportError si au moins un ingrédient échoue à être ajouté', () async {
+    test('Throws an ImportExportError if adding an ingredient fails', () async {
       const importData = ImportData(
         version: 0,
         isShoppingList: true,

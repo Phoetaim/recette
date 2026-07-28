@@ -43,10 +43,10 @@ void main() {
 
     when(() => mockIngredientRepository.newIngredientStream).thenReturn(newIngredientController);
     when(
-          () => mockIngredientRepository.updateIngredientStream,
+      () => mockIngredientRepository.updateIngredientStream,
     ).thenReturn(updateIngredientController);
     when(
-          () => mockIngredientRepository.deleteIngredientStream,
+      () => mockIngredientRepository.deleteIngredientStream,
     ).thenReturn(deleteIngredientController);
   });
 
@@ -68,19 +68,19 @@ void main() {
     Map<String, IngredientUnit> unitsByName = const {},
   }) {
     when(
-          () => mockIngredientUnitsRepository.loadIngredientUnits(),
+      () => mockIngredientUnitsRepository.loadIngredientUnits(),
     ).thenAnswer((_) async => const Result.ok(null));
     when(() => mockIngredientUnitsRepository.ingredientUnitsByName).thenReturn(unitsByName);
     when(
-          () => mockIngredientRepository.getIngredients(),
+      () => mockIngredientRepository.getIngredients(),
     ).thenAnswer((_) async => Result.ok(ingredients));
   }
 
   Future<void> pumpSearch(
-      WidgetTester tester,
-      IngredientsUtilsViewModel viewModel, {
-        void Function(IngredientWithQuantity)? callback,
-      }) {
+    WidgetTester tester,
+    IngredientsUtilsViewModel viewModel, {
+    void Function(IngredientWithQuantity)? callback,
+  }) {
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -93,7 +93,7 @@ void main() {
   testWidgets('shows a loading indicator while ingredients are loading', (tester) async {
     final completer = Completer<Result<List<Ingredient>>>();
     when(
-          () => mockIngredientUnitsRepository.loadIngredientUnits(),
+      () => mockIngredientUnitsRepository.loadIngredientUnits(),
     ).thenAnswer((_) async => const Result.ok(null));
     when(() => mockIngredientUnitsRepository.ingredientUnitsByName).thenReturn({});
     when(() => mockIngredientRepository.getIngredients()).thenAnswer((_) => completer.future);
@@ -112,11 +112,11 @@ void main() {
 
   testWidgets('shows an error message when loading ingredients fails', (tester) async {
     when(
-          () => mockIngredientUnitsRepository.loadIngredientUnits(),
+      () => mockIngredientUnitsRepository.loadIngredientUnits(),
     ).thenAnswer((_) async => const Result.ok(null));
     when(() => mockIngredientUnitsRepository.ingredientUnitsByName).thenReturn({});
     when(
-          () => mockIngredientRepository.getIngredients(),
+      () => mockIngredientRepository.getIngredients(),
     ).thenAnswer((_) async => Result.error(IngredientRepositoryError('db error')));
 
     final viewModel = createViewModel();
@@ -135,38 +135,33 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('3kg de patates, 2 navets,...'), findsOneWidget);
-    expect(find.byIcon(Icons.search), findsOneWidget);
+    expect(find.byType(SearchBar), findsOneWidget);
   });
 
-  // testWidgets(
-  //   'typing a query shows a matching suggestion, and tapping it invokes the '
-  //       'callback then clears the field',
-  //       (tester) async {
-  //     stubSuccessfulLoad(ingredients: [carotte, panais], unitsByName: {'kg': dLUnit});
-  //
-  //     IngredientWithQuantity? received;
-  //     final viewModel = createViewModel();
-  //
-  //     await pumpSearch(tester, viewModel, callback: (value) => received = value);
-  //     await tester.pump();
-  //
-  //     await tester.tap(find.byIcon(Icons.search));
-  //     await tester.pumpAndSettle();
-  //
-  //     final result = find.byType(TextField);
-  //       print(result.hasFound);
-  //       await tester.enterText(find.byType(TextField), '2 kg de carotte');
-  //       await tester.pumpAndSettle();
-  //
-  //       expect(find.text('carotte'), findsOneWidget);
-  //
-  //       await tester.tap(find.text('carotte'));
-  //       await tester.pumpAndSettle();
-  //
-  //       expect(received, isNotNull);
-  //       expect(received!.ingredient.name, 'carotte');
-  //       expect(received!.quantity, 2);
-  //       expect(received!.unit, dLUnit);
-  //   },
-  // );
+  testWidgets('typing a query shows a matching suggestion, and tapping it invokes the '
+      'callback then clears the field', (tester) async {
+    stubSuccessfulLoad(ingredients: [carotte, panais], unitsByName: {'kg': dLUnit});
+
+    IngredientWithQuantity? received;
+    final viewModel = createViewModel();
+
+    await pumpSearch(tester, viewModel, callback: (value) => received = value);
+    await tester.pump();
+
+    await tester.tap(find.byType(SearchBar));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(SearchBar), '2 kg de carotte');
+    await tester.pumpAndSettle();
+
+    expect(find.text('carotte'), findsOneWidget);
+
+    await tester.tap(find.text('carotte'));
+    await tester.pumpAndSettle();
+
+    expect(received, isNotNull);
+    expect(received!.ingredient.name, 'carotte');
+    expect(received!.quantity, 2);
+    expect(received!.unit, dLUnit);
+  });
 }

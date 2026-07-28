@@ -530,7 +530,7 @@ void main() {
 
       await viewModel.exportRecipe();
 
-      verify(() => mockImportExportUseCase.exportRecipes([rawRecipe])).called(1);
+      verify(() => mockImportExportUseCase.exportRecipes({rawRecipe.id!})).called(1);
     });
   });
 

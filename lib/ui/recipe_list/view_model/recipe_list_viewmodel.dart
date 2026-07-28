@@ -86,9 +86,7 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _exportRecipes() async {
-    await _importExportUseCase.exportRecipes(
-      _recipes.where((element) => selectedRecipes.contains(element.id!)).toList(),
-    );
+    await _importExportUseCase.exportRecipes(selectedRecipes);
     quitSelection();
     return Result.ok(null);
   }

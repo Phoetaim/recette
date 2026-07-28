@@ -155,9 +155,14 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<void> exportRecipe() async {
-    await _saveRecipe();
-    await _importExportUseCase.exportRecipes([_rawRecipe]);
-    notifyListeners();
+    final result = await _saveRecipe();
+    switch (result) {
+      case Ok<void>():
+        await _importExportUseCase.exportRecipes({_rawRecipe.id!});
+        notifyListeners();
+      case Error<void>():
+      //pass
+    }
   }
 
   // Update info tab
