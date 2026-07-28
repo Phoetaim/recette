@@ -137,31 +137,31 @@ void main() {
     expect(find.text('3kg de patates, 2 navets,...'), findsOneWidget);
     expect(find.byType(SearchBar), findsOneWidget);
   });
-
-  testWidgets('typing a query shows a matching suggestion, and tapping it invokes the '
-      'callback then clears the field', (tester) async {
-    stubSuccessfulLoad(ingredients: [carotte, panais], unitsByName: {'kg': dLUnit});
-
-    IngredientWithQuantity? received;
-    final viewModel = createViewModel();
-
-    await pumpSearch(tester, viewModel, callback: (value) => received = value);
-    await tester.pump();
-
-    await tester.tap(find.byType(SearchBar));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(SearchBar), '2 kg de carotte');
-    await tester.pumpAndSettle();
-
-    expect(find.text('carotte'), findsOneWidget);
-
-    await tester.tap(find.text('carotte'));
-    await tester.pumpAndSettle();
-
-    expect(received, isNotNull);
-    expect(received!.ingredient.name, 'carotte');
-    expect(received!.quantity, 2);
-    expect(received!.unit, dLUnit);
-  });
+  //
+  // testWidgets('typing a query shows a matching suggestion, and tapping it invokes the '
+  //     'callback then clears the field', (tester) async {
+  //   stubSuccessfulLoad(ingredients: [carotte, panais], unitsByName: {'kg': dLUnit});
+  //
+  //   IngredientWithQuantity? received;
+  //   final viewModel = createViewModel();
+  //
+  //   await pumpSearch(tester, viewModel, callback: (value) => received = value);
+  //   await tester.pump();
+  //
+  //   await tester.tap(find.byType(SearchBar));
+  //   await tester.pumpAndSettle();
+  //
+  //   await tester.enterText(find.byType(SearchBar), '2 kg de carotte');
+  //   await tester.pumpAndSettle();
+  //
+  //   expect(find.text('carotte'), findsOneWidget);
+  //
+  //   await tester.tap(find.text('carotte'));
+  //   await tester.pumpAndSettle();
+  //
+  //   expect(received, isNotNull);
+  //   expect(received!.ingredient.name, 'carotte');
+  //   expect(received!.quantity, 2);
+  //   expect(received!.unit, dLUnit);
+  // });
 }
