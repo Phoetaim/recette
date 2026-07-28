@@ -73,9 +73,10 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > upload-keystore.jks
+          ls
       - name: Create key.properties
         run: |
-            cat > key.properties << EOF
+            cat > android/key.properties << EOF
             storePassword=${{ secrets.KEYSTORE_PASSWORD }}
             keyPassword=${{ secrets.KEYSTORE_PASSWORD_ALIAS }}
             keyAlias=${{ secrets.KEY_ALIAS }}
