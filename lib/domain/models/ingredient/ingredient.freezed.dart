@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Ingredient {
 
- int? get id; String get name; IngredientTypes get type;
+ int? get id; String get name;@JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson) IngredientTypes get type;
 /// Create a copy of Ingredient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $IngredientCopyWith<$Res>  {
   factory $IngredientCopyWith(Ingredient value, $Res Function(Ingredient) _then) = _$IngredientCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, IngredientTypes type
+ int? id, String name,@JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson) IngredientTypes type
 });
 
 
@@ -164,7 +164,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  IngredientTypes type)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name, @JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson)  IngredientTypes type)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Ingredient() when $default != null:
 return $default(_that.id,_that.name,_that.type);case _:
@@ -185,7 +185,7 @@ return $default(_that.id,_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  IngredientTypes type)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name, @JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson)  IngredientTypes type)  $default,) {final _that = this;
 switch (_that) {
 case _Ingredient():
 return $default(_that.id,_that.name,_that.type);case _:
@@ -205,7 +205,7 @@ return $default(_that.id,_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  IngredientTypes type)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name, @JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson)  IngredientTypes type)?  $default,) {final _that = this;
 switch (_that) {
 case _Ingredient() when $default != null:
 return $default(_that.id,_that.name,_that.type);case _:
@@ -220,12 +220,12 @@ return $default(_that.id,_that.name,_that.type);case _:
 @JsonSerializable()
 
 class _Ingredient implements Ingredient {
-  const _Ingredient({this.id, required this.name, this.type = const IngredientTypes(id: 0, name: 'other', color: 4292269782)});
+  const _Ingredient({this.id, required this.name, @JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson) this.type = const IngredientTypes(id: 0, name: 'other', color: 4292269782)});
   factory _Ingredient.fromJson(Map<String, dynamic> json) => _$IngredientFromJson(json);
 
 @override final  int? id;
 @override final  String name;
-@override@JsonKey() final  IngredientTypes type;
+@override@JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson) final  IngredientTypes type;
 
 /// Create a copy of Ingredient
 /// with the given fields replaced by the non-null parameter values.
@@ -260,7 +260,7 @@ abstract mixin class _$IngredientCopyWith<$Res> implements $IngredientCopyWith<$
   factory _$IngredientCopyWith(_Ingredient value, $Res Function(_Ingredient) _then) = __$IngredientCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, IngredientTypes type
+ int? id, String name,@JsonKey(toJson: ingredientTypeToJson, fromJson: IngredientTypes.fromJson) IngredientTypes type
 });
 
 

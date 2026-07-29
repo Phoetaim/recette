@@ -18,5 +18,3 @@ abstract class RawShoppingIngredient with _$RawShoppingIngredient {
 
   factory RawShoppingIngredient.fromJson(Map<String, Object?> json) => _$RawShoppingIngredientFromJson(json);
 }
-
-enum IngredientUnit { unit, kg, gramme, liter, cL }

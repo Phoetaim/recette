@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$IngredientWithQuantity {
 
- int? get id; Ingredient get ingredient; IngredientUnit get unit; int get quantity;
+ int? get id;@JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson) Ingredient get ingredient;@JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson) IngredientUnit get unit; int get quantity;
 /// Create a copy of IngredientWithQuantity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $IngredientWithQuantityCopyWith<$Res>  {
   factory $IngredientWithQuantityCopyWith(IngredientWithQuantity value, $Res Function(IngredientWithQuantity) _then) = _$IngredientWithQuantityCopyWithImpl;
 @useResult
 $Res call({
- int? id, Ingredient ingredient, IngredientUnit unit, int quantity
+ int? id,@JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson) Ingredient ingredient,@JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson) IngredientUnit unit, int quantity
 });
 
 
@@ -174,7 +174,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id, @JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson)  Ingredient ingredient, @JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson)  IngredientUnit unit,  int quantity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity() when $default != null:
 return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
@@ -195,7 +195,7 @@ return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id, @JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson)  Ingredient ingredient, @JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson)  IngredientUnit unit,  int quantity)  $default,) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity():
 return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
@@ -215,7 +215,7 @@ return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  Ingredient ingredient,  IngredientUnit unit,  int quantity)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id, @JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson)  Ingredient ingredient, @JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson)  IngredientUnit unit,  int quantity)?  $default,) {final _that = this;
 switch (_that) {
 case _IngredientWithQuantity() when $default != null:
 return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
@@ -230,12 +230,12 @@ return $default(_that.id,_that.ingredient,_that.unit,_that.quantity);case _:
 @JsonSerializable()
 
 class _IngredientWithQuantity implements IngredientWithQuantity {
-  const _IngredientWithQuantity({this.id, required this.ingredient, this.unit = const IngredientUnit(id: 1), this.quantity = 1});
+  const _IngredientWithQuantity({this.id, @JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson) required this.ingredient, @JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson) this.unit = const IngredientUnit(id: 1), this.quantity = 1});
   factory _IngredientWithQuantity.fromJson(Map<String, dynamic> json) => _$IngredientWithQuantityFromJson(json);
 
 @override final  int? id;
-@override final  Ingredient ingredient;
-@override@JsonKey() final  IngredientUnit unit;
+@override@JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson) final  Ingredient ingredient;
+@override@JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson) final  IngredientUnit unit;
 @override@JsonKey() final  int quantity;
 
 /// Create a copy of IngredientWithQuantity
@@ -271,7 +271,7 @@ abstract mixin class _$IngredientWithQuantityCopyWith<$Res> implements $Ingredie
   factory _$IngredientWithQuantityCopyWith(_IngredientWithQuantity value, $Res Function(_IngredientWithQuantity) _then) = __$IngredientWithQuantityCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, Ingredient ingredient, IngredientUnit unit, int quantity
+ int? id,@JsonKey(toJson: ingredientToJson, fromJson: Ingredient.fromJson) Ingredient ingredient,@JsonKey(toJson: ingredientUnitToJson, fromJson: IngredientUnit.fromJson) IngredientUnit unit, int quantity
 });
 
 

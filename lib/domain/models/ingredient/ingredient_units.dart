@@ -13,4 +13,6 @@ abstract class IngredientUnit with _$IngredientUnit {
       _$IngredientUnitFromJson(json);
 }
 
+Map<String, dynamic> ingredientUnitToJson(IngredientUnit unit) => unit.toJson();
+
 final IngredientUnit defaultIngredientUnit = IngredientUnit(id: 1);

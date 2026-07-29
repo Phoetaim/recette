@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
-
-import '../../../data/repositories/recipe/recipe_repository.dart';
-import '../../../data/services/models/raw_recipe.dart';
-import '../../../domain/models/ingredient/ingredient_with_quantity.dart';
-import '../../../domain/models/recipe/recipe.dart';
-import '../../../utils/commands.dart';
-import '../../../utils/result.dart';
+import 'package:recette/utils/commands.dart';
+import 'package:recette/utils/result.dart';
 
 class RecipeDetailViewModel extends ChangeNotifier {
   RecipeDetailViewModel({
@@ -68,25 +67,29 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
 
     _rawRecipe = _originalRecipe!;
-    var jsonRawRecipe = _rawRecipe.toJson();
-    jsonRawRecipe.remove('ingredientWithQuantityIds');
-    jsonRawRecipe['ingredients'] = await loadIngredientsWithQuantity();
-    jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
-    recipe.value = Recipe.fromJson(jsonRawRecipe);
+    recipe.value = await _loadRecipe();
     currentNumberOfPeople.value = recipe.value.nbOfPeople;
     notifyListeners();
     return Result.ok(null);
   }
 
-  Future<List<Map<Object, Object>>> loadIngredientsWithQuantity() async {
+  Future<Recipe> _loadRecipe() async {
+    var jsonRawRecipe = _rawRecipe.toJson();
+    jsonRawRecipe.remove('ingredientWithQuantityIds');
+    jsonRawRecipe['ingredients'] = await _loadIngredientsWithQuantity();
+    jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
+    return Recipe.fromJson(jsonRawRecipe);
+  }
+
+  Future<List<Map<String, dynamic>>> _loadIngredientsWithQuantity() async {
     final result = await _ingredientWithQuantityUseCase.getIngredientWithQuantityByIds(
       _rawRecipe.ingredientWithQuantityIds,
     );
     switch (result) {
-      case Ok<List<Map<Object, Object>>>():
+      case Ok<List<Map<String, dynamic>>>():
         return result.value;
-      case Error<List<Map<Object, Object>>>():
-        return <Map<Object, Object>>[];
+      case Error<List<Map<String, dynamic>>>():
+        return <Map<String, dynamic>>[];
     }
   }
 
@@ -125,7 +128,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
           _rawRecipe = _originalRecipe!;
           return Result.ok(null);
         case Error<RawRecipe>():
-          return Result.error(RecipeError('Could not update recipe'));
+          return Result.error(RecipeError('Could not create recipe'));
       }
     } else {
       Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _rawRecipe);
@@ -141,7 +144,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _deleteRecipe() async {
     if (_rawRecipe.id != null) {
-      _recipeRepository.deleteRecipe(_rawRecipe.id!);
+      return await _recipeRepository.deleteRecipe(_rawRecipe.id!);
     }
     return Result.ok(null);
   }
@@ -152,9 +155,14 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<void> exportRecipe() async {
-    await _saveRecipe();
-    await _importExportUseCase.exportRecipes([_rawRecipe]);
-    notifyListeners();
+    final result = await _saveRecipe();
+    switch (result) {
+      case Ok<void>():
+        await _importExportUseCase.exportRecipes({_rawRecipe.id!});
+        notifyListeners();
+      case Error<void>():
+      //pass
+    }
   }
 
   // Update info tab
@@ -206,7 +214,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
       double newQuantity =
           ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
       IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
-      var result = _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
+      var result = await _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
       if (result is Error<void>) {
         error = true;
       }

@@ -1,22 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-
-import '../../data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
-import '../../data/repositories/ingredient/ingredient_repository.dart';
-import '../../data/repositories/ingredient/ingredient_units_repository.dart';
-import '../../data/repositories/recipe/recipe_repository.dart';
-import '../../data/repositories/shopping_list/shopping_list_repository.dart';
-import '../../data/services/models/import_data.dart';
-import '../../data/services/models/raw_ingredient.dart';
-import '../../data/services/models/raw_ingredient_with_quantity.dart';
-import '../../data/services/models/raw_recipe.dart';
-import '../../ui/shopping_list/view_model/shopping_list_viewmodel.dart';
-import '../../utils/result.dart';
-import '../models/ingredient/ingredient.dart';
-import '../models/ingredient/ingredient_types.dart';
-import '../models/ingredient/ingredient_units.dart';
-import '../models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
+import 'package:recette/data/repositories/recipe/recipe_repository.dart';
+import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/models/import_data.dart';
+import 'package:recette/data/services/models/raw_ingredient.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
+import 'package:recette/data/services/models/raw_recipe.dart';
+import 'package:recette/domain/models/ingredient/ingredient.dart';
+import 'package:recette/domain/models/ingredient/ingredient_types.dart';
+import 'package:recette/domain/models/ingredient/ingredient_units.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
+import 'package:recette/utils/result.dart';
 
 Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
@@ -38,13 +37,13 @@ class ImportExportUseCase {
   final IngredientUnitsRepository _ingredientUnitsRepository;
   final RecipeRepository _recipeRepository;
   final ShoppingListRepository _shoppingListRepository;
-
+  final export = 'eyJ2ZXJzaW9uIjowLCJyYXdSZWNpcGVzIjpbeyJpZCI6NCwibmFtZSI6IlNhbnMgbm9tIiwicHJlcGFyYXRpb25UaW1lIjoiLSIsImNvb2tpbmdUaW1lIjoiLSIsIm5iT2ZQZW9wbGUiOjQsImluZ3JlZGllbnRXaXRoUXVhbnRpdHlJZHMiOltdLCJzdGVwcyI6IiJ9XSwiaXNTaG9wcGluZ0xpc3QiOmZhbHNlLCJyYXdJbmdyZWRpZW50c1dpdGhRdWFudGl0eSI6W3siaWQiOjksImluZ3JlZGllbnRJZCI6MSwidW5pdCI6MSwicXVhbnRpdHkiOjF9XSwicmF3SW5ncmVkaWVudHMiOlt7ImlkIjoxLCJuYW1lIjoiYWJyaWNvdCIsInR5cGUiOjF9XSwiaW5ncmVkaWVudFVuaXRzIjpbeyJpZCI6MSwibmFtZSI6InVuaXQifV0sImluZ3JlZGllbnRUeXBlcyI6W3siaWQiOjEsIm5hbWUiOiJmcnVpdCIsImNvbG9yIjo0Mjc5OTgzNjQ4fV19';
   // Public
-  Future<void> exportRecipes(List<RawRecipe> rawRecipes) async {
+  Future<void> exportRecipes(Set<int> recipesIds) async {
+    List<RawRecipe> rawRecipes = await _getCompletedRawRecipes(recipesIds);
     List<int> ingredientWithQuantityIds = await _getIngredientWithQuantityIds(rawRecipes);
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
-
-    _copyToClipboard(export.copyWith(rawRecipes: rawRecipes));
+    await _copyToClipboard(export.copyWith(rawRecipes: rawRecipes));
   }
 
   Future<void> exportShoppingList(ShoppingList shoppingList) async {
@@ -53,8 +52,7 @@ class ImportExportUseCase {
         .toList();
 
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
-
-    _copyToClipboard(export.copyWith(isShoppingList: true));
+    await _copyToClipboard(export.copyWith(isShoppingList: true));
   }
 
   Future<void> importRecipes(String encodedImportData) async {
@@ -62,7 +60,6 @@ class ImportExportUseCase {
     if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
-
     Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
       importData.ingredientUnits,
@@ -77,7 +74,6 @@ class ImportExportUseCase {
     if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
-    print('import');
     Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
       importData.ingredientUnits,
@@ -88,6 +84,20 @@ class ImportExportUseCase {
   // Private
 
   // Export
+  Future<List<RawRecipe>> _getCompletedRawRecipes(Set<int> recipeIds) async {
+    List<RawRecipe> completedRawRecipes = <RawRecipe>[];
+    for(var recipeId in recipeIds) {
+      final result = await _recipeRepository.getRecipe(recipeId);
+      switch (result) {
+        case Ok<RawRecipe>():
+          completedRawRecipes.add(result.value);
+        case Error<RawRecipe>():
+          throw ImportExportError('Could not retrieve at least one recipe');
+      }
+    }
+    return completedRawRecipes;
+  }
+
   Future<List<int>> _getIngredientWithQuantityIds(List<RawRecipe> rawRecipes) async {
     Set<int> ingredientWithQuantityIds = <int>{};
     for (var rawRecipe in rawRecipes) {
@@ -129,9 +139,9 @@ class ImportExportUseCase {
     );
   }
 
-  void _copyToClipboard(ImportData data) {
+  Future<void> _copyToClipboard(ImportData data) async {
     final encodedData = stringToBase64.encode(jsonEncode(data.toJson()));
-    Clipboard.setData(ClipboardData(text: encodedData));
+    await Clipboard.setData(ClipboardData(text: encodedData));
   }
 
   Future<List<RawIngredient>> _getRawIngredients(
@@ -183,13 +193,13 @@ class ImportExportUseCase {
 
   // Import
   Future<ImportData> _loadImportData(String encodedImportData) async {
-    final recipesAsString = stringToBase64.decode(encodedImportData);
-    final json = await _loadStringRecipe(recipesAsString);
+    final jsonAsString = stringToBase64.decode(encodedImportData);
+    final json = await _loadStringRecipe(jsonAsString);
     return ImportData.fromJson(json);
   }
 
-  Future<Map<String, dynamic>> _loadStringRecipe(String recipesAsString) async {
-    return jsonDecode(recipesAsString) as Map<String, dynamic>;
+  Future<Map<String, dynamic>> _loadStringRecipe(String jsonAsString) async {
+    return jsonDecode(jsonAsString) as Map<String, dynamic>;
   }
 
   Future<Map<int, Ingredient>> _importIngredients(ImportData importData) async {
@@ -212,7 +222,7 @@ class ImportExportUseCase {
       try {
         mappedIngredientsUnits[ingredientUnit.id!] =
             _ingredientUnitsRepository.ingredientUnitsByName[ingredientUnit.name.toLowerCase()]!;
-      } on Exception {
+      } on TypeError {
         throw ImportExportError('Ingredients unit unknown');
       }
     }
@@ -225,7 +235,6 @@ class ImportExportUseCase {
     Map<int, IngredientUnit> mappedIngredientsUnits,
   ) async {
     Map<int, RawIngredientWithQuantity> rawIngredientsWithQuantity = {};
-
     for (var rawIngredientWithQuantityToImport in importData.rawIngredientsWithQuantity) {
       final RawIngredientWithQuantity rawIngredientWithQuantity = rawIngredientWithQuantityToImport
           .copyWith(
@@ -265,7 +274,6 @@ class ImportExportUseCase {
     Map<int, Ingredient> mappedIngredients,
     Map<int, IngredientUnit> mappedUnits,
   ) async {
-    print('shopping list');
     if (!importData.isShoppingList) {
       return;
     }

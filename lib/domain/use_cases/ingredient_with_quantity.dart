@@ -1,11 +1,10 @@
+import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
+import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
-
-import '../../data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
-import '../../data/repositories/ingredient/ingredient_repository.dart';
-import '../../data/services/models/raw_ingredient_with_quantity.dart';
-import '../../utils/result.dart';
-import '../models/ingredient/ingredient.dart';
-import '../models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
+import 'package:recette/domain/models/ingredient/ingredient.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
+import 'package:recette/utils/result.dart';
 
 class IngredientWithQuantityUseCase {
   IngredientWithQuantityUseCase({
@@ -20,27 +19,27 @@ class IngredientWithQuantityUseCase {
   final IngredientWithQuantityRepository _ingredientWithQuantityRepository;
   final IngredientUnitsRepository _ingredientUnitsRepository;
 
-  Future<Result<List<Map<Object, Object>>>> getIngredientWithQuantityByIds(List<int> ids) async {
+  Future<Result<List<Map<String, dynamic>>>> getIngredientWithQuantityByIds(List<int> ids) async {
     await _ingredientUnitsRepository.loadIngredientUnits();
     var ingredientIdWithQuantityResult = await _ingredientWithQuantityRepository
         .getRawIngredientWithQuantityByIds(ids);
     switch (ingredientIdWithQuantityResult) {
       case Ok<List<RawIngredientWithQuantity>>():
-        List<Map<Object, Object>> ingredientWithQuantityMaps = <Map<Object, Object>>[];
+        List<Map<String, dynamic>> ingredientWithQuantityMaps = <Map<String, dynamic>>[];
         for (var rawIngredientWithQuantity in ingredientIdWithQuantityResult.value) {
           var ingredientResult = await _ingredientRepository.getIngredientById(
             rawIngredientWithQuantity.ingredientId,
           );
           switch (ingredientResult) {
             case Ok<Ingredient>():
-              var ingredientWithQuantityMap = Map<String, Object>.from(
+              var ingredientWithQuantityMap = Map<String, dynamic>.from(
                 rawIngredientWithQuantity.toJson(),
               );
-              ingredientWithQuantityMap['unit'] = _ingredientUnitsRepository.ingredientUnitsById[rawIngredientWithQuantity.unit]!.toJson();
-              var ingredientJson = ingredientResult.value.toJson();
-              ingredientJson['type'] = ingredientResult.value.type.toJson();
+              ingredientWithQuantityMap['unit'] = _ingredientUnitsRepository
+                  .ingredientUnitsById[rawIngredientWithQuantity.unit]!
+                  .toJson();
               ingredientWithQuantityMap.addEntries(
-                {'ingredient': ingredientJson}.entries,
+                {'ingredient': ingredientResult.value.toJson()}.entries,
               );
               ingredientWithQuantityMaps.add(ingredientWithQuantityMap);
             case Error<Ingredient>():
@@ -61,12 +60,8 @@ class IngredientWithQuantityUseCase {
     } on IngredientRepositoryError catch (error) {
       return Result.error(error);
     }
-    RawIngredientWithQuantity ingredientIdWithQuantity = RawIngredientWithQuantity(
-      quantity: ingredientWithQuantity.quantity,
-      unit: ingredientWithQuantity.unit.id!,
-      ingredientId: ingredientWithQuantity.ingredient.id!,
-    );
-    var result = await _ingredientWithQuantityRepository.addRawIngredientWithQuantity(
+    final ingredientIdWithQuantity = convertToRawIngredientWithQuantity(ingredientWithQuantity);
+    final result = await _ingredientWithQuantityRepository.addRawIngredientWithQuantity(
       ingredientIdWithQuantity,
     );
     switch (result) {
@@ -78,8 +73,8 @@ class IngredientWithQuantityUseCase {
   }
 
   Future<Result<void>> updateIngredientWithQuantity(
-      RawIngredientWithQuantity rawIngredientWithQuantity,
-      ) async {
+    RawIngredientWithQuantity rawIngredientWithQuantity,
+  ) async {
     return await _ingredientWithQuantityRepository.updateRawIngredientWithQuantity(
       rawIngredientWithQuantity,
     );

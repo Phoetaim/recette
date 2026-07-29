@@ -83,13 +83,16 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
     );
   }
 
-  void _initSubscriptions(){
-    _newIngredientSubscription ??= _ingredientRepository.newIngredientStream.stream
-        .listen(_handleNewIngredientStream);
-    _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream
-        .listen(_handleUpdatedIngredientStream);
-    _deleteIngredientSubscription ??= _ingredientRepository.deleteIngredientStream.stream
-        .listen(_handleDeletedIngredientStream);
+  void _initSubscriptions() {
+    _newIngredientSubscription ??= _ingredientRepository.newIngredientStream.stream.listen(
+      _handleNewIngredientStream,
+    );
+    _updatedIngredientSubscription ??= _ingredientRepository.updateIngredientStream.stream.listen(
+      _handleUpdatedIngredientStream,
+    );
+    _deleteIngredientSubscription ??= _ingredientRepository.deleteIngredientStream.stream.listen(
+      _handleDeletedIngredientStream,
+    );
   }
 
   void _handleNewIngredientStream(Ingredient newIngredient) async {
@@ -107,7 +110,9 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
     if (index > -1) {
       _ingredients[index] = ingredient;
     }
-    final indexFiltered = _filteredIngredients.indexWhere((element) => element.id == ingredient.id);
+    final indexFiltered = _filteredIngredients.indexWhere(
+      (ingredient_) => ingredient_.id == ingredient.id,
+    );
     if (indexFiltered > -1) {
       _filteredIngredients[indexFiltered] = ingredient;
       updatedIngredient.value++;
@@ -121,20 +126,30 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _updateIngredient(Ingredient ingredient) async {
-    late final Result<void> result;
-    if (ingredient.id == null) {
-      result = Result.ok(null);
-    } else {
-      result = await _ingredientRepository.updateIngredient(ingredient);
-      final index = _ingredients.indexWhere((element) => element.id == ingredient.id);
-      _ingredients[index] = ingredient;
+    if (_ingredientShouldBeInDb(ingredient)) {
+      final result = await _ingredientRepository.updateIngredient(ingredient);
+      switch (result) {
+        case Ok<void>():
+          final index = _ingredients.indexWhere((element) => element.id == ingredient.id);
+          if (index > -1) {
+            _ingredients[index] = ingredient;
+          } else {
+            return Result.error(IngredientSearchError('$ingredient not in but but it should be'));
+          }
+        case Error<void>():
+          return Result.error(IngredientSearchError('Could not update $ingredient in DB'));
+      }
     }
 
     final indexFiltered = _filteredIngredients.indexWhere((element) => element.id == ingredient.id);
     if (indexFiltered > -1) {
       _filteredIngredients[indexFiltered] = ingredient;
     }
-    return result;
+    return Result.ok(null);
+  }
+
+  bool _ingredientShouldBeInDb(Ingredient ingredient) {
+    return ingredient.id != null;
   }
 
   String _formatIngredientTypesForRegex() {
@@ -142,6 +157,9 @@ class IngredientsUtilsViewModel extends ChangeNotifier {
   }
 
   IngredientSearchResult handleSearch(String value) {
+    if (_ingredientUnitsRepository == null) {
+      throw IngredientSearchError('Wrong usage of viewModel, add ingredientUnitRepository');
+    }
     final match = _ingredientRegex.firstMatch(value);
 
     if (match == null) {

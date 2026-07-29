@@ -41,6 +41,7 @@ class ShoppingListViewModel extends ChangeNotifier {
 
   var shoppingListLock = Lock();
   final ShoppingList _shoppingList = [];
+
   ShoppingList get shoppingList =>
       _shoppingList.where((shoppingIngredient) => !shoppingIngredient.bought).toList();
 
@@ -76,12 +77,12 @@ class ShoppingListViewModel extends ChangeNotifier {
     final result = await _ingredientWithQuantityUseCase.getIngredientWithQuantityByIds(ids);
 
     switch (result) {
-      case Ok<List<Map<Object, Object>>>():
+      case Ok<List<Map<String, dynamic>>>():
         for (var ingredientWithQuantityMap in result.value) {
           RawShoppingIngredient rawShoppingIngredient = rawShoppingList.firstWhere(
             (element) => element.ingredientWithQuantityId == ingredientWithQuantityMap['id'],
           );
-          var rawShoppingIngredientMap = Map<String, Object>.from({
+          var rawShoppingIngredientMap = Map<String, dynamic>.from({
             'id': rawShoppingIngredient.id,
             'bought': rawShoppingIngredient.bought == 1,
             'ingredientWithQuantity': ingredientWithQuantityMap,
@@ -94,7 +95,7 @@ class ShoppingListViewModel extends ChangeNotifier {
           });
         }
         return;
-      case Error<List<Map<Object, Object>>>():
+      case Error<List<Map<String, dynamic>>>():
         return;
     }
   }

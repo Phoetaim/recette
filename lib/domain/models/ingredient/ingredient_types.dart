@@ -18,3 +18,6 @@ abstract class IngredientTypes with _$IngredientTypes {
     return CircleAvatar(backgroundColor: Color(color));
   }
 }
+
+Map<String, dynamic> ingredientTypeToJson(IngredientTypes type) => type.toJson();
+
