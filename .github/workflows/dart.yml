@@ -64,6 +64,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Debug Secrets
+        run: |
+          echo "Checking if secrets are set..."
+          [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ] && echo "KEYSTORE_PASSWORD is EMPTY" || echo "KEYSTORE_PASSWORD is set"
+          [ -z "${{ secrets.KEYSTORE_BASE64 }}" ] && echo "KEYSTORE_BASE64 is EMPTY" || echo "KEYSTORE_BASE64 is set"
+          [ -z "${{ secrets.KEY_ALIAS }}" ] && echo "KEY_ALIAS is EMPTY" || echo "KEY_ALIAS is set"
       - name: Create the Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
