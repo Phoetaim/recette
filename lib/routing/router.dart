@@ -4,13 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:recette/ui/ingredient_list/view_model/ingredient_list_viewmodel.dart';
 import 'package:recette/ui/ingredient_list/widgets/ingredient_list_screen.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
+import 'package:recette/ui/recipe_detail/widgets/recipe_detail_screen.dart';
 import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
+import 'package:recette/ui/recipe_list/widgets/recipe_list_screen.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
+import 'package:recette/ui/recipe_planning/widget/recipe_planning_screen.dart';
 import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
 import 'package:recette/ui/shopping_list/widgets/shopping_list_screen.dart';
 
-import '../ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
-import '../ui/recipe_detail/widgets/recipe_detail_screen.dart';
-import '../ui/recipe_list/widgets/recipe_list_screen.dart';
 import 'routes.dart';
 
 GoRouter router() => GoRouter(
@@ -53,16 +55,28 @@ GoRouter router() => GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
-              path: Routes.recipeList,
+              path: Routes.recipePlanning,
               builder: (context, state) {
-                return RecipeListScreen(
-                  viewModel: RecipeListViewModel(
+                return RecipePlanningScreen(
+                  viewModel: RecipePlanningViewModel(
                     recipeRepository: context.read(),
-                    importExportUseCase: context.read(),
+                    planningRepository: context.read(),
                   ),
                 );
               },
               routes: [
+                GoRoute(
+                  name: Routes.recipeList,
+                  path: Routes.recipeList,
+                  builder: (context, state) {
+                    return RecipeListScreen(
+                      viewModel: RecipeListViewModel(
+                        recipeRepository: context.read(),
+                        importExportUseCase: context.read(),
+                      ),
+                    );
+                  },
+                ),
                 GoRoute(
                   name: Routes.recipeDetail,
                   path: '${Routes.recipeDetail}/:recipeId',
@@ -100,7 +114,7 @@ class ScaffoldBottomNavigationBar extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.shopping_basket), label: 'Courses'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.book_fill), label: 'Recettes'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.book_fill), label: 'Planning'),
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int tappedIndex) {

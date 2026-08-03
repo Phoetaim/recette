@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
-import 'package:recette/ui/ui_utils/import_alert_box.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
 import 'package:recette/ui/ui_utils/styles.dart';
-import 'shopping_list_body.dart';
 
-class ShoppingListScreen extends StatefulWidget {
-  const ShoppingListScreen({super.key, required this.viewModel});
+class RecipePlanningScreen extends StatefulWidget {
+  const RecipePlanningScreen({super.key, required this.viewModel});
 
-  final ShoppingListViewModel viewModel;
+  final RecipePlanningViewModel viewModel;
 
   @override
-  State<ShoppingListScreen> createState() => _ShoppingListScreenState();
+  State<RecipePlanningScreen> createState() => _RecipePlanningScreenState();
 }
 
-class _ShoppingListScreenState extends State<ShoppingListScreen> {
+class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,15 +28,36 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           onPressed: () {
             context.go(Routes.shoppingList);
           },
-          child: Icon(Icons.home),
+          child: Icon(Icons.arrow_back),
         ),
-        title: Text('Liste de courses'),
+        title: const Text('Planning'),
         actions: _getActionList(),
         shadowColor: Colors.black,
         scrolledUnderElevation: 4,
         backgroundColor: theme.colorScheme.primaryContainer,
       ),
-      body: ShoppingListBody(viewModel: widget.viewModel),
+      body: ListenableBuilder(
+        listenable: widget.viewModel.loadViewModel,
+        builder: (context, child) {
+          if (widget.viewModel.loadViewModel.running) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (widget.viewModel.loadViewModel.error) {
+            return TextButton(
+              onPressed: widget.viewModel.loadViewModel.execute,
+              child: Text('Retry?'),
+            );
+          }
+          return child!;
+        },
+        child: ListenableBuilder(
+          listenable: widget.viewModel,
+          builder: (context, child) {
+            return Placeholder();
+          },
+        ),
+      ),
     );
   }
 
@@ -63,19 +87,15 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       MenuEntry(
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
-          onPressed: () => context.goNamed(Routes.ingredientList),
-          child: Row(children: [Icon(Icons.food_bank), SizedBox(width: 8), Text('Ingrédients', style: getTextStyle(context))]),
+          onPressed: () => context.goNamed(Routes.recipeList),
+          child: Row(
+            children: [
+              Icon(Icons.list),
+              SizedBox(width: 8),
+              Text('Recettes', style: getTextStyle(context)),
+            ],
+          ),
         ),
-      ),
-      MenuEntry(
-        child: MenuItemButton(
-          style: getMenuButtonStyle(context),
-          onPressed: () => widget.viewModel.exportShoppingList(),
-          child: Row(children: [Icon(exportIcon), SizedBox(width: 8), Text('Exporter', style: getTextStyle(context))]),
-        ),
-      ),
-      MenuEntry(
-        child: ImportButton(callback: widget.viewModel.importShoppingList, isMenuButton: true),
       ),
     ];
   }

@@ -42,7 +42,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.go(Routes.recipePlanning);
           },
           child: Icon(Icons.arrow_back),
         ),

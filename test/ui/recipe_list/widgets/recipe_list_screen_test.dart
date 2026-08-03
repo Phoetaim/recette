@@ -50,9 +50,9 @@ void main() {
   /// les 2 navigations déclenchées par l'écran.
   Widget buildTestApp(RecipeListViewModel viewModel) {
     final router = GoRouter(
-      initialLocation: '/',
+      initialLocation: Routes.recipeList,
       routes: [
-        GoRoute(path: '/', builder: (context, state) => RecipeListScreen(viewModel: viewModel)),
+        GoRoute(path: Routes.recipeList, builder: (context, state) => RecipeListScreen(viewModel: viewModel)),
         GoRoute(
           path: '/recipe/:recipeId',
           name: Routes.recipeDetail,
@@ -61,8 +61,8 @@ void main() {
           },
         ),
         GoRoute(
-          path: Routes.shoppingList,
-          builder: (context, state) => const Scaffold(body: Text('shopping-list-screen')),
+          path: Routes.recipePlanning,
+          builder: (context, state) => const Scaffold(body: Text('recipe-planning-screen')),
         ),
       ],
     );
@@ -247,7 +247,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_back));
       await tester.pumpAndSettle();
 
-      expect(find.text('shopping-list-screen'), findsOneWidget);
+      expect(find.text('recipe-planning-screen'), findsOneWidget);
     });
   });
 

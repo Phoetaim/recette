@@ -9,7 +9,7 @@ class DatabaseRecipePlanningService {
 
   final DatabaseService _databaseService;
 
-  Future<RecipePlanning> insertRecipePlanning(RecipePlanning recipePlanning) async {
+  Future<RecipePlanning> addRecipePlanning(RecipePlanning recipePlanning) async {
     Database database = await _databaseService.getDatabase();
     Map<String, Object?> data = Map<String, Object?>.from(recipePlanning.toJson());
     data.remove('id');

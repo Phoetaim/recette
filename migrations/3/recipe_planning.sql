@@ -1,7 +1,8 @@
 CREATE TABLE recipePlanning(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  recipeId int,
-  nbOfPeople INTEGER,
-  progress INTEGER,
+  recipeId INTEGER,
+  recipeText TEXT,
+  nbOfPeople INTEGER NOT NULL,
+  progress INTEGER NOT NULL,
   FOREIGN KEY (recipeId) REFERENCES recipes(id) ON DELETE CASCADE
 );
