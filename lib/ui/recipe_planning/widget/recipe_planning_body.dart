@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
 
 import 'planning_slivers.dart';
+import 'recipe_planning_form.dart';
 
 class RecipePlanningBody extends StatelessWidget {
   const RecipePlanningBody({super.key, required this.viewModel});
@@ -21,7 +22,7 @@ class RecipePlanningBody extends StatelessWidget {
         }
         return Column(
           children: [
-            TextButton(onPressed: viewModel.addTextRecipePlanning.execute, child: Icon(Icons.add)),
+            RecipePlanningForm(viewModel: viewModel,),
             Expanded(
               child: CustomScrollView(slivers: [RecipePlanningSlivers(viewModel: viewModel)]),
             ),

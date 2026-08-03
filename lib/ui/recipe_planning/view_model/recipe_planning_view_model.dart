@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:fuzzy_search_engine/fuzzy_search_engine.dart';
 import 'package:recette/data/repositories/recipe/recipe_planning_repository.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/models/recipe/recipe_planning.dart';
 import 'package:recette/utils/commands.dart';
 import 'package:recette/utils/result.dart';
+
+const searchConfig = SearchConfig(fuzzyEnabled: true, caseSensitive: false, maxResults: 15);
 
 class RecipePlanningViewModel extends ChangeNotifier {
   RecipePlanningViewModel({
@@ -15,7 +18,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
   }) : _recipeRepository = recipeRepository,
        _planningRepository = planningRepository {
     initViewModel = Command0(_loadViewModel)..execute();
-    addTextRecipePlanning = Command0(_addTextRecipePlanning);
+    addTextRecipePlanning = Command1(_addTextRecipePlanning);
     deleteRecipePlanning = Command1(_deleteRecipePlanning);
   }
 
@@ -32,7 +35,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
 
   List<RecipePlanning> get plannings => _plannings;
   late final Command0 initViewModel;
-  late final Command0 addTextRecipePlanning;
+  late final Command1<void, RecipePlanning> addTextRecipePlanning;
   late final Command1<void, int> deleteRecipePlanning;
 
   Future<Result<void>> _loadViewModel() async {
@@ -102,10 +105,38 @@ class RecipePlanningViewModel extends ChangeNotifier {
     return _recipes[index].name;
   }
 
-  Future<Result<void>> _addTextRecipePlanning() async {
-    final result = await _planningRepository.addRecipePlanning(
-      RecipePlanning(textRecipe: 'Melon jambon cru'),
-    );
+  List<RawRecipe> filterIngredients(String? recipeName) {
+    late List<RawRecipe> filteredRecipes;
+    if (recipeName == null || recipeName.isEmpty) {
+      filteredRecipes = List.from(_recipes);
+      filteredRecipes.sort(compareRecipeName);
+    } else {
+      final results = SearchEngine.search(
+        _getSearchableRecipes(),
+        recipeName,
+        config: searchConfig,
+      );
+      filteredRecipes = _formatResultsFromSearch(results);
+    }
+    return List.from(filteredRecipes);
+  }
+
+  List<SearchableItem> _getSearchableRecipes() {
+    return _recipes
+        .map((rawRecipe) => SearchableItem(id: rawRecipe.id.toString(), name: rawRecipe.name))
+        .toList();
+  }
+
+  List<RawRecipe> _formatResultsFromSearch(List<SearchableItem> results) {
+    return results
+        .map(
+          (result) => (_recipes.where((rawRecipe) => rawRecipe.id == int.parse(result.id))).first,
+        )
+        .toList();
+  }
+
+  Future<Result<void>> _addTextRecipePlanning(RecipePlanning planning) async {
+    final result = await _planningRepository.addRecipePlanning(planning);
     switch (result) {
       case Ok<RecipePlanning>():
         _plannings.add(result.value);
@@ -129,11 +160,11 @@ class RecipePlanningViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<void>():
         final index = _plannings.indexWhere((planning_) => planning_.id == planning.id);
-        if (index > -1){
+        if (index > -1) {
           _plannings[index] = planning;
         }
       case Error<void>():
-        // Pass
+      // Pass
     }
   }
 

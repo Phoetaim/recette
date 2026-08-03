@@ -31,3 +31,6 @@ abstract class RawRecipe with _$RawRecipe {
 
   factory RawRecipe.fromJson(Map<String, Object?> json) => _$RawRecipeFromJson(json);
 }
+
+int compareRecipeName(RawRecipe recipe1, RawRecipe recipe2) =>
+    recipe1.name.compareTo(recipe2.name);
