@@ -14,7 +14,8 @@ class RecipePlanningViewModel extends ChangeNotifier {
     required RecipePlanningRepository planningRepository,
   }) : _recipeRepository = recipeRepository,
        _planningRepository = planningRepository {
-    loadViewModel = Command0(_loadViewModel)..execute();
+    initViewModel = Command0(_loadViewModel)..execute();
+    addTextRecipePlanning = Command0(_addTextRecipePlanning);
     deleteRecipePlanning = Command1(_deleteRecipePlanning);
   }
 
@@ -29,8 +30,9 @@ class RecipePlanningViewModel extends ChangeNotifier {
   ValueNotifier<bool> isSelecting = ValueNotifier(false);
   Set<int> selectedRecipes = {};
 
-  List<RecipePlanning> get planning => _plannings;
-  late final Command0 loadViewModel;
+  List<RecipePlanning> get plannings => _plannings;
+  late final Command0 initViewModel;
+  late final Command0 addTextRecipePlanning;
   late final Command1<void, int> deleteRecipePlanning;
 
   Future<Result<void>> _loadViewModel() async {
@@ -92,13 +94,56 @@ class RecipePlanningViewModel extends ChangeNotifier {
     }
   }
 
+  String getRecipeName(int id) {
+    final index = _recipes.indexWhere((recipe) => recipe.id == id);
+    if (index == -1) {
+      return 'Recipe not found';
+    }
+    return _recipes[index].name;
+  }
+
+  Future<Result<void>> _addTextRecipePlanning() async {
+    final result = await _planningRepository.addRecipePlanning(
+      RecipePlanning(textRecipe: 'Melon jambon cru'),
+    );
+    switch (result) {
+      case Ok<RecipePlanning>():
+        _plannings.add(result.value);
+        return Result.ok(null);
+      case Error<RecipePlanning>():
+        return Result.error(RecipePlanningError('Could not delete recipe planning'));
+    }
+  }
+
+  Future<void> toggleRecipePlanningStatus(RecipePlanning planning) async {
+    RecipePlanningProgress newProgress;
+    switch (planning.progress) {
+      case RecipePlanningProgress.planned:
+        newProgress = RecipePlanningProgress.completed;
+      case RecipePlanningProgress.completed:
+        newProgress = RecipePlanningProgress.planned;
+    }
+    final result = await _planningRepository.updateRecipePlanning(
+      planning.copyWith(progress: newProgress),
+    );
+    switch (result) {
+      case Ok<void>():
+        final index = _plannings.indexWhere((planning_) => planning_.id == planning.id);
+        if (index > -1){
+          _plannings[index] = planning;
+        }
+      case Error<void>():
+        // Pass
+    }
+  }
+
   Future<Result<void>> _deleteRecipePlanning(int id) async {
     final result = await _planningRepository.deleteRecipePlanning(id);
     switch (result) {
       case Ok<void>():
-        _recipes.removeWhere((planning) => planning.id == id);
+        _plannings.removeWhere((planning) => planning.id == id);
       case Error<void>():
-        return Result.error(RecipePlanningError('Could not delete recipe'));
+        return Result.error(RecipePlanningError('Could not delete recipe planning'));
     }
     notifyListeners();
     return Result.ok(null);

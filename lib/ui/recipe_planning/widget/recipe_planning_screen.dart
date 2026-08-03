@@ -4,6 +4,8 @@ import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
 import 'package:recette/ui/ui_utils/styles.dart';
 
+import 'recipe_planning_body.dart';
+
 class RecipePlanningScreen extends StatefulWidget {
   const RecipePlanningScreen({super.key, required this.viewModel});
 
@@ -37,15 +39,15 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
         backgroundColor: theme.colorScheme.primaryContainer,
       ),
       body: ListenableBuilder(
-        listenable: widget.viewModel.loadViewModel,
+        listenable: widget.viewModel.initViewModel,
         builder: (context, child) {
-          if (widget.viewModel.loadViewModel.running) {
+          if (widget.viewModel.initViewModel.running) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (widget.viewModel.loadViewModel.error) {
+          if (widget.viewModel.initViewModel.error) {
             return TextButton(
-              onPressed: widget.viewModel.loadViewModel.execute,
+              onPressed: widget.viewModel.initViewModel.execute,
               child: Text('Retry?'),
             );
           }
@@ -54,7 +56,7 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
         child: ListenableBuilder(
           listenable: widget.viewModel,
           builder: (context, child) {
-            return Placeholder();
+            return RecipePlanningBody(viewModel: widget.viewModel);
           },
         ),
       ),

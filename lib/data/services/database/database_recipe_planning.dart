@@ -9,23 +9,23 @@ class DatabaseRecipePlanningService {
 
   final DatabaseService _databaseService;
 
-  Future<RecipePlanning> addRecipePlanning(RecipePlanning recipePlanning) async {
+  Future<RecipePlanning> addRecipePlanning(RecipePlanning planning) async {
     Database database = await _databaseService.getDatabase();
-    Map<String, Object?> data = Map<String, Object?>.from(recipePlanning.toJson());
+    Map<String, Object?> data = Map<String, Object?>.from(planning.toJson());
     data.remove('id');
     final id = await database.insert(TableNames.recipePlanning, data);
-    return recipePlanning.copyWith(id: id);
+    return planning.copyWith(id: id);
   }
 
-  Future<void> updateRecipePlanning(RecipePlanning recipePlanning) async {
+  Future<void> updateRecipePlanning(RecipePlanning planning) async {
     Database database = await _databaseService.getDatabase();
-    Map<String, Object> data = Map<String, Object>.from(recipePlanning.toJson());
+    Map<String, Object?> data = Map<String, Object?>.from(planning.toJson());
     data.remove('id');
     await database.update(
       TableNames.recipePlanning,
       data,
       where: 'id = ?',
-      whereArgs: [recipePlanning.id!],
+      whereArgs: [planning.id!],
     );
   }
 
