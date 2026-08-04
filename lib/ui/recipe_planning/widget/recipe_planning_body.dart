@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
 import 'planning_slivers.dart';
 import 'recipe_planning_form.dart';

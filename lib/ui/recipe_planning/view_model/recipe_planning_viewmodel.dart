@@ -111,7 +111,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
     return _recipes[index];
   }
 
-  List<RawRecipe> filterIngredients(String? recipeName) {
+  List<RawRecipe> filterRecipes(String? recipeName) {
     late List<RawRecipe> filteredRecipes;
     if (recipeName == null || recipeName.isEmpty) {
       filteredRecipes = List.from(_recipes);
@@ -154,12 +154,10 @@ class RecipePlanningViewModel extends ChangeNotifier {
 
   Future<Result<void>> _addPlanningsToShoppingList() async {
     bool error = false;
-    for (var planning in plannings) {
-      if (planning.recipeId != null && planning.progress == RecipePlanningProgress.planned) {
+    for (var planning in _getCompactedRecipePlannings()) {
         final result = await _addPlanningToShoppingList(planning);
         if (result is Error<void>) {
           error = true;
-        }
       }
     }
     if (error) {
@@ -167,6 +165,22 @@ class RecipePlanningViewModel extends ChangeNotifier {
     } else {
       return Result.ok(null);
     }
+  }
+
+  List<RecipePlanning> _getCompactedRecipePlannings() {
+    Map<int, RecipePlanning> compactedPlannings = {};
+    for (var planning in _plannings) {
+      if (planning.recipeId != null && planning.progress == RecipePlanningProgress.planned) {
+        if (compactedPlannings.keys.contains(planning.recipeId)) {
+          int newNbOfPeople =
+              planning.nbOfPeople + compactedPlannings[planning.recipeId!]!.nbOfPeople;
+          compactedPlannings[planning.recipeId!] = planning.copyWith(nbOfPeople: newNbOfPeople);
+        } else {
+          compactedPlannings[planning.recipeId!] = planning;
+        }
+      }
+    }
+    return compactedPlannings.values.toList();
   }
 
   Future<Result<void>> _addPlanningToShoppingList(RecipePlanning planning) async {

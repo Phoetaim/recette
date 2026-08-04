@@ -8,7 +8,7 @@ import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart
 import 'package:recette/ui/recipe_detail/widgets/recipe_detail_screen.dart';
 import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
 import 'package:recette/ui/recipe_list/widgets/recipe_list_screen.dart';
-import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 import 'package:recette/ui/recipe_planning/widget/recipe_planning_screen.dart';
 import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
 import 'package:recette/ui/shopping_list/widgets/shopping_list_screen.dart';

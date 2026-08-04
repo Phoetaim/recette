@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
-import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
 class RecipeSearchWidget extends StatelessWidget {
   const RecipeSearchWidget({
@@ -28,7 +28,7 @@ class RecipeSearchWidget extends StatelessWidget {
   }
 
   List<ListTile> _generateSuggestions(BuildContext context, SearchController controller) {
-    List<RawRecipe> filteredRecipes = viewModel.filterIngredients(controller.text.toLowerCase());
+    List<RawRecipe> filteredRecipes = viewModel.filterRecipes(controller.text.toLowerCase());
 
     return List<ListTile>.generate(filteredRecipes.length, (int index) {
       return ListTile(

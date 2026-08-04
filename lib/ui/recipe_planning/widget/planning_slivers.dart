@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recette/domain/models/recipe/recipe_planning.dart';
-import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
+import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
 class RecipePlanningSlivers extends StatelessWidget {
   const RecipePlanningSlivers({super.key, required this.viewModel});
