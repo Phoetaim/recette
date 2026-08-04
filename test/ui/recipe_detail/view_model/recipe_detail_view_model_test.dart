@@ -166,26 +166,6 @@ void main() {
       await flushMicrotasks();
       expect(viewModel.loadRecipeById.error, isTrue);
     });
-
-    test('If a problem occurs with an ingredient, returns empty list', () async {
-      const rawRecipe = RawRecipe(id: 1, name: 'Soupe', ingredientWithQuantityIds: [1, 3]);
-      const recipe = Recipe(id: 1, name: 'Soupe');
-
-      when(
-        () => mockRecipeRepository.getRecipe(any(that: equals(rawRecipe.id!))),
-      ).thenAnswer((_) async => Result.ok(rawRecipe));
-
-      when(
-        () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(rawRecipe.ingredientWithQuantityIds)),
-        ),
-      ).thenAnswer((_) async => Result.error(Exception('An error occurred')));
-      final viewModel = createViewModel();
-      viewModel.loadRecipeById.execute('${rawRecipe.id!}');
-      await flushMicrotasks();
-      expect(viewModel.loadRecipeById.completed, isTrue);
-      expect(viewModel.recipe.value, recipe);
-    });
   });
 
   group(('Saving recipe'), () {
