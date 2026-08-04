@@ -40,7 +40,7 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.pop();
           },
           child: Icon(Icons.arrow_back),
         ),
@@ -57,7 +57,7 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
           }
 
           if (widget.viewModel.loadIngredientList.error) {
-            return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Return to recipe list?'));
+            return TextButton(onPressed: () => context.goNamed(Routes.recipeList), child: Text('Return to recipe list?'));
           }
           return IngredientListBody(viewModel: widget.viewModel);
         },

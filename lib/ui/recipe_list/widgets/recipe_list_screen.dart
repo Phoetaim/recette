@@ -42,7 +42,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.recipePlanning);
+            context.pushNamed(Routes.recipePlanning);
           },
           child: Icon(Icons.arrow_back),
         ),
@@ -81,7 +81,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
               ? SelectionFloatingActionButton(viewModel: widget.viewModel)
               : FloatingActionButton(
                   onPressed: () {
-                    context.goNamed(
+                    context.pushNamed(
                       Routes.recipeDetail,
                       pathParameters: {'recipeId': (-1).toString()},
                     );

@@ -31,7 +31,7 @@ class PlanningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     String recipeName = '';
     if (planning.recipeId != null) {
-      recipeName = viewModel.getRecipeName(planning.recipeId!);
+      recipeName = viewModel.getRecipe(planning.recipeId!).name;
     } else if (planning.textRecipe != null) {
       recipeName = planning.textRecipe!;
     }

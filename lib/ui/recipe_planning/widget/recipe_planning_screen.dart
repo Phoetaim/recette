@@ -28,7 +28,7 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.pushNamed(Routes.shoppingList);
           },
           child: Icon(Icons.arrow_back),
         ),
@@ -89,7 +89,7 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
       MenuEntry(
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
-          onPressed: () => context.goNamed(Routes.recipeList),
+          onPressed: () => context.pushNamed(Routes.recipeList),
           child: Row(
             children: [
               Icon(Icons.list),

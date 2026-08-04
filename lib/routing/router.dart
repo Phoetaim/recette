@@ -27,6 +27,7 @@ GoRouter router() => GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
+              name: Routes.shoppingList,
               path: Routes.shoppingList,
               builder: (context, state) {
                 return ShoppingListScreen(
@@ -55,11 +56,13 @@ GoRouter router() => GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
+              name: Routes.recipePlanning,
               path: Routes.recipePlanning,
               builder: (context, state) {
                 return RecipePlanningScreen(
                   viewModel: RecipePlanningViewModel(
                     recipeRepository: context.read(),
+                    recipeUtilsUseCase: context.read(),
                     planningRepository: context.read(),
                   ),
                 );
@@ -85,7 +88,7 @@ GoRouter router() => GoRouter(
                       viewModel: RecipeDetailViewModel(
                         recipeRepository: context.read(),
                         ingredientWithQuantityUseCase: context.read(),
-                        shoppingListRepository: context.read(),
+                        recipeUtilsUseCase: context.read(),
                         importExportUseCase: context.read(),
                       ),
                       recipeId: state.pathParameters['recipeId'],
@@ -118,7 +121,7 @@ class ScaffoldBottomNavigationBar extends StatelessWidget {
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int tappedIndex) {
-          navigationShell.goBranch(tappedIndex, initialLocation: true);
+          navigationShell.goBranch(tappedIndex);
         },
       ),
     );

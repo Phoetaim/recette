@@ -23,7 +23,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.goNamed(Routes.shoppingList);
           },
           child: Icon(Icons.home),
         ),
@@ -63,7 +63,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       MenuEntry(
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
-          onPressed: () => context.goNamed(Routes.ingredientList),
+          onPressed: () => context.pushNamed(Routes.ingredientList),
           child: Row(children: [Icon(Icons.food_bank), SizedBox(width: 8), Text('Ingrédients', style: getTextStyle(context))]),
         ),
       ),

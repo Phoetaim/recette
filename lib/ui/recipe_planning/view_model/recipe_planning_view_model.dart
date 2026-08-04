@@ -6,6 +6,7 @@ import 'package:recette/data/repositories/recipe/recipe_planning_repository.dart
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/models/recipe/recipe_planning.dart';
+import 'package:recette/domain/use_cases/recipe_utils.dart';
 import 'package:recette/utils/commands.dart';
 import 'package:recette/utils/result.dart';
 
@@ -15,8 +16,10 @@ class RecipePlanningViewModel extends ChangeNotifier {
   RecipePlanningViewModel({
     required RecipeRepository recipeRepository,
     required RecipePlanningRepository planningRepository,
+    required RecipeUtilsUseCase recipeUtilsUseCase,
   }) : _recipeRepository = recipeRepository,
-       _planningRepository = planningRepository {
+       _planningRepository = planningRepository,
+       _recipeUtilsUseCase = recipeUtilsUseCase {
     initViewModel = Command0(_loadViewModel)..execute();
     addTextRecipePlanning = Command1(_addTextRecipePlanning);
     deleteRecipePlanning = Command1(_deleteRecipePlanning);
@@ -24,6 +27,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
 
   final RecipeRepository _recipeRepository;
   final RecipePlanningRepository _planningRepository;
+  final RecipeUtilsUseCase _recipeUtilsUseCase;
   late List<RecipePlanning> _plannings;
   late List<RawRecipe> _recipes;
 
@@ -97,12 +101,12 @@ class RecipePlanningViewModel extends ChangeNotifier {
     }
   }
 
-  String getRecipeName(int id) {
+  RawRecipe getRecipe(int id) {
     final index = _recipes.indexWhere((recipe) => recipe.id == id);
     if (index == -1) {
-      return 'Recipe not found';
+      return RawRecipe(name: 'Recipe not found');
     }
-    return _recipes[index].name;
+    return _recipes[index];
   }
 
   List<RawRecipe> filterIngredients(String? recipeName) {
@@ -140,10 +144,20 @@ class RecipePlanningViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<RecipePlanning>():
         _plannings.add(result.value);
+        _addToShoppingList(planning);
         return Result.ok(null);
       case Error<RecipePlanning>():
         return Result.error(RecipePlanningError('Could not delete recipe planning'));
     }
+  }
+
+  Future<void> _addToShoppingList(RecipePlanning planning) async {
+    if (planning.recipeId == null) {
+      return;
+    }
+    RawRecipe rawRecipe = getRecipe(planning.recipeId!);
+    final recipe = await _recipeUtilsUseCase.loadRecipe(rawRecipe);
+    await _recipeUtilsUseCase.addRecipeToShoppingList(recipe, planning.nbOfPeople);
   }
 
   Future<void> toggleRecipePlanningStatus(RecipePlanning planning) async {

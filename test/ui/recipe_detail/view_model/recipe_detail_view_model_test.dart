@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
-import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/models/ingredient/ingredient.dart';
 import 'package:recette/domain/models/ingredient/ingredient_types.dart';
@@ -13,6 +12,7 @@ import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
+import 'package:recette/domain/use_cases/recipe_utils.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 import 'package:recette/utils/result.dart';
 
@@ -22,7 +22,7 @@ class MockIngredientWithQuantityUseCase extends Mock implements IngredientWithQu
 
 class MockImportExportUseCase extends Mock implements ImportExportUseCase {}
 
-class MockShoppingListRepository extends Mock implements ShoppingListRepository {}
+class MockRecipeUtilsUseCase extends Mock implements RecipeUtilsUseCase {}
 
 // Common data
 const ingredientType = IngredientTypes(id: 3, name: 'Légume', color: 123);
@@ -50,12 +50,13 @@ void main() {
   late MockRecipeRepository mockRecipeRepository;
   late MockImportExportUseCase mockImportExportUseCase;
   late MockIngredientWithQuantityUseCase mockIngredientWithQuantityUseCase;
-  late MockShoppingListRepository mockShoppingListRepository;
+  late MockRecipeUtilsUseCase mockRecipeUtilsUseCase;
   late StreamController<RawRecipe> updatedRecipeListController;
 
   setUpAll(() {
     registerFallbackValue(<RawRecipe>[]);
     registerFallbackValue(RawRecipe());
+    registerFallbackValue(Recipe());
     registerFallbackValue(const IngredientWithQuantity(ingredient: ingredient1));
   });
 
@@ -63,7 +64,7 @@ void main() {
     mockRecipeRepository = MockRecipeRepository();
     mockImportExportUseCase = MockImportExportUseCase();
     mockIngredientWithQuantityUseCase = MockIngredientWithQuantityUseCase();
-    mockShoppingListRepository = MockShoppingListRepository();
+    mockRecipeUtilsUseCase = MockRecipeUtilsUseCase();
     updatedRecipeListController = StreamController<RawRecipe>.broadcast();
 
     when(() => mockRecipeRepository.updatedRecipeList).thenReturn(updatedRecipeListController);
@@ -78,7 +79,7 @@ void main() {
       recipeRepository: mockRecipeRepository,
       importExportUseCase: mockImportExportUseCase,
       ingredientWithQuantityUseCase: mockIngredientWithQuantityUseCase,
-      shoppingListRepository: mockShoppingListRepository,
+      recipeUtilsUseCase: mockRecipeUtilsUseCase,
     );
   }
 
@@ -106,17 +107,10 @@ void main() {
       );
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(rawRecipe.id!))),
+        () => mockRecipeRepository.getRecipe(rawRecipe.id!),
       ).thenAnswer((_) async => Result.ok(rawRecipe));
 
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(rawRecipe.ingredientWithQuantityIds)),
-        ),
-      ).thenAnswer(
-            (_) async =>
-            Result.ok([ingredientWithQuantity1.toJson(), ingredientWithQuantity2.toJson()]),
-      );
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       final viewModel = createViewModel();
       viewModel.loadRecipeById.execute('${rawRecipe.id!}');
@@ -142,14 +136,10 @@ void main() {
       const recipe = Recipe(id: 1);
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => Result.ok(rawRecipe));
 
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(rawRecipe.ingredientWithQuantityIds)),
-        ),
-      ).thenAnswer((_) async => Result.ok([]));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       final viewModel = createViewModel();
       viewModel.loadRecipeById.execute('${rawRecipe.id!}');
@@ -168,7 +158,7 @@ void main() {
 
     test('Recipe id does not exists', () async {
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => Result.error(RecipeRepositoryError('Recipe does not exists')));
 
       final viewModel = createViewModel();
@@ -182,11 +172,11 @@ void main() {
       const recipe = Recipe(id: 1, name: 'Soupe');
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(rawRecipe.id!))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(rawRecipe.id!))),
       ).thenAnswer((_) async => Result.ok(rawRecipe));
 
       when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
+        () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
           any(that: equals(rawRecipe.ingredientWithQuantityIds)),
         ),
       ).thenAnswer((_) async => Result.error(Exception('An error occurred')));
@@ -203,11 +193,14 @@ void main() {
       const rawRecipe = RawRecipe(id: 1);
 
       when(
-            () => mockRecipeRepository.addRecipe(any(that: equals(RawRecipe()))),
+        () => mockRecipeRepository.addRecipe(any(that: equals(RawRecipe()))),
       ).thenAnswer((_) async => Result.ok(rawRecipe));
 
       when(
-            () => mockRecipeRepository.updateRecipe(any(that: equals(rawRecipe)), any(that: equals(rawRecipe))),
+        () => mockRecipeRepository.updateRecipe(
+          any(that: equals(rawRecipe)),
+          any(that: equals(rawRecipe)),
+        ),
       ).thenAnswer((_) async => Result.ok(null));
 
       final viewModel = createViewModel();
@@ -217,7 +210,7 @@ void main() {
       viewModel.saveRecipe.execute();
       await flushMicrotasks();
 
-      expect(viewModel.saveRecipe .completed, isTrue);
+      expect(viewModel.saveRecipe.completed, isTrue);
       verify(() => mockRecipeRepository.addRecipe(const RawRecipe())).called(1);
       verify(() => mockRecipeRepository.updateRecipe(rawRecipe, rawRecipe)).called(1);
     });
@@ -225,36 +218,34 @@ void main() {
     test('Saving new ingredients', () async {
       const rawRecipe = RawRecipe(id: 1);
       const secondRawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [1, 2]);
-
+      const recipe = Recipe(id: 1);
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => Result.ok(rawRecipe));
 
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(rawRecipe.ingredientWithQuantityIds)),
-        ),
-      ).thenAnswer((_) async => Result.ok([]));
-
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       // Le viewmodel n'utilise pas l'id qu'on lui passe : addIngredientWithQuantity()
       // l'écrase avec un id temporaire négatif (tmpIngredientId, qui part de -1 et
       // décrémente à chaque appel). Le use case est donc bien appelé avec ces id
       // temporaires, pas avec ingredientWithQuantity1/2 tels quels.
       when(
-            () => mockIngredientWithQuantityUseCase.addIngredientWithQuantity(
+        () => mockIngredientWithQuantityUseCase.addIngredientWithQuantity(
           ingredientWithQuantity1.copyWith(id: -1),
         ),
       ).thenAnswer((_) async => Result.ok(ingredientWithQuantity1));
 
       when(
-            () => mockIngredientWithQuantityUseCase.addIngredientWithQuantity(
+        () => mockIngredientWithQuantityUseCase.addIngredientWithQuantity(
           ingredientWithQuantity2.copyWith(id: -2),
         ),
       ).thenAnswer((_) async => Result.ok(ingredientWithQuantity2));
 
       when(
-            () => mockRecipeRepository.updateRecipe(any(that: equals(rawRecipe)), any(that: equals(secondRawRecipe))),
+        () => mockRecipeRepository.updateRecipe(
+          any(that: equals(rawRecipe)),
+          any(that: equals(secondRawRecipe)),
+        ),
       ).thenAnswer((_) async => Result.ok(null));
 
       final viewModel = createViewModel();
@@ -273,17 +264,14 @@ void main() {
   group('Deleting recipe', () {
     test('calls the repository with the recipe id when the recipe exists', () async {
       const rawRecipe = RawRecipe(id: 1);
+      const recipe = Recipe(id: 1);
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => const Result.ok(rawRecipe));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
       when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(<int>[])),
-        ),
-      ).thenAnswer((_) async => const Result.ok([]));
-      when(
-            () => mockRecipeRepository.deleteRecipe(1),
+        () => mockRecipeRepository.deleteRecipe(1),
       ).thenAnswer((_) async => const Result.ok(null));
 
       final viewModel = createViewModel();
@@ -309,34 +297,28 @@ void main() {
       expect(viewModel.deleteRecipe.completed, isTrue);
     });
 
-    test(
-      'Report error if the repository deletion fails',
-          () async {
-        const rawRecipe = RawRecipe(id: 1);
+    test('Report error if the repository deletion fails', () async {
+      const rawRecipe = RawRecipe(id: 1);
+      const recipe = Recipe(id: 1);
 
-        when(
-              () => mockRecipeRepository.getRecipe(any(that: equals(1))),
-        ).thenAnswer((_) async => const Result.ok(rawRecipe));
-        when(
-              () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-            any(that: equals(<int>[])),
-          ),
-        ).thenAnswer((_) async => const Result.ok([]));
-        when(
-              () => mockRecipeRepository.deleteRecipe(1),
-        ).thenAnswer((_) async => Result.error(RecipeRepositoryError('db error')));
+      when(
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+      ).thenAnswer((_) async => const Result.ok(rawRecipe));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
+      when(
+        () => mockRecipeRepository.deleteRecipe(1),
+      ).thenAnswer((_) async => Result.error(RecipeRepositoryError('db error')));
 
-        final viewModel = createViewModel();
-        viewModel.loadRecipeById.execute('1');
-        await flushMicrotasks();
+      final viewModel = createViewModel();
+      viewModel.loadRecipeById.execute('1');
+      await flushMicrotasks();
 
-        viewModel.deleteRecipe.execute();
-        await flushMicrotasks();
+      viewModel.deleteRecipe.execute();
+      await flushMicrotasks();
 
-        expect(viewModel.deleteRecipe.error, isTrue);
-        expect(viewModel.deleteRecipe.completed, isFalse);
-      },
-    );
+      expect(viewModel.deleteRecipe.error, isTrue);
+      expect(viewModel.deleteRecipe.completed, isFalse);
+    });
   });
 
   group('Updating recipe fields', () {
@@ -370,19 +352,16 @@ void main() {
       expect(viewModel.recipe.value.cookingTime, '45min');
     });
 
-    test(
-      'updateRecipeNbOfPeople updates both the recipe and currentNumberOfPeople',
-          () async {
-        final viewModel = createViewModel();
-        viewModel.loadRecipeById.execute('-1');
-        await flushMicrotasks();
+    test('updateRecipeNbOfPeople updates both the recipe and currentNumberOfPeople', () async {
+      final viewModel = createViewModel();
+      viewModel.loadRecipeById.execute('-1');
+      await flushMicrotasks();
 
-        viewModel.updateRecipeNbOfPeople('6');
+      viewModel.updateRecipeNbOfPeople('6');
 
-        expect(viewModel.recipe.value.nbOfPeople, 6);
-        expect(viewModel.currentNumberOfPeople.value, 6);
-      },
-    );
+      expect(viewModel.recipe.value.nbOfPeople, 6);
+      expect(viewModel.currentNumberOfPeople.value, 6);
+    });
 
     // Note: updateRecipeNbOfPeople throws a bare TypeError on invalid input, but the
     // method's return type is `void` (not `Future<void>`) despite being `async`. That
@@ -395,7 +374,7 @@ void main() {
   group('Managing ingredients locally', () {
     test(
       'addIngredientWithQuantity appends the ingredient with a decreasing temporary id',
-          () async {
+      () async {
         final viewModel = createViewModel();
         viewModel.loadRecipeById.execute('-1');
         await flushMicrotasks();
@@ -410,60 +389,52 @@ void main() {
       },
     );
 
-    test(
-      'removeIngredientWithQuantity removes the ingredient from the recipe and its '
-          'id from the raw recipe',
-          () async {
-        const originalRawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [1, 2]);
-        const updatedRawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [2]);
+    test('removeIngredientWithQuantity removes the ingredient from the recipe and its '
+        'id from the raw recipe', () async {
+      const originalRawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [1, 2]);
+      const updatedRawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [2]);
+      const originalRecipe = Recipe(
+        id: 1,
+        ingredients: [ingredientWithQuantity1, ingredientWithQuantity2],
+      );
+      when(
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+      ).thenAnswer((_) async => const Result.ok(originalRawRecipe));
+      when(
+        () => mockRecipeUtilsUseCase.loadRecipe(originalRawRecipe),
+      ).thenAnswer((_) async => originalRecipe);
+      when(
+        () => mockRecipeRepository.updateRecipe(originalRawRecipe, updatedRawRecipe),
+      ).thenAnswer((_) async => const Result.ok(null));
 
-        when(
-              () => mockRecipeRepository.getRecipe(any(that: equals(1))),
-        ).thenAnswer((_) async => const Result.ok(originalRawRecipe));
-        when(
-              () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-            any(that: equals(<int>[1, 2])),
-          ),
-        ).thenAnswer(
-              (_) async =>
-              Result.ok([ingredientWithQuantity1.toJson(), ingredientWithQuantity2.toJson()]),
-        );
-        when(
-              () => mockRecipeRepository.updateRecipe(originalRawRecipe, updatedRawRecipe),
-        ).thenAnswer((_) async => const Result.ok(null));
+      final viewModel = createViewModel();
+      viewModel.loadRecipeById.execute('1');
+      await flushMicrotasks();
 
-        final viewModel = createViewModel();
-        viewModel.loadRecipeById.execute('1');
-        await flushMicrotasks();
+      viewModel.removeIngredientWithQuantity(ingredientWithQuantity1);
 
-        viewModel.removeIngredientWithQuantity(ingredientWithQuantity1);
+      expect(viewModel.recipe.value.ingredients, [ingredientWithQuantity2]);
 
-        expect(viewModel.recipe.value.ingredients, [ingredientWithQuantity2]);
+      // Confirms the id was also removed from the underlying raw recipe, by
+      // checking what gets persisted on save.
+      viewModel.saveRecipe.execute();
+      await flushMicrotasks();
 
-        // Confirms the id was also removed from the underlying raw recipe, by
-        // checking what gets persisted on save.
-        viewModel.saveRecipe.execute();
-        await flushMicrotasks();
-
-        verify(
-              () => mockRecipeRepository.updateRecipe(originalRawRecipe, updatedRawRecipe),
-        ).called(1);
-      },
-    );
+      verify(
+        () => mockRecipeRepository.updateRecipe(originalRawRecipe, updatedRawRecipe),
+      ).called(1);
+    });
   });
 
   group('isRecipeUpdated', () {
     test('returns false right after loading an existing recipe with no changes', () async {
       const rawRecipe = RawRecipe(id: 1);
+      const recipe = Recipe(id: 1);
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => const Result.ok(rawRecipe));
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(<int>[])),
-        ),
-      ).thenAnswer((_) async => const Result.ok([]));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       final viewModel = createViewModel();
       viewModel.loadRecipeById.execute('1');
@@ -474,15 +445,12 @@ void main() {
 
     test('returns true after a field is changed', () async {
       const rawRecipe = RawRecipe(id: 1);
+      const recipe = Recipe(id: 1);
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => const Result.ok(rawRecipe));
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(<int>[])),
-        ),
-      ).thenAnswer((_) async => const Result.ok([]));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       final viewModel = createViewModel();
       viewModel.loadRecipeById.execute('1');
@@ -495,15 +463,12 @@ void main() {
 
     test('returns true after adding a local ingredient that is not saved yet', () async {
       const rawRecipe = RawRecipe(id: 1);
+      const recipe = Recipe(id: 1);
 
       when(
-            () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
       ).thenAnswer((_) async => const Result.ok(rawRecipe));
-      when(
-            () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-          any(that: equals(<int>[])),
-        ),
-      ).thenAnswer((_) async => const Result.ok([]));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
 
       final viewModel = createViewModel();
       viewModel.loadRecipeById.execute('1');
@@ -520,7 +485,7 @@ void main() {
       const rawRecipe = RawRecipe(id: 1);
 
       when(
-            () => mockRecipeRepository.addRecipe(const RawRecipe()),
+        () => mockRecipeRepository.addRecipe(const RawRecipe()),
       ).thenAnswer((_) async => const Result.ok(rawRecipe));
       when(() => mockImportExportUseCase.exportRecipes(any())).thenAnswer((_) async {});
 
@@ -535,84 +500,64 @@ void main() {
   });
 
   group('Adding recipe to shopping list', () {
-    test(
-      'adds each ingredient to the shopping list with the quantity scaled to '
-          'currentNumberOfPeople',
-          () async {
-        const rawRecipe = RawRecipe(id: 1, nbOfPeople: 4, ingredientWithQuantityIds: [1, 2]);
+    test('adds each ingredient to the shopping list with the quantity scaled to '
+        'currentNumberOfPeople', () async {
+      const rawRecipe = RawRecipe(id: 1, nbOfPeople: 4, ingredientWithQuantityIds: [1, 2]);
+      const recipe = Recipe(
+        id: 1,
+        nbOfPeople: 4,
+        ingredients: [ingredientWithQuantity1, ingredientWithQuantity2],
+      );
 
-        when(
-              () => mockRecipeRepository.getRecipe(any(that: equals(1))),
-        ).thenAnswer((_) async => const Result.ok(rawRecipe));
-        when(
-              () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-            any(that: equals(<int>[1, 2])),
-          ),
-        ).thenAnswer(
-              (_) async =>
-              Result.ok([ingredientWithQuantity1.toJson(), ingredientWithQuantity2.toJson()]),
-        );
-        when(
-              () => mockRecipeRepository.updateRecipe(any(), any()),
-        ).thenAnswer((_) async => const Result.ok(null));
-        when(
-              () => mockShoppingListRepository.addShoppingIngredient(any()),
-        ).thenAnswer((_) async => const Result.ok(null));
+      when(
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+      ).thenAnswer((_) async => const Result.ok(rawRecipe));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
+      when(
+        () => mockRecipeRepository.updateRecipe(any(), any()),
+      ).thenAnswer((_) async => const Result.ok(null));
+      when(
+        () => mockRecipeUtilsUseCase.addRecipeToShoppingList(recipe, 8),
+      ).thenAnswer((_) async => false);
 
-        final viewModel = createViewModel();
-        viewModel.loadRecipeById.execute('1');
-        await flushMicrotasks();
+      final viewModel = createViewModel();
+      viewModel.loadRecipeById.execute('1');
+      await flushMicrotasks();
 
-        viewModel.currentNumberOfPeople.value = 8;
+      viewModel.currentNumberOfPeople.value = 8;
 
-        viewModel.addRecipeToShoppingList.execute();
-        await flushMicrotasks();
+      viewModel.addToShoppingList.execute();
+      await flushMicrotasks();
 
-        // quantity 3 scaled by 8/4 = 6, quantity 4 scaled by 8/4 = 8.
-        verify(
-              () => mockShoppingListRepository.addShoppingIngredient(
-            ingredientWithQuantity1.copyWith(quantity: 6),
-          ),
-        ).called(1);
-        verify(
-              () => mockShoppingListRepository.addShoppingIngredient(
-            ingredientWithQuantity2.copyWith(quantity: 8),
-          ),
-        ).called(1);
-      },
-    );
+      // quantity 3 scaled by 8/4 = 6, quantity 4 scaled by 8/4 = 8.
+      verify(() => mockRecipeUtilsUseCase.addRecipeToShoppingList(recipe, 8)).called(1);
+    });
 
-    test(
-      'Handle error in addShoppingIngredient correctly',
-          () async {
-        const rawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [1]);
+    test('Handle error in addShoppingIngredient correctly', () async {
+      const rawRecipe = RawRecipe(id: 1, ingredientWithQuantityIds: [1]);
+      const recipe = Recipe(id: 1, ingredients: [ingredientWithQuantity1]);
 
-        when(
-              () => mockRecipeRepository.getRecipe(any(that: equals(1))),
-        ).thenAnswer((_) async => const Result.ok(rawRecipe));
-        when(
-              () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-            any(that: equals(<int>[1])),
-          ),
-        ).thenAnswer((_) async => Result.ok([ingredientWithQuantity1.toJson()]));
-        when(
-              () => mockRecipeRepository.updateRecipe(any(), any()),
-        ).thenAnswer((_) async => const Result.ok(null));
-        // The repository call fails...
-        when(
-              () => mockShoppingListRepository.addShoppingIngredient(any()),
-        ).thenAnswer((_) async => Result.error(Exception('db error')));
+      when(
+        () => mockRecipeRepository.getRecipe(any(that: equals(1))),
+      ).thenAnswer((_) async => const Result.ok(rawRecipe));
+      when(() => mockRecipeUtilsUseCase.loadRecipe(rawRecipe)).thenAnswer((_) async => recipe);
+      when(
+        () => mockRecipeRepository.updateRecipe(any(), any()),
+      ).thenAnswer((_) async => const Result.ok(null));
+      // The repository call fails...
+      when(
+        () => mockRecipeUtilsUseCase.addRecipeToShoppingList(any(), any()),
+      ).thenAnswer((_) async => true);
 
-        final viewModel = createViewModel();
-        viewModel.loadRecipeById.execute('1');
-        await flushMicrotasks();
+      final viewModel = createViewModel();
+      viewModel.loadRecipeById.execute('1');
+      await flushMicrotasks();
 
-        viewModel.addRecipeToShoppingList.execute();
-        await flushMicrotasks();
+      viewModel.addToShoppingList.execute();
+      await flushMicrotasks();
 
-        expect(viewModel.addRecipeToShoppingList.error, isTrue);
-        expect(viewModel.addRecipeToShoppingList.completed, isFalse);
-      },
-    );
+      expect(viewModel.addToShoppingList.error, isTrue);
+      expect(viewModel.addToShoppingList.completed, isFalse);
+    });
   });
 }
