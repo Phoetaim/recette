@@ -21,7 +21,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
        _planningRepository = planningRepository,
        _recipeUtilsUseCase = recipeUtilsUseCase {
     initViewModel = Command0(_loadViewModel)..execute();
-    addTextRecipePlanning = Command1(_addTextRecipePlanning);
+    addRecipePlanning = Command1(_addRecipePlanning);
     deleteRecipePlanning = Command1(_deleteRecipePlanning);
   }
 
@@ -39,7 +39,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
 
   List<RecipePlanning> get plannings => _plannings;
   late final Command0 initViewModel;
-  late final Command1<void, RecipePlanning> addTextRecipePlanning;
+  late final Command1<void, RecipePlanning> addRecipePlanning;
   late final Command1<void, int> deleteRecipePlanning;
 
   Future<Result<void>> _loadViewModel() async {
@@ -139,13 +139,13 @@ class RecipePlanningViewModel extends ChangeNotifier {
         .toList();
   }
 
-  Future<Result<void>> _addTextRecipePlanning(RecipePlanning planning) async {
+  Future<Result<void>> _addRecipePlanning(RecipePlanning planning) async {
     final result = await _planningRepository.addRecipePlanning(planning);
     switch (result) {
       case Ok<RecipePlanning>():
         _plannings.add(result.value);
         _addToShoppingList(planning);
-        return Result.ok(null);
+        return Result.error(RecipePlanningError('Could not delete recipe planning'));
       case Error<RecipePlanning>():
         return Result.error(RecipePlanningError('Could not delete recipe planning'));
     }
@@ -155,9 +155,15 @@ class RecipePlanningViewModel extends ChangeNotifier {
     if (planning.recipeId == null) {
       return;
     }
-    RawRecipe rawRecipe = getRecipe(planning.recipeId!);
-    final recipe = await _recipeUtilsUseCase.loadRecipe(rawRecipe);
-    await _recipeUtilsUseCase.addRecipeToShoppingList(recipe, planning.nbOfPeople);
+    final result = await _recipeRepository.getRecipe(planning.recipeId!);
+    switch (result) {
+      case Ok<RawRecipe>():
+        final recipe = await _recipeUtilsUseCase.loadRecipe(result.value);
+        await _recipeUtilsUseCase.addRecipeToShoppingList(recipe, planning.nbOfPeople);
+
+      case Error<RawRecipe>():
+        // Pass
+    }
   }
 
   Future<void> toggleRecipePlanningStatus(RecipePlanning planning) async {

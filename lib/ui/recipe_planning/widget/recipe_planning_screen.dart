@@ -19,6 +19,20 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
   @override
   void initState() {
     super.initState();
+    widget.viewModel.addRecipePlanning.addListener(_onResultAddRecipe);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecipePlanningScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.viewModel.addRecipePlanning.removeListener(_onResultAddRecipe);
+    widget.viewModel.addRecipePlanning.addListener(_onResultAddRecipe);
+  }
+
+  @override
+  void dispose() {
+    widget.viewModel.addRecipePlanning.removeListener(_onResultAddRecipe);
+    super.dispose();
   }
 
   @override
@@ -100,6 +114,17 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
         ),
       ),
     ];
+  }
+
+  void _onResultAddRecipe() {
+    if (widget.viewModel.addRecipePlanning.completed) {
+      widget.viewModel.addRecipePlanning.clearResult();
+    }
+
+    if (widget.viewModel.addRecipePlanning.error) {
+      widget.viewModel.addRecipePlanning.clearResult();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning')));
+    }
   }
 }
 

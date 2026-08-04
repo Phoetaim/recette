@@ -165,7 +165,7 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                           nbOfPeople: int.parse(quantityKey.currentState!.value!),
                         );
                       }
-                      widget.viewModel.addTextRecipePlanning.execute(planning);
+                      widget.viewModel.addRecipePlanning.execute(planning);
                     }
                   },
                   child: const Text('Planifier'),
