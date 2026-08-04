@@ -3,7 +3,12 @@ import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_view_model.dart';
 
 class RecipeSearchWidget extends StatelessWidget {
-  const RecipeSearchWidget({super.key, required this.viewModel, required this.controller, required this.callbackForRecipe});
+  const RecipeSearchWidget({
+    super.key,
+    required this.viewModel,
+    required this.controller,
+    required this.callbackForRecipe,
+  });
 
   final RecipePlanningViewModel viewModel;
   final SearchController controller;
@@ -11,19 +16,14 @@ class RecipeSearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SearchAnchor.bar(
-
-        barShape: WidgetStatePropertyAll(BeveledRectangleBorder()),
-        searchController: controller,
-        barElevation: WidgetStatePropertyAll(0),
-        barLeading: null,
-        barHintText: 'Chakchouka,...',
-        shrinkWrap: true,
-        isFullScreen: false,
-        suggestionsBuilder: _generateSuggestions,
-      ),
+    return SearchAnchor.bar(
+      searchController: controller,
+      barElevation: WidgetStatePropertyAll(3),
+      barLeading: null,
+      barHintText: 'Nom de la recette',
+      shrinkWrap: true,
+      isFullScreen: false,
+      suggestionsBuilder: _generateSuggestions,
     );
   }
 

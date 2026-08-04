@@ -26,104 +26,154 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: .start,
-        children: <Widget>[
-          TextFormField(
-            key: quantityKey,
-            keyboardType: TextInputType.number,
-            initialValue: '2',
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              labelText: 'Nb de personnes',
-              hintText: '2',
-            ),
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Entrez le texte';
-              }
-              try {
-                int.parse(value);
-              } on FormatException {
-                return 'Ce n\'est pas un nombre';
-              }
-              return null;
-            },
-          ),
-          FormField<bool>(
-            key: isTextKey,
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: .start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: TextFormField(
+                      key: quantityKey,
+                      keyboardType: TextInputType.number,
+                      initialValue: '2',
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Personnes',
+                        hintText: '2',
+                      ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Entrez un nombre de personne';
+                        }
+                        try {
+                          int.parse(value);
+                        } on FormatException {
+                          return 'Ce n\'est pas un nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 30),
+                  Expanded(
+                    flex: 2,
+                    child: Align(
+                      child: FormField<bool>(
+                        key: isTextKey,
 
-            initialValue: isText,
-            builder: (FormFieldState<bool> state) {
-              return SwitchListTile(
-                title: _getToggleLabel(),
-                value: state.value ?? false,
-                onChanged: (bool value) {
-                  state.didChange(value);
-                  setState(() => isText = value);
-                },
-              );
-            },
-          ),
-          if (isText)
-          TextFormField(
-            key: recipeTextKey,
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              labelText: 'Nom du plat',
-              hintText: 'Melon jambon cru, ...',
+                        initialValue: isText,
+                        builder: (FormFieldState<bool> state) {
+                          return SwitchListTile(
+                            title: _getToggleLabel(),
+                            value: state.value ?? false,
+                            onChanged: (bool value) {
+                              state.didChange(value);
+                              setState(() => isText = value);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            validator: (String? value) {
-              if (isTextKey.currentState != null && isTextKey.currentState!.value!) {
-                if (value == null || value == '') {
-                  return 'Entrez un intitulé de recette';
-                }
-              }
-              return null;
-            },
-          ),
-          if (!isText)
-            FormField<int>(
-              key: recipeIdKey,
-              builder: (FormFieldState<int> state) {
-                return RecipeSearchWidget(
-                  viewModel: widget.viewModel,
-                  controller: searchController,
-                  callbackForRecipe: (int recipeId) {
-                    state.didChange(recipeId);
+
+            if (isText)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: recipeTextKey,
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'Nom du plat',
+                    hintText: 'Melon jambon cru, ...',
+                  ),
+                  validator: (String? value) {
+                    if (isTextKey.currentState != null && isTextKey.currentState!.value!) {
+                      if (value == null || value == '') {
+                        return 'Entrez un intitulé de plat';
+                      }
+                    }
+                    return null;
                   },
-                );
-              },
-
-            ),
-          Padding(
-            padding: const .symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Validate will return true if the form is valid, or false if
-                // the form is invalid.
-                if (_formKey.currentState!.validate()) {
-                  RecipePlanning planning;
-                  if (isTextKey.currentState!.value!) {
-                    planning = RecipePlanning(
-                      textRecipe: recipeTextKey.currentState!.value,
-                      nbOfPeople: int.parse(quantityKey.currentState!.value!),
+                ),
+              ),
+            if (!isText)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FormField<int>(
+                  key: recipeIdKey,
+                  builder: (FormFieldState<int> state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RecipeSearchWidget(
+                          viewModel: widget.viewModel,
+                          controller: searchController,
+                          callbackForRecipe: (int recipeId) {
+                            state.didChange(recipeId);
+                          },
+                        ),
+                        if (state.hasError)
+                          Padding(
+                            padding: EdgeInsetsGeometry.directional(start: 55, top: 3),
+                            child: Text(
+                              state.errorText!,
+                              style: TextStyle(fontSize: 12, color: theme.colorScheme.error),
+                            ),
+                          ),
+                      ],
                     );
-                  } else {
-                    planning = RecipePlanning(
-                      recipeId: recipeIdKey.currentState!.value,
-                      nbOfPeople: int.parse(quantityKey.currentState!.value!),
-                    );
-                  }
-                  widget.viewModel.addTextRecipePlanning.execute(planning);
-                }
-              },
-              child: const Text('Submit'),
+                  },
+                  validator: (int? value) {
+                    if (isTextKey.currentState != null && !isTextKey.currentState!.value!) {
+                      if (value == null) {
+                        return 'Entrez un intitulé de recette';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            Center(
+              child: Padding(
+                padding: const .all(8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Validate will return true if the form is valid, or false if
+                    // the form is invalid.
+                    if (_formKey.currentState!.validate()) {
+                      RecipePlanning planning;
+                      if (isTextKey.currentState!.value!) {
+                        planning = RecipePlanning(
+                          textRecipe: recipeTextKey.currentState!.value,
+                          nbOfPeople: int.parse(quantityKey.currentState!.value!),
+                        );
+                      } else {
+                        planning = RecipePlanning(
+                          recipeId: recipeIdKey.currentState!.value,
+                          nbOfPeople: int.parse(quantityKey.currentState!.value!),
+                        );
+                      }
+                      widget.viewModel.addTextRecipePlanning.execute(planning);
+                    }
+                  },
+                  child: const Text('Planifier'),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
