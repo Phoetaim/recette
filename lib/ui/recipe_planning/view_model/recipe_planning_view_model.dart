@@ -23,6 +23,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
     initViewModel = Command0(_loadViewModel)..execute();
     addRecipePlanning = Command1(_addRecipePlanning);
     deleteRecipePlanning = Command1(_deleteRecipePlanning);
+    addPlanningsToShoppingList = Command0(_addPlanningsToShoppingList);
   }
 
   final RecipeRepository _recipeRepository;
@@ -41,6 +42,7 @@ class RecipePlanningViewModel extends ChangeNotifier {
   late final Command0 initViewModel;
   late final Command1<void, RecipePlanning> addRecipePlanning;
   late final Command1<void, int> deleteRecipePlanning;
+  late final Command0 addPlanningsToShoppingList;
 
   Future<Result<void>> _loadViewModel() async {
     final resultRecipe = await _loadRecipes();
@@ -144,25 +146,46 @@ class RecipePlanningViewModel extends ChangeNotifier {
     switch (result) {
       case Ok<RecipePlanning>():
         _plannings.add(result.value);
-        _addToShoppingList(planning);
-        return Result.error(RecipePlanningError('Could not delete recipe planning'));
+        return Result.ok(null);
       case Error<RecipePlanning>():
         return Result.error(RecipePlanningError('Could not delete recipe planning'));
     }
   }
 
-  Future<void> _addToShoppingList(RecipePlanning planning) async {
+  Future<Result<void>> _addPlanningsToShoppingList() async {
+    bool error = false;
+    for (var planning in plannings) {
+      if (planning.recipeId != null && planning.progress == RecipePlanningProgress.planned) {
+        final result = await _addPlanningToShoppingList(planning);
+        if (result is Error<void>) {
+          error = true;
+        }
+      }
+    }
+    if (error) {
+      return Result.error(RecipePlanningError('Could not add all plannings to shopping list'));
+    } else {
+      return Result.ok(null);
+    }
+  }
+
+  Future<Result<void>> _addPlanningToShoppingList(RecipePlanning planning) async {
     if (planning.recipeId == null) {
-      return;
+      return Result.ok(null);
     }
     final result = await _recipeRepository.getRecipe(planning.recipeId!);
     switch (result) {
       case Ok<RawRecipe>():
         final recipe = await _recipeUtilsUseCase.loadRecipe(result.value);
-        await _recipeUtilsUseCase.addRecipeToShoppingList(recipe, planning.nbOfPeople);
-
+        bool error = await _recipeUtilsUseCase.addRecipeToShoppingList(recipe, planning.nbOfPeople);
+        if (error) {
+          return Result.error(
+            RecipePlanningError('Could not add at least 1 ingredient to shopping list'),
+          );
+        }
+        return Result.ok(null);
       case Error<RawRecipe>():
-        // Pass
+        return Result.error(RecipePlanningError('Could not retrieve recipe'));
     }
   }
 

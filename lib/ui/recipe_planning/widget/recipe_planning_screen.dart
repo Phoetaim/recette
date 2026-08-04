@@ -20,6 +20,7 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
   void initState() {
     super.initState();
     widget.viewModel.addRecipePlanning.addListener(_onResultAddRecipe);
+    widget.viewModel.addPlanningsToShoppingList.addListener(_onResultAddRecipeToShoppingList);
   }
 
   @override
@@ -27,11 +28,14 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
     super.didUpdateWidget(oldWidget);
     oldWidget.viewModel.addRecipePlanning.removeListener(_onResultAddRecipe);
     widget.viewModel.addRecipePlanning.addListener(_onResultAddRecipe);
+    oldWidget.viewModel.addPlanningsToShoppingList.removeListener(_onResultAddRecipeToShoppingList);
+    widget.viewModel.addPlanningsToShoppingList.addListener(_onResultAddRecipeToShoppingList);
   }
 
   @override
   void dispose() {
     widget.viewModel.addRecipePlanning.removeListener(_onResultAddRecipe);
+    widget.viewModel.addPlanningsToShoppingList.removeListener(_onResultAddRecipeToShoppingList);
     super.dispose();
   }
 
@@ -73,6 +77,10 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
             return RecipePlanningBody(viewModel: widget.viewModel);
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: widget.viewModel.addPlanningsToShoppingList.execute,
+        child: Icon(Icons.add_shopping_cart),
       ),
     );
   }
@@ -123,7 +131,21 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
 
     if (widget.viewModel.addRecipePlanning.error) {
       widget.viewModel.addRecipePlanning.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning')));
+    }
+  }
+  void _onResultAddRecipeToShoppingList() {
+    if (widget.viewModel.addPlanningsToShoppingList.completed) {
+      widget.viewModel.addPlanningsToShoppingList.clearResult();
+    }
+
+    if (widget.viewModel.addPlanningsToShoppingList.error) {
+      widget.viewModel.addPlanningsToShoppingList.clearResult();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning à la liste de courses')));
     }
   }
 }
