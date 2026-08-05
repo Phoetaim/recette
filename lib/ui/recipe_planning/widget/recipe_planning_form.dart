@@ -14,12 +14,12 @@ class RecipePlanningForm extends StatefulWidget {
 }
 
 class _RecipePlanningFormState extends State<RecipePlanningForm> {
-  bool isText = true;
+  bool isRecipe = true;
   SearchController searchController = SearchController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Individual field keys
-  final GlobalKey<FormFieldState<bool>> isTextKey = GlobalKey<FormFieldState<bool>>();
+  final GlobalKey<FormFieldState<bool>> isRecipeKey = GlobalKey<FormFieldState<bool>>();
   final GlobalKey<FormFieldState<String>> recipeTextKey = GlobalKey<FormFieldState<String>>();
   final GlobalKey<FormFieldState<int>> recipeIdKey = GlobalKey<FormFieldState<int>>();
   final GlobalKey<FormFieldState<String>> quantityKey = GlobalKey<FormFieldState<String>>();
@@ -68,16 +68,16 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                     flex: 2,
                     child: Align(
                       child: FormField<bool>(
-                        key: isTextKey,
+                        key: isRecipeKey,
 
-                        initialValue: isText,
+                        initialValue: isRecipe,
                         builder: (FormFieldState<bool> state) {
                           return SwitchListTile(
                             title: _getToggleLabel(),
                             value: state.value ?? false,
                             onChanged: (bool value) {
                               state.didChange(value);
-                              setState(() => isText = value);
+                              setState(() => isRecipe = value);
                             },
                           );
                         },
@@ -87,28 +87,7 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                 ],
               ),
             ),
-
-            if (isText)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  key: recipeTextKey,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: 'Nom du plat',
-                    hintText: 'Melon jambon cru, ...',
-                  ),
-                  validator: (String? value) {
-                    if (isTextKey.currentState != null && isTextKey.currentState!.value!) {
-                      if (value == null || value == '') {
-                        return 'Entrez un intitulé de plat';
-                      }
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            if (!isText)
+            if (isRecipe)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FormField<int>(
@@ -136,7 +115,7 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                     );
                   },
                   validator: (int? value) {
-                    if (isTextKey.currentState != null && !isTextKey.currentState!.value!) {
+                    if (isRecipeKey.currentState != null && isRecipeKey.currentState!.value!) {
                       if (value == null) {
                         return 'Entrez un intitulé de recette';
                       }
@@ -145,31 +124,64 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                   },
                 ),
               ),
-            Center(
-              child: Padding(
-                padding: const .all(8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Validate will return true if the form is valid, or false if
-                    // the form is invalid.
-                    if (_formKey.currentState!.validate()) {
-                      RecipePlanning planning;
-                      if (isTextKey.currentState!.value!) {
-                        planning = RecipePlanning(
-                          textRecipe: recipeTextKey.currentState!.value,
-                          nbOfPeople: int.parse(quantityKey.currentState!.value!),
-                        );
-                      } else {
-                        planning = RecipePlanning(
-                          recipeId: recipeIdKey.currentState!.value,
-                          nbOfPeople: int.parse(quantityKey.currentState!.value!),
-                        );
+            if (!isRecipe)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  key: recipeTextKey,
+                  decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'Nom du plat',
+                    hintText: 'Melon jambon cru, ...',
+                  ),
+                  validator: (String? value) {
+                    if (isRecipeKey.currentState != null && !isRecipeKey.currentState!.value!) {
+                      if (value == null || value == '') {
+                        return 'Entrez un intitulé de plat';
                       }
-                      widget.viewModel.addRecipePlanning.execute(planning);
                     }
+                    return null;
                   },
-                  child: const Text('Planifier'),
                 ),
+              ),
+            Center(
+              child: Row(
+                mainAxisSize: .max,
+                mainAxisAlignment: .spaceEvenly,
+                children: [
+                  Padding(
+                    padding: const .all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Validate will return true if the form is valid, or false if
+                        // the form is invalid.
+                        if (_formKey.currentState!.validate()) {
+                          RecipePlanning planning;
+                          if (isRecipeKey.currentState!.value!) {
+                            planning = RecipePlanning(
+                              textRecipe: recipeTextKey.currentState!.value,
+                              nbOfPeople: int.parse(quantityKey.currentState!.value!),
+                            );
+                          } else {
+                            planning = RecipePlanning(
+                              recipeId: recipeIdKey.currentState!.value,
+                              nbOfPeople: int.parse(quantityKey.currentState!.value!),
+                            );
+                          }
+                          widget.viewModel.addRecipePlanning.execute(planning);
+                        }
+                      },
+                      child: const Text('Planifier'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const .all(8.0),
+                    child: ElevatedButton(
+                      onPressed: widget.viewModel.deleteAllRecipePlannings,
+                      child: const Text('Tout effacer'),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -179,6 +191,6 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
   }
 
   Text _getToggleLabel() {
-    return Text(isText ? 'Mode texte' : 'Mode recette');
+    return Text(isRecipe ? 'Mode Recette' : 'Mode Texte');
   }
 }

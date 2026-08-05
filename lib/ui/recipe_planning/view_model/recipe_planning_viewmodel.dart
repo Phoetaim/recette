@@ -224,7 +224,11 @@ class RecipePlanningViewModel extends ChangeNotifier {
       // Pass
     }
   }
-
+  Future<void> deleteAllRecipePlannings() async {
+    for (var planning in List.from(_plannings)) {
+      await _deleteRecipePlanning(planning.id!);
+    }
+  }
   Future<Result<void>> _deleteRecipePlanning(int id) async {
     final result = await _planningRepository.deleteRecipePlanning(id);
     switch (result) {
