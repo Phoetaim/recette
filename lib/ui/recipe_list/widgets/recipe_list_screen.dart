@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+import 'package:recette/ui/ui_utils/configs.dart';
 
 import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_list_viewmodel.dart';
@@ -42,7 +43,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.pushNamed(Routes.recipePlanning);
           },
           child: Icon(Icons.arrow_back),
         ),
@@ -81,7 +82,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
               ? SelectionFloatingActionButton(viewModel: widget.viewModel)
               : FloatingActionButton(
                   onPressed: () {
-                    context.goNamed(
+                    context.pushNamed(
                       Routes.recipeDetail,
                       pathParameters: {'recipeId': (-1).toString()},
                     );
@@ -99,7 +100,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recette supprimée'), duration: Duration(milliseconds: 500)),
+        SnackBar(content: Text('Recette supprimée'), duration: snackBarDuration),
       );
     }
 

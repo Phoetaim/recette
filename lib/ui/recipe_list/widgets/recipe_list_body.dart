@@ -60,7 +60,7 @@ class RecipeFullCard extends StatelessWidget {
         Expanded(
           child: TextButton(
             onPressed: () {
-              context.goNamed(
+              context.pushNamed(
                 Routes.recipeDetail,
                 pathParameters: {'recipeId': rawRecipe.id.toString()},
               );

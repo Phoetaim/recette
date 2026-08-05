@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+import 'package:recette/ui/ui_utils/configs.dart';
 import '../view_model/ingredient_list_viewmodel.dart';
 import 'ingredient_list_body.dart';
 
@@ -40,7 +41,7 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.shoppingList);
+            context.pop();
           },
           child: Icon(Icons.arrow_back),
         ),
@@ -57,7 +58,7 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
           }
 
           if (widget.viewModel.loadIngredientList.error) {
-            return TextButton(onPressed: () => context.go(Routes.recipeList), child: Text('Return to recipe list?'));
+            return TextButton(onPressed: () => context.goNamed(Routes.recipeList), child: Text('Return to recipe list?'));
           }
           return IngredientListBody(viewModel: widget.viewModel);
         },
@@ -77,7 +78,7 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
     if (widget.viewModel.deleteIngredient.completed) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Ingrédient supprimé'), duration: Duration(milliseconds: 150)));
+      ).showSnackBar(SnackBar(content: Text('Ingrédient supprimé'), duration: snackBarDuration));
     }
 
     if (widget.viewModel.deleteIngredient.error) {

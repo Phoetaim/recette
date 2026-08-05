@@ -49,7 +49,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
         if (widget.viewModel.loadRecipeById.error) {
           return TextButton(
-            onPressed: () => context.go(Routes.recipeList),
+            onPressed: () => context.goNamed(Routes.recipeList),
             child: Text('Return to recipe list?'),
           );
         }
@@ -105,7 +105,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
             leading: TextButton(
               onPressed: () {
-                context.go(Routes.recipeList);
+                context.pop(Routes.recipeList);
               },
               child: Icon(Icons.arrow_back),
             ),
@@ -175,7 +175,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   void _onResult() {
     if (widget.viewModel.deleteRecipe.completed) {
-      context.go(Routes.recipeList);
+      context.pop();
     }
 
     if (widget.viewModel.deleteRecipe.error) {

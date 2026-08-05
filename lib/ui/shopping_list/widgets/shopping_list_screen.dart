@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
 import 'package:recette/ui/ui_utils/import_alert_box.dart';
-import '../../ui_utils/styles.dart';
-import '../view_model/shopping_list_viewmodel.dart';
+import 'package:recette/ui/ui_utils/styles.dart';
 import 'shopping_list_body.dart';
 
 class ShoppingListScreen extends StatefulWidget {
@@ -23,9 +23,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.go(Routes.recipeList);
+            context.goNamed(Routes.shoppingList);
           },
-          child: Icon(Icons.arrow_back),
+          child: Icon(Icons.home),
         ),
         title: Text('Liste de courses'),
         actions: _getActionList(),
@@ -63,7 +63,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       MenuEntry(
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
-          onPressed: () => context.goNamed(Routes.ingredientList),
+          onPressed: () => context.pushNamed(Routes.ingredientList),
           child: Row(children: [Icon(Icons.food_bank), SizedBox(width: 8), Text('Ingrédients', style: getTextStyle(context))]),
         ),
       ),

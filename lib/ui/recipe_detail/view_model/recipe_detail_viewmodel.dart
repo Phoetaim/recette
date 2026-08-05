@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
-import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/domain/use_cases/ingredient_with_quantity.dart';
+import 'package:recette/domain/use_cases/recipe_utils.dart';
 import 'package:recette/utils/commands.dart';
 import 'package:recette/utils/result.dart';
 
@@ -13,27 +13,27 @@ class RecipeDetailViewModel extends ChangeNotifier {
   RecipeDetailViewModel({
     required RecipeRepository recipeRepository,
     required IngredientWithQuantityUseCase ingredientWithQuantityUseCase,
-    required ShoppingListRepository shoppingListRepository,
+    required RecipeUtilsUseCase recipeUtilsUseCase,
     required ImportExportUseCase importExportUseCase,
   }) : _recipeRepository = recipeRepository,
        _ingredientWithQuantityUseCase = ingredientWithQuantityUseCase,
-       _shoppingListRepository = shoppingListRepository,
+       _recipeUtilsUseCase = recipeUtilsUseCase,
        _importExportUseCase = importExportUseCase {
     loadRecipeById = Command1(_loadRecipeById);
     saveRecipe = Command0(_saveRecipe);
     deleteRecipe = Command0(_deleteRecipe);
-    addRecipeToShoppingList = Command0(_addRecipeToShoppingList);
+    addToShoppingList = Command0(_addToShoppingList);
   }
 
   final RecipeRepository _recipeRepository;
   final IngredientWithQuantityUseCase _ingredientWithQuantityUseCase;
   final ImportExportUseCase _importExportUseCase;
-  final ShoppingListRepository _shoppingListRepository;
+  final RecipeUtilsUseCase _recipeUtilsUseCase;
 
   late final Command1<void, String> loadRecipeById;
   late final Command0<void> saveRecipe;
   late final Command0<void> deleteRecipe;
-  late final Command0<void> addRecipeToShoppingList;
+  late final Command0<void> addToShoppingList;
 
   late RawRecipe _rawRecipe;
   late RawRecipe? _originalRecipe;
@@ -67,30 +67,10 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
 
     _rawRecipe = _originalRecipe!;
-    recipe.value = await _loadRecipe();
+    recipe.value = await _recipeUtilsUseCase.loadRecipe(_rawRecipe);
     currentNumberOfPeople.value = recipe.value.nbOfPeople;
     notifyListeners();
     return Result.ok(null);
-  }
-
-  Future<Recipe> _loadRecipe() async {
-    var jsonRawRecipe = _rawRecipe.toJson();
-    jsonRawRecipe.remove('ingredientWithQuantityIds');
-    jsonRawRecipe['ingredients'] = await _loadIngredientsWithQuantity();
-    jsonRawRecipe['steps'] = _rawRecipe.steps.split('\n');
-    return Recipe.fromJson(jsonRawRecipe);
-  }
-
-  Future<List<Map<String, dynamic>>> _loadIngredientsWithQuantity() async {
-    final result = await _ingredientWithQuantityUseCase.getIngredientWithQuantityByIds(
-      _rawRecipe.ingredientWithQuantityIds,
-    );
-    switch (result) {
-      case Ok<List<Map<String, dynamic>>>():
-        return result.value;
-      case Error<List<Map<String, dynamic>>>():
-        return <Map<String, dynamic>>[];
-    }
   }
 
   Future<Result<void>> _saveRecipe() async {
@@ -207,18 +187,12 @@ class RecipeDetailViewModel extends ChangeNotifier {
     _rawRecipe = _rawRecipe.copyWith(ingredientWithQuantityIds: ingredientWithQuantityIds);
   }
 
-  Future<Result<void>> _addRecipeToShoppingList() async {
+  Future<Result<void>> _addToShoppingList() async {
     saveRecipe.execute();
-    bool error = false;
-    for (var ingredient in recipe.value.ingredients) {
-      double newQuantity =
-          ingredient.quantity / recipe.value.nbOfPeople * currentNumberOfPeople.value;
-      IngredientWithQuantity ingredientToAdd = ingredient.copyWith(quantity: newQuantity.round());
-      var result = await _shoppingListRepository.addShoppingIngredient(ingredientToAdd);
-      if (result is Error<void>) {
-        error = true;
-      }
-    }
+    bool error = await _recipeUtilsUseCase.addRecipeToShoppingList(
+      recipe.value,
+      currentNumberOfPeople.value,
+    );
 
     if (error) {
       return Result.error(RecipeError('Could not add at least one ingredient'));

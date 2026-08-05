@@ -209,7 +209,7 @@ class _CustomNumberInputState extends State<CustomNumberInput> {
             child: IconButton(
               icon: Icon(Icons.shopping_cart),
               onPressed: () =>
-                  widget.viewModel.addRecipeToShoppingList.execute(), // Disable when at max
+                  widget.viewModel.addToShoppingList.execute(), // Disable when at max
             ),
           ),
         ],

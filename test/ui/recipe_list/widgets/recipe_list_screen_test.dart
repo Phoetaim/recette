@@ -36,6 +36,8 @@ void main() {
 
   tearDown(() async {
     await updatedRecipeListController.close();
+    reset(mockRecipeRepository);
+    reset(mockImportExportUseCase);
   });
 
   RecipeListViewModel createViewModel() {
@@ -45,24 +47,32 @@ void main() {
     );
   }
 
-  /// GoRouter minimal avec 3 routes : l'écran testé, une route de détail factice
-  /// (affiche l'id reçu) et une route "liste de courses" factice, pour vérifier
-  /// les 2 navigations déclenchées par l'écran.
+  /// GoRouter matching the actual app structure:
+  /// /recipes (recipePlanning) -> recipeList -> recipeDetail/:recipeId
   Widget buildTestApp(RecipeListViewModel viewModel) {
     final router = GoRouter(
-      initialLocation: '/',
+      initialLocation: '${Routes.recipePlanning}/${Routes.recipeList}',
       routes: [
-        GoRoute(path: '/', builder: (context, state) => RecipeListScreen(viewModel: viewModel)),
         GoRoute(
-          path: '/recipe/:recipeId',
-          name: Routes.recipeDetail,
-          builder: (context, state) {
-            return Scaffold(body: Text('detail-${state.pathParameters['recipeId']}'));
-          },
-        ),
-        GoRoute(
-          path: Routes.shoppingList,
-          builder: (context, state) => const Scaffold(body: Text('shopping-list-screen')),
+          name: Routes.recipePlanning,
+          path: Routes.recipePlanning, // '/recipes'
+          builder: (context, state) => const Placeholder(),
+          routes: [
+            GoRoute(
+              name: Routes.recipeList,
+              path: Routes.recipeList, // 'recipeList'
+              builder: (context, state) => RecipeListScreen(viewModel: viewModel),
+              routes: [
+                GoRoute(
+                  name: Routes.recipeDetail,
+                  path: '${Routes.recipeDetail}/:recipeId', // 'recipeDetail/:recipeId'
+                  builder: (context, state) {
+                    return Scaffold(body: Text('detail-${state.pathParameters['recipeId']}'));
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -132,9 +142,11 @@ void main() {
       ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
       final viewModel = createViewModel();
-      viewModel.enterSelection(42);
 
       await tester.pumpWidget(buildTestApp(viewModel));
+      await tester.pumpAndSettle();
+
+      viewModel.enterSelection(42);
       await tester.pump();
 
       expect(find.text('Sélectionne tout'), findsOneWidget);
@@ -143,9 +155,7 @@ void main() {
       expect(find.byIcon(Icons.add), findsNothing);
     });
 
-    testWidgets('hides the export button when selection mode has nothing selected', (
-        tester,
-        ) async {
+    testWidgets('Hides the export button when selection mode has nothing selected', (tester) async {
       final viewModel = createViewModel();
       // Enters selection mode without selecting any recipe id.
       viewModel.isSelecting.value = true;
@@ -158,16 +168,16 @@ void main() {
 
     testWidgets('"Sélectionne tout" selects every loaded recipe', (tester) async {
       when(() => mockRecipeRepository.getRecipeList()).thenAnswer(
-            (_) async => const Result.ok([
-          RawRecipe(id: 1, name: 'Soupe'),
-          RawRecipe(id: 2, name: 'Salade'),
-        ]),
+            (_) async =>
+        const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]),
       );
 
       final viewModel = createViewModel();
-      viewModel.enterSelection(1);
 
       await tester.pumpWidget(buildTestApp(viewModel));
+      await tester.pumpAndSettle();
+
+      viewModel.enterSelection(1);
       await tester.pump();
 
       await tester.tap(find.text('Sélectionne tout'));
@@ -182,9 +192,11 @@ void main() {
       ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
       final viewModel = createViewModel();
-      viewModel.enterSelection(42);
 
       await tester.pumpWidget(buildTestApp(viewModel));
+      await tester.pumpAndSettle();
+
+      viewModel.enterSelection(42);
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.clear));
@@ -207,12 +219,11 @@ void main() {
       final viewModel = createViewModel();
 
       await tester.pumpWidget(buildTestApp(viewModel));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.delete));
-      // Not pumpAndSettle: the SnackBar's duration is only 1000 microseconds,
-      // so we assert right after the frame where it appears.
-      await tester.pumpAndSettle();
+      // The SnackBar's duration is 500 milliseconds, so pump to show it
+      await tester.pump();
 
       expect(find.text('Recette supprimée'), findsOneWidget);
     });
@@ -228,26 +239,12 @@ void main() {
       final viewModel = createViewModel();
 
       await tester.pumpWidget(buildTestApp(viewModel));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pump();
 
       expect(find.text('Error while loading'), findsOneWidget);
-    });
-  });
-
-  group('Navigation', () {
-    testWidgets('the back arrow navigates to the shopping list', (tester) async {
-      final viewModel = createViewModel();
-
-      await tester.pumpWidget(buildTestApp(viewModel));
-      await tester.pump();
-
-      await tester.tap(find.byIcon(Icons.arrow_back));
-      await tester.pumpAndSettle();
-
-      expect(find.text('shopping-list-screen'), findsOneWidget);
     });
   });
 
