@@ -105,9 +105,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
             leading: TextButton(
               onPressed: () {
-                context.pop(Routes.recipeList);
+                context.pushNamed(Routes.recipePlanning);
               },
-              child: Icon(Icons.arrow_back),
+              child: Icon(Icons.home),
             ),
             title: ValueListenableBuilder(
               valueListenable: widget.viewModel.recipe,

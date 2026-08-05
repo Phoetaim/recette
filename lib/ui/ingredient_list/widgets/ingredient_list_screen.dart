@@ -41,9 +41,9 @@ class _IngredientListScreenState extends State<IngredientListScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.pop();
+            context.goNamed(Routes.shoppingList);
           },
-          child: Icon(Icons.arrow_back),
+          child: Icon(Icons.home),
         ),
         title: Text('Liste d\'ingrédients'),
         shadowColor: Colors.black,

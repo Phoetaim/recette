@@ -47,9 +47,9 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
       appBar: AppBar(
         leading: TextButton(
           onPressed: () {
-            context.pushNamed(Routes.shoppingList);
+            context.goNamed(Routes.recipePlanning);
           },
-          child: Icon(Icons.arrow_back),
+          child: Icon(Icons.home),
         ),
         title: const Text('Planning'),
         actions: _getActionList(),

@@ -45,7 +45,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           onPressed: () {
             context.pushNamed(Routes.recipePlanning);
           },
-          child: Icon(Icons.arrow_back),
+          child: Icon(Icons.home),
         ),
         title: const Text('Mes Recettes'),
         actions: _getActionList(),
