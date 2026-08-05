@@ -159,12 +159,12 @@ class _RecipePlanningFormState extends State<RecipePlanningForm> {
                           RecipePlanning planning;
                           if (isRecipeKey.currentState!.value!) {
                             planning = RecipePlanning(
-                              textRecipe: recipeTextKey.currentState!.value,
+                              recipeId: recipeIdKey.currentState!.value,
                               nbOfPeople: int.parse(quantityKey.currentState!.value!),
                             );
                           } else {
                             planning = RecipePlanning(
-                              recipeId: recipeIdKey.currentState!.value,
+                              recipeText: recipeTextKey.currentState!.value,
                               nbOfPeople: int.parse(quantityKey.currentState!.value!),
                             );
                           }

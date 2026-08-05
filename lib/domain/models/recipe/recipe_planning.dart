@@ -10,7 +10,7 @@ abstract class RecipePlanning with _$RecipePlanning {
 
     int? recipeId,
 
-    String? textRecipe,
+    String? recipeText,
 
     @Default(4) int nbOfPeople,
 

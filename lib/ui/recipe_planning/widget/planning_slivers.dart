@@ -35,8 +35,8 @@ class PlanningCard extends StatelessWidget {
     String recipeName = '';
     if (planning.recipeId != null) {
       recipeName = viewModel.getRecipe(planning.recipeId!).name;
-    } else if (planning.textRecipe != null) {
-      recipeName = planning.textRecipe!;
+    } else if (planning.recipeText != null) {
+      recipeName = planning.recipeText!;
     }
     return Dismissible(
       key: Key(planning.id!.toString()),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecipePlanning {
 
- int? get id; int? get recipeId; String? get textRecipe; int get nbOfPeople;@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress get progress;
+ int? get id; int? get recipeId; String? get recipeText; int get nbOfPeople;@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress get progress;
 /// Create a copy of RecipePlanning
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RecipePlanningCopyWith<RecipePlanning> get copyWith => _$RecipePlanningCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecipePlanning&&(identical(other.id, id) || other.id == id)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.textRecipe, textRecipe) || other.textRecipe == textRecipe)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&(identical(other.progress, progress) || other.progress == progress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecipePlanning&&(identical(other.id, id) || other.id == id)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeText, recipeText) || other.recipeText == recipeText)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&(identical(other.progress, progress) || other.progress == progress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,recipeId,textRecipe,nbOfPeople,progress);
+int get hashCode => Object.hash(runtimeType,id,recipeId,recipeText,nbOfPeople,progress);
 
 @override
 String toString() {
-  return 'RecipePlanning(id: $id, recipeId: $recipeId, textRecipe: $textRecipe, nbOfPeople: $nbOfPeople, progress: $progress)';
+  return 'RecipePlanning(id: $id, recipeId: $recipeId, recipeText: $recipeText, nbOfPeople: $nbOfPeople, progress: $progress)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RecipePlanningCopyWith<$Res>  {
   factory $RecipePlanningCopyWith(RecipePlanning value, $Res Function(RecipePlanning) _then) = _$RecipePlanningCopyWithImpl;
 @useResult
 $Res call({
- int? id, int? recipeId, String? textRecipe, int nbOfPeople,@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress progress
+ int? id, int? recipeId, String? recipeText, int nbOfPeople,@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress progress
 });
 
 
@@ -65,11 +65,11 @@ class _$RecipePlanningCopyWithImpl<$Res>
 
 /// Create a copy of RecipePlanning
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? recipeId = freezed,Object? textRecipe = freezed,Object? nbOfPeople = null,Object? progress = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? recipeId = freezed,Object? recipeText = freezed,Object? nbOfPeople = null,Object? progress = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,recipeId: freezed == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
-as int?,textRecipe: freezed == textRecipe ? _self.textRecipe : textRecipe // ignore: cast_nullable_to_non_nullable
+as int?,recipeText: freezed == recipeText ? _self.recipeText : recipeText // ignore: cast_nullable_to_non_nullable
 as String?,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
 as RecipePlanningProgress,
@@ -157,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? recipeId,  String? textRecipe,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  int? recipeId,  String? recipeText,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RecipePlanning() when $default != null:
-return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.progress);case _:
+return $default(_that.id,_that.recipeId,_that.recipeText,_that.nbOfPeople,_that.progress);case _:
   return orElse();
 
 }
@@ -178,10 +178,10 @@ return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? recipeId,  String? textRecipe,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  int? recipeId,  String? recipeText,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)  $default,) {final _that = this;
 switch (_that) {
 case _RecipePlanning():
-return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.progress);case _:
+return $default(_that.id,_that.recipeId,_that.recipeText,_that.nbOfPeople,_that.progress);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +198,10 @@ return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? recipeId,  String? textRecipe,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  int? recipeId,  String? recipeText,  int nbOfPeople, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson)  RecipePlanningProgress progress)?  $default,) {final _that = this;
 switch (_that) {
 case _RecipePlanning() when $default != null:
-return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.progress);case _:
+return $default(_that.id,_that.recipeId,_that.recipeText,_that.nbOfPeople,_that.progress);case _:
   return null;
 
 }
@@ -213,12 +213,12 @@ return $default(_that.id,_that.recipeId,_that.textRecipe,_that.nbOfPeople,_that.
 @JsonSerializable()
 
 class _RecipePlanning implements RecipePlanning {
-  const _RecipePlanning({this.id, this.recipeId, this.textRecipe, this.nbOfPeople = 4, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) this.progress = RecipePlanningProgress.planned});
+  const _RecipePlanning({this.id, this.recipeId, this.recipeText, this.nbOfPeople = 4, @JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) this.progress = RecipePlanningProgress.planned});
   factory _RecipePlanning.fromJson(Map<String, dynamic> json) => _$RecipePlanningFromJson(json);
 
 @override final  int? id;
 @override final  int? recipeId;
-@override final  String? textRecipe;
+@override final  String? recipeText;
 @override@JsonKey() final  int nbOfPeople;
 @override@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) final  RecipePlanningProgress progress;
 
@@ -235,16 +235,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecipePlanning&&(identical(other.id, id) || other.id == id)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.textRecipe, textRecipe) || other.textRecipe == textRecipe)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&(identical(other.progress, progress) || other.progress == progress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecipePlanning&&(identical(other.id, id) || other.id == id)&&(identical(other.recipeId, recipeId) || other.recipeId == recipeId)&&(identical(other.recipeText, recipeText) || other.recipeText == recipeText)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&(identical(other.progress, progress) || other.progress == progress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,recipeId,textRecipe,nbOfPeople,progress);
+int get hashCode => Object.hash(runtimeType,id,recipeId,recipeText,nbOfPeople,progress);
 
 @override
 String toString() {
-  return 'RecipePlanning(id: $id, recipeId: $recipeId, textRecipe: $textRecipe, nbOfPeople: $nbOfPeople, progress: $progress)';
+  return 'RecipePlanning(id: $id, recipeId: $recipeId, recipeText: $recipeText, nbOfPeople: $nbOfPeople, progress: $progress)';
 }
 
 
@@ -255,7 +255,7 @@ abstract mixin class _$RecipePlanningCopyWith<$Res> implements $RecipePlanningCo
   factory _$RecipePlanningCopyWith(_RecipePlanning value, $Res Function(_RecipePlanning) _then) = __$RecipePlanningCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, int? recipeId, String? textRecipe, int nbOfPeople,@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress progress
+ int? id, int? recipeId, String? recipeText, int nbOfPeople,@JsonKey(toJson: recipePlanningProgressToJson, fromJson: recipePlanningProgressFromJson) RecipePlanningProgress progress
 });
 
 
@@ -272,11 +272,11 @@ class __$RecipePlanningCopyWithImpl<$Res>
 
 /// Create a copy of RecipePlanning
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? recipeId = freezed,Object? textRecipe = freezed,Object? nbOfPeople = null,Object? progress = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? recipeId = freezed,Object? recipeText = freezed,Object? nbOfPeople = null,Object? progress = null,}) {
   return _then(_RecipePlanning(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,recipeId: freezed == recipeId ? _self.recipeId : recipeId // ignore: cast_nullable_to_non_nullable
-as int?,textRecipe: freezed == textRecipe ? _self.textRecipe : textRecipe // ignore: cast_nullable_to_non_nullable
+as int?,recipeText: freezed == recipeText ? _self.recipeText : recipeText // ignore: cast_nullable_to_non_nullable
 as String?,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
 as RecipePlanningProgress,
