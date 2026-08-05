@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
+import 'package:recette/ui/ui_utils/configs.dart';
 import 'package:recette/ui/ui_utils/styles.dart';
 
 import 'recipe_planning_body.dart';
@@ -136,16 +137,26 @@ class _RecipePlanningScreenState extends State<RecipePlanningScreen> {
       ).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning')));
     }
   }
+
   void _onResultAddRecipeToShoppingList() {
     if (widget.viewModel.addPlanningsToShoppingList.completed) {
       widget.viewModel.addPlanningsToShoppingList.clearResult();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ingrédients ajouté à la liste de courses'),
+          duration: snackBarDuration,
+        ),
+      );
     }
 
     if (widget.viewModel.addPlanningsToShoppingList.error) {
       widget.viewModel.addPlanningsToShoppingList.clearResult();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Probleme lors de l\'ajout du planning à la liste de courses')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Problème lors de l\'ajout du planning à la liste de courses'),
+          duration: snackBarDuration,
+        ),
+      );
     }
   }
 }

@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:recette/domain/models/recipe/recipe_planning.dart';
+import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
 class RecipePlanningSlivers extends StatelessWidget {
@@ -48,7 +51,26 @@ class PlanningCard extends StatelessWidget {
         },
         title: Text(recipeName),
 
-        secondary: PlanningQuantityTile(viewModel: viewModel, planning: planning),
+        secondary: SizedBox(
+          width: 110,
+          child: Row(
+            mainAxisAlignment: .end,
+            children: [
+              if (planning.recipeId != null)
+                SizedBox(
+                  width: 50,
+                  child: TextButton.icon(
+                      onPressed: () => context.pushNamed(
+                        Routes.recipeDetail,
+                        pathParameters: {'recipeId': planning.recipeId!.toString()},
+                      ),
+                      label: Icon(CupertinoIcons.arrowshape_turn_up_right_fill),
+                    ),
+                ),
+              SizedBox(width:60, child: PlanningQuantityTile(viewModel: viewModel, planning: planning)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -62,16 +84,13 @@ class PlanningQuantityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.group),
-          const SizedBox(width: 10),
-          Text('${planning.nbOfPeople}', style: TextStyle(fontSize: 14)),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: .end,
+      children: [
+        Text('${planning.nbOfPeople}', style: TextStyle(fontSize: 14)),
+        const SizedBox(width: 10),
+        Icon(Icons.group),
+      ],
     );
   }
 }
