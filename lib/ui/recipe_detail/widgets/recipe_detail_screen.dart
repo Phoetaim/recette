@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
+
 import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
 import 'recipe_detail_info_tab.dart';
@@ -17,6 +18,9 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormFieldState<String>> recipeNameKey = GlobalKey<FormFieldState<String>>();
+
   @override
   void initState() {
     super.initState();
@@ -112,10 +116,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             title: ValueListenableBuilder(
               valueListenable: widget.viewModel.recipe,
               builder: (context, value, child) {
-                return HeaderTextFormField(
-                  fieldKey: Key('RecipeName'),
+                return TextFormField(
+                  key: recipeNameKey,
                   initialValue: widget.viewModel.recipe.value.name,
-                  callback: (value) => widget.viewModel.updateRecipeName(value),
                 );
               },
             ),
@@ -125,7 +128,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
           body: TabBarView(
             children: [
-              RecipeDetailInfoTab(viewModel: widget.viewModel),
+              RecipeDetailInfoTab(
+                viewModel: widget.viewModel,
+                recipeNameKey: recipeNameKey,
+                formKey: formKey,
+              ),
               RecipeDetailIngredientTab(viewModel: widget.viewModel),
             ],
           ),
