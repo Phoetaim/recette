@@ -20,7 +20,7 @@ class RecipeDetailViewModel extends ChangeNotifier {
        _recipeUtilsUseCase = recipeUtilsUseCase,
        _importExportUseCase = importExportUseCase {
     loadRecipeById = Command1(_loadRecipeById);
-    saveRecipe = Command0(_saveRecipe);
+    saveRecipe = Command1(_saveRecipe);
     deleteRecipe = Command0(_deleteRecipe);
     addToShoppingList = Command0(_addToShoppingList);
   }
@@ -31,12 +31,13 @@ class RecipeDetailViewModel extends ChangeNotifier {
   final RecipeUtilsUseCase _recipeUtilsUseCase;
 
   late final Command1<void, String> loadRecipeById;
-  late final Command0<void> saveRecipe;
+  late final Command1<void, RawRecipe> saveRecipe;
   late final Command0<void> deleteRecipe;
   late final Command0<void> addToShoppingList;
 
   late RawRecipe _rawRecipe;
   late RawRecipe? _originalRecipe;
+  RawRecipe? get originalRecipe => _originalRecipe;
   final ValueNotifier<Recipe> recipe = ValueNotifier<Recipe>(Recipe());
 
   // Ingredient tab attributes
@@ -73,7 +74,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  Future<Result<void>> _saveRecipe() async {
+  Future<Result<void>> _saveRecipe(RawRecipe formRecipe) async {
+    print(formRecipe);
+    return Result.ok(null);
     if (_rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length) {
       for (var ingredientWithQuantity in recipe.value.ingredients) {
         if (ingredientWithQuantity.id! >= 0) {
@@ -129,46 +132,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  bool isRecipeUpdated() {
-    return _rawRecipe != _originalRecipe ||
-        _rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length;
-  }
-
   Future<void> exportRecipe() async {
-    final result = await _saveRecipe();
-    switch (result) {
-      case Ok<void>():
-        await _importExportUseCase.exportRecipes({_rawRecipe.id!});
-        notifyListeners();
-      case Error<void>():
-      //pass
-    }
-  }
-
-  // Update info tab
-  void updateRecipeName(String newName) async {
-    _rawRecipe = _rawRecipe.copyWith(name: newName);
-    recipe.value = recipe.value.copyWith(name: newName);
-  }
-
-  void updateRecipePreparationTime(String newPrepTime) async {
-    _rawRecipe = _rawRecipe.copyWith(preparationTime: newPrepTime);
-    recipe.value = recipe.value.copyWith(preparationTime: newPrepTime);
-  }
-
-  void updateRecipeCookingTime(String newCookingTime) async {
-    _rawRecipe = _rawRecipe.copyWith(cookingTime: newCookingTime);
-    recipe.value = recipe.value.copyWith(cookingTime: newCookingTime);
-  }
-
-  void updateRecipeNbOfPeople(String newNbOfPeopleAsString) async {
-    int? newNbOfPeople = int.tryParse(newNbOfPeopleAsString);
-    if (newNbOfPeople == null) {
-      throw TypeError();
-    }
-    _rawRecipe = _rawRecipe.copyWith(nbOfPeople: newNbOfPeople);
-    currentNumberOfPeople.value = newNbOfPeople;
-    recipe.value = recipe.value.copyWith(nbOfPeople: newNbOfPeople);
+    await _importExportUseCase.exportRecipes({_rawRecipe.id!});
+    notifyListeners();
   }
 
   void addIngredientWithQuantity(IngredientWithQuantity ingredientWithQuantity) async {
@@ -188,7 +154,6 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _addToShoppingList() async {
-    saveRecipe.execute();
     bool error = await _recipeUtilsUseCase.addRecipeToShoppingList(
       recipe.value,
       currentNumberOfPeople.value,
