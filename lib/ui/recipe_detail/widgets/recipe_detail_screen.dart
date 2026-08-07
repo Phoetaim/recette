@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';

@@ -21,7 +21,7 @@ class RecipeUtilsUseCase {
     var jsonRawRecipe = rawRecipe.toJson();
     jsonRawRecipe.remove('ingredientWithQuantityIds');
     jsonRawRecipe['ingredients'] = await _loadIngredientsWithQuantity(rawRecipe);
-    jsonRawRecipe['steps'] = rawRecipe.steps.split('\n');
+    jsonRawRecipe['steps'] = rawRecipe.steps;
     return Recipe.fromJson(jsonRawRecipe);
   }
 

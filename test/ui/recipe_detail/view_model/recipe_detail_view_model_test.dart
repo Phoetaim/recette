@@ -94,7 +94,7 @@ void main() {
         preparationTime: '10h',
         cookingTime: '10h',
         ingredients: [ingredientWithQuantity1, ingredientWithQuantity2],
-        steps: ['Step 1.', 'Step 2.'],
+        steps: 'Step 1.\nStep 2.',
       );
 
       when(

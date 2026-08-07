@@ -23,41 +23,46 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
       child: Column(
         mainAxisSize: .min,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: widget.recipeControllers.preparationController,
-                  decoration: InputDecoration(border: InputBorder.none, prefix: Text('Prep:  ')),
+          Padding(
+            padding: const .directional(start: 30),
+            child: Row(
+              mainAxisSize: .min,
+              mainAxisAlignment: .spaceEvenly,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: widget.recipeControllers.preparationController,
+                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Prep:  ')),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: TextFormField(
-                  controller: widget.recipeControllers.cookingController,
-                  decoration: InputDecoration(border: InputBorder.none, prefix: Text('Cuisson:  ')),
+                Expanded(
+                  child: TextFormField(
+                    controller: widget.recipeControllers.cookingController,
+                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Cuisson:  ')),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: TextFormField(
-                  controller: widget.recipeControllers.peopleController,
-                  decoration: InputDecoration(border: InputBorder.none, prefix: Text('Pers:  ')),
-                  keyboardType: TextInputType.number,
-                  validator: (String? value) {
-                    if (value == null) {
-                      return 'Entrez un nombre de personnes';
-                    }
-                    try {
-                      int.parse(value);
-                    } on FormatException {
-                      return 'Entrez un nombre de personnes';
-                    }
-                    return null;
-                  },
+                Expanded(
+                  child: TextFormField(
+                    controller: widget.recipeControllers.peopleController,
+                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Pers:  ')),
+                    keyboardType: TextInputType.number,
+                    validator: (String? value) {
+                      if (value == null) {
+                        return 'Entrez un nombre de personnes';
+                      }
+                      try {
+                        int.parse(value);
+                      } on FormatException {
+                        return 'Entrez un nombre de personnes';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          RecipeStepsWidget(recipe: recipe),
+          RecipeStepsWidget(recipeControllers: widget.recipeControllers),
         ],
       ),
     );

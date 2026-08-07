@@ -27,8 +27,8 @@ abstract class Recipe with _$Recipe {
     @Default([])
     List<IngredientWithQuantity> ingredients,
 
-    /// e.g. ['Prépare la tarte', 'Cuis la']
-    @Default(['']) List<String> steps,
+    /// e.g. 'Prépare la tarte\nCuis la'
+    @Default('') String steps,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
@@ -42,6 +42,6 @@ RawRecipe convertToRawRecipe(Recipe recipe) {
     cookingTime: recipe.cookingTime,
     nbOfPeople: recipe.nbOfPeople,
     ingredientWithQuantityIds: recipe.ingredients.map((ingredient) => ingredient.id!).toList(),
-    steps: recipe.steps.join('\n'),
+    steps: recipe.steps,
   );
 }

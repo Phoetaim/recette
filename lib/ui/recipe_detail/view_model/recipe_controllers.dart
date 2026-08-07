@@ -49,7 +49,7 @@ class RecipeControllers extends ChangeNotifier {
     preparationController.text = recipe.preparationTime;
     cookingController.text = recipe.cookingTime;
     peopleController.text = '${recipe.nbOfPeople}';
-    stepsController.text = recipe.steps.join('\n');
+    stepsController.text = recipe.steps;
     _originalIngredients = List.from(recipe.ingredients)..sort();
     _controllersInitialized = true;
   }
@@ -79,7 +79,7 @@ class RecipeControllers extends ChangeNotifier {
       preparationTime: preparationController.text,
       cookingTime: cookingController.text,
       nbOfPeople: nbOfPeople,
-      steps: stepsController.text.split('\n'),
+      steps: stepsController.text,
       ingredients: List.from(recipeIngredients)..sort(),
     );
   }

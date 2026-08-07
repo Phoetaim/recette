@@ -20,8 +20,8 @@ mixin _$Recipe {
  String get name;/// e.g. '1h'
  String get preparationTime;/// e.g. '45''
  String get cookingTime;/// e.g. 4
- int get nbOfPeople;@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> get ingredients;/// e.g. ['Prépare la tarte', 'Cuis la']
- List<String> get steps;
+ int get nbOfPeople;@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> get ingredients;/// e.g. 'Prépare la tarte\nCuis la'
+ String get steps;
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -34,12 +34,12 @@ $RecipeCopyWith<Recipe> get copyWith => _$RecipeCopyWithImpl<Recipe>(this as Rec
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other.ingredients, ingredients)&&const DeepCollectionEquality().equals(other.steps, steps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other.ingredients, ingredients)&&(identical(other.steps, steps) || other.steps == steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(ingredients),const DeepCollectionEquality().hash(steps));
+int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(ingredients),steps);
 
 @override
 String toString() {
@@ -54,7 +54,7 @@ abstract mixin class $RecipeCopyWith<$Res>  {
   factory $RecipeCopyWith(Recipe value, $Res Function(Recipe) _then) = _$RecipeCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, String steps
 });
 
 
@@ -80,7 +80,7 @@ as String,cookingTime: null == cookingTime ? _self.cookingTime : cookingTime // 
 as String,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,ingredients: null == ingredients ? _self.ingredients : ingredients // ignore: cast_nullable_to_non_nullable
 as List<IngredientWithQuantity>,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as String,
   ));
 }
 
@@ -165,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  String steps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -186,7 +186,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  String steps)  $default,) {final _that = this;
 switch (_that) {
 case _Recipe():
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -206,7 +206,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  List<String> steps)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  String preparationTime,  String cookingTime,  int nbOfPeople, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson)  List<IngredientWithQuantity> ingredients,  String steps)?  $default,) {final _that = this;
 switch (_that) {
 case _Recipe() when $default != null:
 return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_that.nbOfPeople,_that.ingredients,_that.steps);case _:
@@ -221,7 +221,7 @@ return $default(_that.id,_that.name,_that.preparationTime,_that.cookingTime,_tha
 @JsonSerializable()
 
 class _Recipe implements Recipe {
-  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) final  List<IngredientWithQuantity> ingredients = const [], final  List<String> steps = const ['']}): _ingredients = ingredients,_steps = steps;
+  const _Recipe({this.id, this.name = 'Sans nom', this.preparationTime = '-', this.cookingTime = '-', this.nbOfPeople = 4, @JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) final  List<IngredientWithQuantity> ingredients = const [], this.steps = ''}): _ingredients = ingredients;
   factory _Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
 
 /// e.g. 0
@@ -241,15 +241,8 @@ class _Recipe implements Recipe {
   return EqualUnmodifiableListView(_ingredients);
 }
 
-/// e.g. ['Prépare la tarte', 'Cuis la']
- final  List<String> _steps;
-/// e.g. ['Prépare la tarte', 'Cuis la']
-@override@JsonKey() List<String> get steps {
-  if (_steps is EqualUnmodifiableListView) return _steps;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_steps);
-}
-
+/// e.g. 'Prépare la tarte\nCuis la'
+@override@JsonKey() final  String steps;
 
 /// Create a copy of Recipe
 /// with the given fields replaced by the non-null parameter values.
@@ -264,12 +257,12 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other._ingredients, _ingredients)&&const DeepCollectionEquality().equals(other._steps, _steps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Recipe&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.preparationTime, preparationTime) || other.preparationTime == preparationTime)&&(identical(other.cookingTime, cookingTime) || other.cookingTime == cookingTime)&&(identical(other.nbOfPeople, nbOfPeople) || other.nbOfPeople == nbOfPeople)&&const DeepCollectionEquality().equals(other._ingredients, _ingredients)&&(identical(other.steps, steps) || other.steps == steps));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(_ingredients),const DeepCollectionEquality().hash(_steps));
+int get hashCode => Object.hash(runtimeType,id,name,preparationTime,cookingTime,nbOfPeople,const DeepCollectionEquality().hash(_ingredients),steps);
 
 @override
 String toString() {
@@ -284,7 +277,7 @@ abstract mixin class _$RecipeCopyWith<$Res> implements $RecipeCopyWith<$Res> {
   factory _$RecipeCopyWith(_Recipe value, $Res Function(_Recipe) _then) = __$RecipeCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, List<String> steps
+ int? id, String name, String preparationTime, String cookingTime, int nbOfPeople,@JsonKey(toJson: ingredientWithQuantitiesToJson, fromJson: ingredientWithQuantitiesFromJson) List<IngredientWithQuantity> ingredients, String steps
 });
 
 
@@ -309,8 +302,8 @@ as String,preparationTime: null == preparationTime ? _self.preparationTime : pre
 as String,cookingTime: null == cookingTime ? _self.cookingTime : cookingTime // ignore: cast_nullable_to_non_nullable
 as String,nbOfPeople: null == nbOfPeople ? _self.nbOfPeople : nbOfPeople // ignore: cast_nullable_to_non_nullable
 as int,ingredients: null == ingredients ? _self._ingredients : ingredients // ignore: cast_nullable_to_non_nullable
-as List<IngredientWithQuantity>,steps: null == steps ? _self._steps : steps // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<IngredientWithQuantity>,steps: null == steps ? _self.steps : steps // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
