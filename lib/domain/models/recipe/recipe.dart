@@ -15,10 +15,10 @@ abstract class Recipe with _$Recipe {
     @Default('Sans nom') String name,
 
     /// e.g. '1h'
-    @Default('-') String preparationTime,
+    @Default('') String preparationTime,
 
     /// e.g. '45''
-    @Default('-') String cookingTime,
+    @Default('') String cookingTime,
 
     /// e.g. 4
     @Default(4) int nbOfPeople,
@@ -29,6 +29,8 @@ abstract class Recipe with _$Recipe {
 
     /// e.g. 'Prépare la tarte\nCuis la'
     @Default('') String steps,
+
+    @Default('') String source,
   }) = _Recipe;
 
   factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
@@ -43,5 +45,6 @@ RawRecipe convertToRawRecipe(Recipe recipe) {
     nbOfPeople: recipe.nbOfPeople,
     ingredientWithQuantityIds: recipe.ingredients.map((ingredient) => ingredient.id!).toList(),
     steps: recipe.steps,
+    source: recipe.source,
   );
 }

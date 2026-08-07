@@ -10,6 +10,7 @@ enum ControllerNames {
   cookingController,
   peopleController,
   stepsController,
+  sourceController,
 }
 
 class RecipeControllers extends ChangeNotifier {
@@ -42,6 +43,8 @@ class RecipeControllers extends ChangeNotifier {
 
   TextEditingController get stepsController => _controllers[ControllerNames.stepsController]!;
 
+  TextEditingController get sourceController => _controllers[ControllerNames.sourceController]!;
+
   void initControllerValues(Recipe recipe) {
     if (_controllersInitialized) return;
     _originalRecipe = recipe;
@@ -50,7 +53,8 @@ class RecipeControllers extends ChangeNotifier {
     cookingController.text = recipe.cookingTime;
     peopleController.text = '${recipe.nbOfPeople}';
     stepsController.text = recipe.steps;
-    _originalIngredients = List.from(recipe.ingredients)..sort();
+    sourceController.text = recipe.source;
+    _originalIngredients = List.from(recipe.ingredients)..sort(compareIngredientWithQuantityName);
     _controllersInitialized = true;
   }
 
@@ -79,8 +83,9 @@ class RecipeControllers extends ChangeNotifier {
       preparationTime: preparationController.text,
       cookingTime: cookingController.text,
       nbOfPeople: nbOfPeople,
+      ingredients: List.from(recipeIngredients)..sort(compareIngredientWithQuantityName),
       steps: stepsController.text,
-      ingredients: List.from(recipeIngredients)..sort(),
+      source: sourceController.text,
     );
   }
 

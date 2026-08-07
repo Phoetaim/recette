@@ -20,6 +20,9 @@ final Map<int, List<String>> databaseFiles = <int, List<String>>{
   3: [
     'recipe_planning.sql'
   ],
+  4: [
+    'recipe_source.sql',
+  ]
 };
 
 abstract final class TableNames {

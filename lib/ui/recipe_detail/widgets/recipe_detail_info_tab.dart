@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 
+import 'recipe_source_widget.dart';
 import 'recipe_steps_widget.dart';
 
 class RecipeDetailInfoTab extends StatefulWidget {
@@ -15,6 +16,8 @@ class RecipeDetailInfoTab extends StatefulWidget {
 }
 
 class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
+  final decoration = InputDecoration(border: InputBorder.none);
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -30,19 +33,19 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.preparationController,
-                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Prep:  ')),
+                    decoration: decoration.copyWith(labelText: 'Prep', icon: Icon(Icons.timer_outlined)),
                   ),
                 ),
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.cookingController,
-                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Cuisson:  ')),
+                    decoration: decoration.copyWith(labelText: 'Cuisson', icon: Icon(Icons.thermostat)),
                   ),
                 ),
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.peopleController,
-                    decoration: InputDecoration(border: InputBorder.none, prefix: Text('Pers:  ')),
+                    decoration: decoration.copyWith(labelText: 'Personnes', icon: Icon(Icons.group)),
                     keyboardType: TextInputType.number,
                     validator: (String? value) {
                       if (value == null) {
@@ -60,6 +63,7 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
               ],
             ),
           ),
+          RecipeSourceWidget(recipeControllers: widget.recipeControllers),
           RecipeStepsWidget(recipeControllers: widget.recipeControllers),
         ],
       ),

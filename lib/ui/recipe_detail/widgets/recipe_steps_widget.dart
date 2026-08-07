@@ -33,24 +33,20 @@ class _RecipeStepsWidgetState extends State<RecipeStepsWidget> {
             children: [
               Text('Etapes:', style: TextStyle(fontSize: 15, color: theme.colorScheme.onTertiaryContainer),),
               Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SwitchListTile(
-                    thumbIcon: thumbIcon,
-                    value: isEditing,
-                    onChanged: (bool value) => setState(() {
-                      isEditing = value;
-                    }),
-                  ),
+                child: SwitchListTile(
+                  thumbIcon: thumbIcon,
+                  value: isEditing,
+                  onChanged: (bool value) => setState(() {
+                    isEditing = value;
+                  }),
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 4),
         SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const .symmetric(horizontal: 8.0),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

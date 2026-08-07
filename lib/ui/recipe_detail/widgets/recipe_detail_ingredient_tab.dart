@@ -41,12 +41,12 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
                 final List<IngredientWithQuantity> updatedIngredients = List.from(
                   widget.recipeControllers.recipeIngredients,
                 );
-                updatedIngredients.add(ingredient.copyWith(id:tmpIngredientId--));
+                updatedIngredients.add(ingredient.copyWith(id: tmpIngredientId--));
                 state.didChange(updatedIngredients);
                 widget.recipeControllers.computeIfRecipeIsUpdated();
               },
             ),
-            IngredientsCard(
+            IngredientWidget(
               viewModel: widget.viewModel,
               recipeControllers: widget.recipeControllers,
               state: state,
@@ -58,8 +58,8 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
   }
 }
 
-class IngredientsCard extends StatelessWidget {
-  const IngredientsCard({
+class IngredientWidget extends StatelessWidget {
+  const IngredientWidget({
     super.key,
     required this.viewModel,
     required this.recipeControllers,
@@ -72,31 +72,28 @@ class IngredientsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ValueListenableBuilder(
-        valueListenable: viewModel.currentNumberOfPeople,
-        builder: (context, value, child) {
-          return ValueListenableBuilder(
-            valueListenable: recipeControllers.isRecipeUpdated,
-            builder: (context, value, child) {
-              return ListView.separated(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: recipeControllers.recipeIngredients.length,
-                separatorBuilder: (BuildContext context, int index) => const Divider(),
-                itemBuilder: (BuildContext context, int index) {
-                  return IngredientCard(
-                    viewModel: viewModel,
-                    recipeControllers: recipeControllers,
-                    state: state,
-                    ingredientWithQuantity: recipeControllers.recipeIngredients[index],
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
+    return ValueListenableBuilder(
+      valueListenable: viewModel.currentNumberOfPeople,
+      builder: (context, value, child) {
+        return ValueListenableBuilder(
+          valueListenable: recipeControllers.isRecipeUpdated,
+          builder: (context, value, child) {
+            return ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: recipeControllers.recipeIngredients.length,
+              itemBuilder: (BuildContext context, int index) {
+                return IngredientCard(
+                  viewModel: viewModel,
+                  recipeControllers: recipeControllers,
+                  state: state,
+                  ingredientWithQuantity: recipeControllers.recipeIngredients[index],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -122,29 +119,30 @@ class IngredientCard extends StatelessWidget {
         ingredientWithQuantity.quantity /
         viewModel.recipe.value.nbOfPeople;
     return Dismissible(
-      key: Key(ingredientWithQuantity.id.toString()),
+      key: Key(ingredientWithQuantity.id!.toString()),
+      direction: DismissDirection.endToStart,
+      background: Container(color: Colors.red, child: Icon(Icons.delete)),
       onDismissed: (direction) {
         List<IngredientWithQuantity> ingredients = List.from(recipeControllers.recipeIngredients);
         ingredients.remove(ingredientWithQuantity);
         state.didChange(ingredients);
         recipeControllers.computeIfRecipeIsUpdated();
       },
-      direction: DismissDirection.endToStart,
-      background: Container(color: Colors.red),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5.0),
-        child: Row(
+      child: ListTile(
+        title: Row(
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Text(ingredientWithQuantity.ingredient.name),
-              ),
-            ),
-            QuantityTile(
-              ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
-            ),
+            ingredientWithQuantity.ingredient.type.getIcon(),
+            SizedBox(width: 8),
+            Text(ingredientWithQuantity.ingredient.name),
           ],
+        ),
+
+        trailing: Builder(
+          builder: (context) {
+            return QuantityTile(
+              ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
+            );
+          },
         ),
       ),
     );

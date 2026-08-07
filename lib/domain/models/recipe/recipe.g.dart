@@ -18,6 +18,7 @@ _Recipe _$RecipeFromJson(Map<String, dynamic> json) => _Recipe(
           json['ingredients'] as List<Map<String, dynamic>>,
         ),
   steps: json['steps'] as String? ?? '',
+  source: json['source'] as String? ?? '',
 );
 
 Map<String, dynamic> _$RecipeToJson(_Recipe instance) => <String, dynamic>{
@@ -28,4 +29,5 @@ Map<String, dynamic> _$RecipeToJson(_Recipe instance) => <String, dynamic>{
   'nbOfPeople': instance.nbOfPeople,
   'ingredients': ingredientWithQuantitiesToJson(instance.ingredients),
   'steps': instance.steps,
+  'source': instance.source,
 };
