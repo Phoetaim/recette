@@ -6,7 +6,7 @@ import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 import 'package:recette/ui/ui_utils/import_alert_box.dart';
 
-import 'add_recipe_to_shopping_list.dart';
+import 'add_recipe_to_shopping_list_widget.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
 
@@ -118,7 +118,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             floatingActionButton: ValueListenableBuilder(
               valueListenable: widget.viewModel.recipe,
               builder: (context, value, child) {
-                return CustomNumberInput(viewModel: widget.viewModel, callback: _addToShoppingList);
+                return AddRecipeToShoppingListWidget(viewModel: widget.viewModel, callback: _addToShoppingList);
               },
             ),
           ),
@@ -173,8 +173,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       ),
       MenuItemButton(
         onPressed: () {
-          _saveForm();
-          widget.viewModel.exportRecipe();
+          if (!_formKey.currentState!.validate()) {
+            return;
+          }
+
+          widget.viewModel.exportRecipe(recipeControllers.getRecipe());
         },
         child: Row(
           children: [
@@ -201,8 +204,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    Recipe recipe = recipeControllers.buildRecipeFromForm();
-    widget.viewModel.addToShoppingList.execute(recipe);
+    widget.viewModel.addToShoppingList.execute(recipeControllers.getRecipe());
     recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
   }
 
@@ -210,8 +212,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    Recipe recipe = recipeControllers.buildRecipeFromForm();
-    await widget.viewModel.saveRecipe.execute(recipe);
+    await widget.viewModel.saveRecipe.execute(recipeControllers.getRecipe());
     recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
   }
 

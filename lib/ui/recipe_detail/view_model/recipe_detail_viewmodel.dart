@@ -108,9 +108,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
   //////////////////////////
   ///////// Public /////////
   //////////////////////////
-  Future<void> exportRecipe() async {
+  Future<void> exportRecipe(Recipe formRecipe) async {
+    await _saveRecipe(formRecipe);
     await _importExportUseCase.exportRecipes({recipe.value.id!});
-    notifyListeners();
   }
 
   ///////////////////////////

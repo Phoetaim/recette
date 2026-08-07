@@ -62,7 +62,7 @@ class RecipeControllers extends ChangeNotifier {
   List<IngredientWithQuantity> get recipeIngredients =>
       ingredientsKey.currentState?.value ?? _originalIngredients;
 
-  Recipe buildRecipeFromForm() {
+  Recipe getRecipe() {
     int nbOfPeople = _originalRecipe.id == null
         ? RawRecipe().nbOfPeople
         : _originalRecipe.nbOfPeople;
@@ -90,7 +90,7 @@ class RecipeControllers extends ChangeNotifier {
 
   void computeIfRecipeIsUpdated() {
     if (!_controllersInitialized) return;
-    final recipe = buildRecipeFromForm();
+    final recipe = getRecipe();
     isRecipeUpdated.value =
         _originalRecipe.id == null ||
         recipe != _originalRecipe ||
