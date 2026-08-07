@@ -33,29 +33,41 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.preparationController,
-                    decoration: decoration.copyWith(labelText: 'Prep', icon: Icon(Icons.timer_outlined)),
+                    decoration: decoration.copyWith(
+                      labelText: 'Prep',
+                      icon: Icon(Icons.timer_outlined),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.cookingController,
-                    decoration: decoration.copyWith(labelText: 'Cuisson', icon: Icon(Icons.thermostat)),
+                    decoration: decoration.copyWith(
+                      labelText: 'Cuisson',
+                      icon: Icon(Icons.thermostat),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: TextFormField(
                     controller: widget.recipeControllers.peopleController,
-                    decoration: decoration.copyWith(labelText: 'Personnes', icon: Icon(Icons.group)),
+                    decoration: decoration.copyWith(
+                      labelText: 'Personnes',
+                      icon: Icon(Icons.group),
+                    ),
                     keyboardType: TextInputType.number,
                     validator: (String? value) {
                       if (value == null) {
                         return 'Entrez un nombre de personnes';
                       }
                       try {
-                        int.parse(value);
+                        if (int.parse(value) < 1) {
+                          return 'Entrez un nombre de personnes positif';
+                        }
                       } on FormatException {
                         return 'Entrez un nombre de personnes';
                       }
+
                       return null;
                     },
                   ),
