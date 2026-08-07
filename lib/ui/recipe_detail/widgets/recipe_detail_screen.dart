@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:recette/data/services/models/raw_recipe.dart';
-import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
+import 'package:recette/ui/ui_utils/import_alert_box.dart';
 
-import '../../ui_utils/import_alert_box.dart';
-import '../view_model/recipe_detail_viewmodel.dart';
 import 'add_recipe_to_shopping_list.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
@@ -111,7 +109,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   viewModel: widget.viewModel,
                   recipeControllers: recipeControllers,
                 ),
-                RecipeDetailIngredientTab(viewModel: widget.viewModel, recipeControllers: recipeControllers),
+                RecipeDetailIngredientTab(
+                  viewModel: widget.viewModel,
+                  recipeControllers: recipeControllers,
+                ),
               ],
             ),
             floatingActionButton: ValueListenableBuilder(
@@ -126,7 +127,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  List<Widget> _getAction(){
+  List<Widget> _getAction() {
     final theme = Theme.of(context);
     return [
       ListenableBuilder(
@@ -153,9 +154,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           SubmenuButton(
             menuChildren: _getMenuItemButtons(theme.colorScheme),
             menuStyle: MenuStyle(
-              backgroundColor: WidgetStatePropertyAll(
-                theme.colorScheme.secondaryContainer,
-              ),
+              backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
             ),
             child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
           ),
@@ -214,7 +213,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     Recipe recipe = recipeControllers.buildRecipeFromForm();
     await widget.viewModel.saveRecipe.execute(recipe);
     recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
-
   }
 
   void _onResult() {
