@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
+import 'package:recette/domain/models/ingredient/ingredient_with_quantity.dart';
 import 'package:recette/domain/models/recipe/recipe.dart';
 import 'package:recette/routing/routes.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 
 import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_detail_viewmodel.dart';
@@ -22,22 +24,14 @@ class RecipeDetailScreen extends StatefulWidget {
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late final TextEditingController recipeNameController;
-  late final TextEditingController preparationController;
-  late final TextEditingController cookingController;
-  late final TextEditingController peopleController;
-  late final TextEditingController stepsController;
+  final RecipeControllers recipeControllers = RecipeControllers();
 
   @override
   void initState() {
     super.initState();
     widget.viewModel.deleteRecipe.addListener(_onResult);
     widget.viewModel.loadRecipeById.execute(widget.recipeId!);
-    recipeNameController = TextEditingController();
-    preparationController = TextEditingController();
-    cookingController = TextEditingController();
-    peopleController = TextEditingController();
-    stepsController = TextEditingController();
+    recipeControllers.initControllers();
   }
 
   @override
@@ -45,16 +39,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     super.didUpdateWidget(oldWidget);
     oldWidget.viewModel.deleteRecipe.removeListener(_onResult);
     widget.viewModel.deleteRecipe.addListener(_onResult);
+
+    // If recipe ID changed, reset initialization flag
+    if (oldWidget.recipeId != widget.recipeId) {
+      recipeControllers.resetInitialization();
+    }
   }
 
   @override
   void dispose() {
     widget.viewModel.deleteRecipe.removeListener(_onResult);
-    recipeNameController.dispose();
-    preparationController.dispose();
-    cookingController.dispose();
-    peopleController.dispose();
-    stepsController.dispose();
+    recipeControllers.dispose();
     super.dispose();
   }
 
@@ -74,7 +69,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             child: Text('Return to recipe list?'),
           );
         }
-        _initControllerValues();
+        if (mounted) {
+          recipeControllers.initControllerValues(widget.viewModel.recipe.value);
+        }
         return child!;
       },
       child: DefaultTabController(
@@ -90,40 +87,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
                 ],
               ),
-              actions: [
-                ListenableBuilder(
-                  listenable: widget.viewModel.saveRecipe,
-                  builder: (context, value) {
-                    return ValueListenableBuilder(
-                      valueListenable: widget.viewModel.recipe,
-                      builder: (context, value, child) {
-                        return TextButton(
-                          key: ValueKey('SaveButton'),
-                          onPressed: !_isRecipeUpdated() ? null : _saveForm,
-                          child: Icon(Icons.save),
-                        );
-                      },
-                    );
-                  },
-                ),
-                MenuBar(
-                  style: MenuStyle(
-                    elevation: WidgetStatePropertyAll(0),
-                    backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primaryContainer),
-                  ),
-                  children: [
-                    SubmenuButton(
-                      menuChildren: _getMenuItemButtons(theme.colorScheme),
-                      menuStyle: MenuStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          theme.colorScheme.secondaryContainer,
-                        ),
-                      ),
-                      child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
-                    ),
-                  ],
-                ),
-              ],
+              actions: _getAction(),
 
               leading: TextButton(
                 onPressed: () {
@@ -134,7 +98,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               title: ValueListenableBuilder(
                 valueListenable: widget.viewModel.recipe,
                 builder: (context, value, child) {
-                  return TextFormField(controller: recipeNameController);
+                  return TextFormField(controller: recipeControllers.recipeNameController);
                 },
               ),
               shadowColor: Colors.black,
@@ -145,12 +109,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               children: [
                 RecipeDetailInfoTab(
                   viewModel: widget.viewModel,
-                  preparationController: preparationController,
-                  cookingController: cookingController,
-                  peopleController: preparationController,
-                  stepsController: stepsController,
+                  recipeControllers: recipeControllers,
                 ),
-                RecipeDetailIngredientTab(viewModel: widget.viewModel),
+                RecipeDetailIngredientTab(viewModel: widget.viewModel, recipeControllers: recipeControllers),
               ],
             ),
             floatingActionButton: ValueListenableBuilder(
@@ -165,13 +126,42 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  void _initControllerValues() {
-    Recipe recipe = widget.viewModel.recipe.value;
-    recipeNameController.text = recipe.name;
-    preparationController.text = recipe.preparationTime;
-    cookingController.text = recipe.cookingTime;
-    peopleController.text = '${recipe.nbOfPeople}';
-    stepsController.text = recipe.steps.join('\n');
+  List<Widget> _getAction(){
+    final theme = Theme.of(context);
+    return [
+      ListenableBuilder(
+        listenable: widget.viewModel.saveRecipe,
+        builder: (context, value) {
+          return ValueListenableBuilder(
+            valueListenable: recipeControllers.isRecipeUpdated,
+            builder: (context, value, child) {
+              return TextButton(
+                key: ValueKey('SaveButton'),
+                onPressed: recipeControllers.isRecipeUpdated.value ? _saveForm : null,
+                child: Icon(Icons.save),
+              );
+            },
+          );
+        },
+      ),
+      MenuBar(
+        style: MenuStyle(
+          elevation: WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primaryContainer),
+        ),
+        children: [
+          SubmenuButton(
+            menuChildren: _getMenuItemButtons(theme.colorScheme),
+            menuStyle: MenuStyle(
+              backgroundColor: WidgetStatePropertyAll(
+                theme.colorScheme.secondaryContainer,
+              ),
+            ),
+            child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
+          ),
+        ],
+      ),
+    ];
   }
 
   List<MenuItemButton> _getMenuItemButtons(ColorScheme colorScheme) {
@@ -208,45 +198,39 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     ];
   }
 
-  bool _isRecipeUpdated() {
-    final rawRecipe = _buildRawRecipeFromForm();
-    return rawRecipe != widget.viewModel.originalRecipe ||
-        rawRecipe.ingredientWithQuantityIds.length != widget.viewModel.recipe.value.ingredients.length;
-  }
-
   void _addToShoppingList() {
-    _saveForm();
-    widget.viewModel.addToShoppingList.execute();
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    Recipe recipe = recipeControllers.buildRecipeFromForm();
+    widget.viewModel.addToShoppingList.execute(recipe);
+    recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
   }
 
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    RawRecipe rawRecipe = _buildRawRecipeFromForm();
+    Recipe recipe = recipeControllers.buildRecipeFromForm();
+    await widget.viewModel.saveRecipe.execute(recipe);
+    recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
 
-    await widget.viewModel.saveRecipe.execute(rawRecipe);
-  }
-
-  RawRecipe _buildRawRecipeFromForm() {
-    return RawRecipe(
-      id: widget.viewModel.recipe.value.id,
-      name: recipeNameController.text,
-      preparationTime: preparationController.text,
-      cookingTime: cookingController.text,
-      nbOfPeople: int.parse(peopleController.text),
-      steps: stepsController.text,
-    );
   }
 
   void _onResult() {
+    if (!mounted) return;
+
     if (widget.viewModel.deleteRecipe.completed) {
       context.pop();
     }
 
     if (widget.viewModel.deleteRecipe.error) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe')));
+      }
     }
   }
 }
