@@ -147,6 +147,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _updateRecipe(Recipe updatedRecipe) async {
+    if (updatedRecipe == recipe.value) {
+      return Result.ok(null);
+    }
     RawRecipe rawRecipe = convertToRawRecipe(updatedRecipe);
     Result<void> result = await _recipeRepository.updateRecipe(rawRecipe);
     switch (result) {

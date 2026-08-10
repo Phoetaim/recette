@@ -157,7 +157,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             valueListenable: recipeControllers.isRecipeUpdated,
             builder: (context, value, child) {
               return TextButton(
-                key: ValueKey('EditSaveButton'),
+                key: ValueKey('SaveButton'),
                 onPressed: recipeControllers.isRecipeUpdated.value ? _saveForm : null,
                 child: Icon(Icons.save),
               );
@@ -179,7 +179,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               valueListenable: recipeControllers.isRecipeUpdated,
               builder: (context, value, child) {
                 return TextButton(
-                  key: ValueKey('EditSaveButton'),
+                  key: ValueKey('EditButton'),
                   onPressed: () => recipeControllers.isEditing.value = true,
                   child: Icon(Icons.edit),
                 );

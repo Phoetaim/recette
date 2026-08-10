@@ -67,6 +67,7 @@ class RecipeControllers extends ChangeNotifier {
   }
 
   void cancelEditing() {
+    _controllersInitialized = false;
     initControllerValues(_originalRecipe);
     isEditing.value = false;
   }
