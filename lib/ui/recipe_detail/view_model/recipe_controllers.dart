@@ -23,6 +23,7 @@ class RecipeControllers extends ChangeNotifier {
   late final ValueNotifier<bool> isRecipeUpdated;
   late Recipe _originalRecipe;
   late List<IngredientWithQuantity> _originalIngredients;
+  ValueNotifier<bool> isEditing = ValueNotifier<bool>(false);
   bool _controllersInitialized = false;
 
   void initControllers() {
@@ -55,12 +56,19 @@ class RecipeControllers extends ChangeNotifier {
     stepsController.text = recipe.steps;
     sourceController.text = recipe.source;
     _originalIngredients = List.from(recipe.ingredients)..sort(compareIngredientWithQuantityName);
+    isEditing.value = recipe.id == null;
     _controllersInitialized = true;
   }
 
   void setOriginalRecipe(Recipe recipe) {
     _originalRecipe = recipe;
     isRecipeUpdated.value = false;
+    isEditing.value = false;
+  }
+
+  void cancelEditing() {
+    initControllerValues(_originalRecipe);
+    isEditing.value = false;
   }
 
   List<IngredientWithQuantity> get recipeIngredients =>

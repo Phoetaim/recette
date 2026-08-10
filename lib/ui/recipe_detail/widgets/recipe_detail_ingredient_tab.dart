@@ -32,6 +32,7 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
       builder: (FormFieldState<List<IngredientWithQuantity>> state) {
         return Column(
           children: [
+            if (widget.recipeControllers.isEditing.value)
             IngredientSearch(
               viewModel: IngredientsUtilsViewModel(
                 ingredientRepository: context.read(),

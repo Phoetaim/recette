@@ -32,6 +32,7 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
                     controller: widget.recipeControllers.preparationController,
                     decoration: decoration.copyWith(
                       labelText: 'Prep',
@@ -41,6 +42,7 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
                 ),
                 Expanded(
                   child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
                     controller: widget.recipeControllers.cookingController,
                     decoration: decoration.copyWith(
                       labelText: 'Cuisson',
@@ -50,6 +52,7 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
                 ),
                 Expanded(
                   child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
                     controller: widget.recipeControllers.peopleController,
                     decoration: decoration.copyWith(
                       labelText: 'Personnes',
@@ -75,7 +78,10 @@ class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
               ],
             ),
           ),
-          RecipeSourceWidget(recipeControllers: widget.recipeControllers),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RecipeSourceWidget(recipeControllers: widget.recipeControllers),
+          ),
           RecipeStepsWidget(recipeControllers: widget.recipeControllers),
         ],
       ),

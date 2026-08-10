@@ -71,64 +71,85 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         }
         return child!;
       },
-      child: DefaultTabController(
-        length: 2,
-        child: Form(
-          key: _formKey,
-          child: Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              bottom: const TabBar(
-                tabs: [
-                  Tab(icon: Icon(Icons.info), text: 'Information'),
-                  Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
-                ],
-              ),
-              actions: _getAction(),
+      child: ValueListenableBuilder(
+        valueListenable: recipeControllers.isEditing,
+        builder: (context, value, child) {
+          return DefaultTabController(
+            length: 2,
+            child: Form(
+              key: _formKey,
+              child: Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  bottom: const TabBar(
+                    tabs: [
+                      Tab(icon: Icon(Icons.info), text: 'Information'),
+                      Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
+                    ],
+                  ),
+                  actions: _getAction(),
 
-              leading: TextButton(
-                onPressed: () {
-                  context.pushNamed(Routes.recipePlanning);
-                },
-                child: Icon(Icons.home),
-              ),
-              title: ValueListenableBuilder(
-                valueListenable: widget.viewModel.recipe,
-                builder: (context, value, child) {
-                  return TextFormField(controller: recipeControllers.recipeNameController);
-                },
-              ),
-              shadowColor: Colors.black,
-              scrolledUnderElevation: 4,
-              backgroundColor: theme.colorScheme.primaryContainer,
-            ),
-            body: TabBarView(
-              children: [
-                RecipeDetailInfoTab(
-                  viewModel: widget.viewModel,
-                  recipeControllers: recipeControllers,
+                  leading: TextButton(
+                    onPressed: () {
+                      context.pushNamed(Routes.recipePlanning);
+                    },
+                    child: Icon(Icons.home),
+                  ),
+                  title: ValueListenableBuilder(
+                    valueListenable: widget.viewModel.recipe,
+                    builder: (context, value, child) {
+                      return TextFormField(readOnly: !recipeControllers.isEditing.value,
+                          controller: recipeControllers.recipeNameController, decoration: InputDecoration(border: InputBorder.none),);
+                    },
+                  ),
+                  shadowColor: Colors.black,
+                  scrolledUnderElevation: 4,
+                  backgroundColor: theme.colorScheme.primaryContainer,
                 ),
-                RecipeDetailIngredientTab(
-                  viewModel: widget.viewModel,
-                  recipeControllers: recipeControllers,
+                body: TabBarView(
+                  children: [
+                    RecipeDetailInfoTab(
+                      viewModel: widget.viewModel,
+                      recipeControllers: recipeControllers,
+                    ),
+                    RecipeDetailIngredientTab(
+                      viewModel: widget.viewModel,
+                      recipeControllers: recipeControllers,
+                    ),
+                  ],
                 ),
-              ],
+                floatingActionButton: ValueListenableBuilder(
+                  valueListenable: widget.viewModel.recipe,
+                  builder: (context, value, child) {
+                    return AddRecipeToShoppingListWidget(
+                      viewModel: widget.viewModel,
+                      callback: _addToShoppingList,
+                    );
+                  },
+                ),
+              ),
             ),
-            floatingActionButton: ValueListenableBuilder(
-              valueListenable: widget.viewModel.recipe,
-              builder: (context, value, child) {
-                return AddRecipeToShoppingListWidget(viewModel: widget.viewModel, callback: _addToShoppingList);
-              },
-            ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
   List<Widget> _getAction() {
-    final theme = Theme.of(context);
+    if (recipeControllers.isEditing.value) {
+      return _getEditingActions();
+    } else {
+      return _getNotEditingAction();
+    }
+  }
+
+  List<Widget> _getEditingActions() {
     return [
+    TextButton(
+        key: ValueKey('CancelButton'),
+        onPressed: recipeControllers.cancelEditing,
+        child: Icon(Icons.cancel_outlined),
+      ),
       ListenableBuilder(
         listenable: widget.viewModel.saveRecipe,
         builder: (context, value) {
@@ -136,7 +157,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             valueListenable: recipeControllers.isRecipeUpdated,
             builder: (context, value, child) {
               return TextButton(
-                key: ValueKey('SaveButton'),
+                key: ValueKey('EditSaveButton'),
                 onPressed: recipeControllers.isRecipeUpdated.value ? _saveForm : null,
                 child: Icon(Icons.save),
               );
@@ -144,6 +165,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           );
         },
       ),
+    ];
+  }
+
+  List<Widget> _getNotEditingAction() {
+    final theme = Theme.of(context);
+    return [
+      if (!recipeControllers.isEditing.value)
+        ListenableBuilder(
+          listenable: widget.viewModel.saveRecipe,
+          builder: (context, value) {
+            return ValueListenableBuilder(
+              valueListenable: recipeControllers.isRecipeUpdated,
+              builder: (context, value, child) {
+                return TextButton(
+                  key: ValueKey('EditSaveButton'),
+                  onPressed: () => recipeControllers.isEditing.value = true,
+                  child: Icon(Icons.edit),
+                );
+              },
+            );
+          },
+        ),
       MenuBar(
         style: MenuStyle(
           elevation: WidgetStatePropertyAll(0),
