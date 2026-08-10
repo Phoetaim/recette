@@ -119,33 +119,38 @@ class IngredientCard extends StatelessWidget {
         viewModel.currentNumberOfPeople.value *
         ingredientWithQuantity.quantity /
         viewModel.recipe.value.nbOfPeople;
-    return Dismissible(
-      key: Key(ingredientWithQuantity.id!.toString()),
-      direction: DismissDirection.endToStart,
-      background: Container(color: Colors.red, child: Icon(Icons.delete)),
-      onDismissed: (direction) {
-        List<IngredientWithQuantity> ingredients = List.from(recipeControllers.recipeIngredients);
-        ingredients.remove(ingredientWithQuantity);
-        state.didChange(ingredients);
-        recipeControllers.computeIfRecipeIsUpdated();
-      },
-      child: ListTile(
-        title: Row(
-          children: [
-            ingredientWithQuantity.ingredient.type.getIcon(),
-            SizedBox(width: 8),
-            Text(ingredientWithQuantity.ingredient.name),
-          ],
-        ),
+    final child = ListTile(
+      title: Row(
+        children: [
+          ingredientWithQuantity.ingredient.type.getIcon(),
+          SizedBox(width: 8),
+          Text(ingredientWithQuantity.ingredient.name),
+        ],
+      ),
 
-        trailing: Builder(
-          builder: (context) {
-            return QuantityTile(
-              ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
-            );
-          },
-        ),
+      trailing: Builder(
+        builder: (context) {
+          return QuantityTile(
+            ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
+          );
+        },
       ),
     );
+    if (recipeControllers.isEditing.value) {
+      return Dismissible(
+        key: Key(ingredientWithQuantity.id!.toString()),
+        direction: DismissDirection.endToStart,
+        background: Container(color: Colors.red, child: Icon(Icons.delete)),
+        onDismissed: (direction) {
+          List<IngredientWithQuantity> ingredients = List.from(recipeControllers.recipeIngredients);
+          ingredients.remove(ingredientWithQuantity);
+          state.didChange(ingredients);
+          recipeControllers.computeIfRecipeIsUpdated();
+        },
+        child: child,
+      );
+    } else {
+      return child;
+    }
   }
 }

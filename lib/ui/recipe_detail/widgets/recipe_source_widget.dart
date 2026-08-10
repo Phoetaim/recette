@@ -18,6 +18,7 @@ class RecipeSourceWidget extends StatelessWidget {
           hintText: 'IG bas p 154',
           border: InputBorder.none,
           labelText: 'Source',
+          icon: Icon(CupertinoIcons.book),
         ),
       );
     } else {

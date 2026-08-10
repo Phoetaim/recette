@@ -98,8 +98,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   title: ValueListenableBuilder(
                     valueListenable: widget.viewModel.recipe,
                     builder: (context, value, child) {
-                      return TextFormField(readOnly: !recipeControllers.isEditing.value,
-                          controller: recipeControllers.recipeNameController, decoration: InputDecoration(border: InputBorder.none),);
+                      return TextFormField(
+                        readOnly: !recipeControllers.isEditing.value,
+                        controller: recipeControllers.recipeNameController,
+                        decoration: InputDecoration(border: InputBorder.none),
+                      );
                     },
                   ),
                   shadowColor: Colors.black,
@@ -145,10 +148,41 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   List<Widget> _getEditingActions() {
     return [
-    TextButton(
-        key: ValueKey('CancelButton'),
-        onPressed: recipeControllers.cancelEditing,
-        child: Icon(Icons.cancel_outlined),
+      ValueListenableBuilder(
+        valueListenable: recipeControllers.isRecipeUpdated,
+        builder: (context, value, child) {
+          return TextButton(
+            key: ValueKey('CancelButton'),
+            onPressed: recipeControllers.isRecipeUpdated.value
+                ? () => showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Voulez-vous vraiment annuler les modification ? '),
+                        actions: <Widget>[
+                          MaterialButton(
+                            color: Colors.red,
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Icon(Icons.clear, color: Colors.white),
+                          ),
+                          MaterialButton(
+                            color: Colors.green,
+                            onPressed: () {
+                              recipeControllers.cancelEditing();
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                        ],
+                      );
+                    },
+                  )
+                : recipeControllers.cancelEditing,
+            child: Icon(Icons.cancel_outlined),
+          );
+        }
       ),
       ListenableBuilder(
         listenable: widget.viewModel.saveRecipe,
