@@ -11,6 +11,7 @@ class RecipeSourceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     if (recipeControllers.isEditing.value) {
       return TextFormField(
         controller: recipeControllers.sourceController,
@@ -30,7 +31,8 @@ class RecipeSourceWidget extends StatelessWidget {
           Icon(iconData),
           SizedBox(width: 4),
           LinkText(
-            currentText,
+            currentText.isEmpty ? 'Source': currentText,
+            textStyle: currentText.isEmpty? TextStyle(color: theme.colorScheme.onTertiaryFixed, fontSize: 16): null,
             onLinkTap: (String value) {
               launchUrlString(currentText);
             },
