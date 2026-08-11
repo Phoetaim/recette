@@ -80,24 +80,7 @@ void main() {
       expect(recipe.preparationTime, '15 min');
       expect(recipe.cookingTime, '30 min');
       expect(recipe.ingredients, [ingredientWithQuantity1, ingredientWithQuantity2]);
-      expect(recipe.steps, ['Étape 1: Préparer', 'Étape 2: Cuire', 'Étape 3: Servir']);
-    });
-
-    test('Correctly splits steps by newline', () async {
-      const rawRecipe = RawRecipe(
-        id: 2,
-        name: 'Tarte',
-        ingredientWithQuantityIds: [],
-        steps: 'Step A\nStep B\nStep C\nStep D',
-      );
-
-      when(
-        () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds([]),
-      ).thenAnswer((_) async => const Result.ok([]));
-
-      final recipe = await recipeUtilsUseCase.loadRecipe(rawRecipe);
-
-      expect(recipe.steps, ['Step A', 'Step B', 'Step C', 'Step D']);
+      expect(recipe.steps, 'Étape 1: Préparer\nÉtape 2: Cuire\nÉtape 3: Servir');
     });
 
     test('Returns empty ingredient list when ingredient loading fails', () async {
@@ -117,7 +100,7 @@ void main() {
       expect(recipe.id, 3);
       expect(recipe.name, 'Gâteau');
       expect(recipe.ingredients, isEmpty);
-      expect(recipe.steps, ['Step 1', 'Step 2']);
+      expect(recipe.steps, 'Step 1\nStep 2');
     });
 
     test('Removes ingredientWithQuantityIds from JSON during conversion', () async {
@@ -159,24 +142,7 @@ void main() {
       final recipe = await recipeUtilsUseCase.loadRecipe(rawRecipe);
 
       expect(recipe.ingredients, isEmpty);
-      expect(recipe.steps, ['Chauffer', 'Verser']);
-    });
-
-    test('Handles recipe with single step (no newlines)', () async {
-      const rawRecipe = RawRecipe(
-        id: 6,
-        name: 'Simple',
-        ingredientWithQuantityIds: [],
-        steps: 'Just do it',
-      );
-
-      when(
-        () => mockIngredientWithQuantityUseCase.getIngredientWithQuantityByIds([]),
-      ).thenAnswer((_) async => const Result.ok([]));
-
-      final recipe = await recipeUtilsUseCase.loadRecipe(rawRecipe);
-
-      expect(recipe.steps, ['Just do it']);
+      expect(recipe.steps, 'Chauffer\nVerser');
     });
   });
 

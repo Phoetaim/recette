@@ -1,166 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../domain/models/recipe/recipe.dart';
-import '../view_model/recipe_detail_viewmodel.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 
-class RecipeDetailInfoTab extends StatelessWidget {
-  const RecipeDetailInfoTab({super.key, required this.viewModel});
+import 'recipe_source_widget.dart';
+import 'recipe_steps_widget.dart';
+
+class RecipeDetailInfoTab extends StatefulWidget {
+  const RecipeDetailInfoTab({super.key, required this.viewModel, required this.recipeControllers});
 
   final RecipeDetailViewModel viewModel;
+  final RecipeControllers recipeControllers;
 
   @override
-  Widget build(BuildContext context) {
-    Recipe recipe = viewModel.recipe.value;
-    return Column(
-      children: [
-        HeaderRow(recipe: recipe, viewModel: viewModel),
-        StepCard(recipe: recipe),
-      ],
-    );
-  }
+  State<RecipeDetailInfoTab> createState() => _RecipeDetailInfoTabState();
 }
 
-class HeaderRow extends StatelessWidget {
-  const HeaderRow({super.key, required this.recipe, required this.viewModel});
-
-  final Recipe recipe;
-  final RecipeDetailViewModel viewModel;
+class _RecipeDetailInfoTabState extends State<RecipeDetailInfoTab> {
+  final decoration = InputDecoration(border: InputBorder.none);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 4),
-        Card(
-          child: Row(
-            children: [
-              Expanded(
-                child: Center(
-                  child: HeaderTextFormField(
-                    fieldKey: Key('PrepTime'),
-                    prefix: Text(' Prep:  '),
-                    initialValue: recipe.preparationTime,
-                    callback: (value) => viewModel.updateRecipePreparationTime(value),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: .min,
+        children: [
+          Padding(
+            padding: const .directional(start: 30),
+            child: Row(
+              mainAxisSize: .min,
+              mainAxisAlignment: .spaceEvenly,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
+                    controller: widget.recipeControllers.preparationController,
+                    decoration: decoration.copyWith(
+                      labelText: 'Prep',
+                      icon: Icon(Icons.timer_outlined),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Center(
-                  child: HeaderTextFormField(
-                    fieldKey: Key('CookingTime'),
-                    prefix: Text(' Cuisson:  '),
-                    initialValue: recipe.cookingTime,
-                    callback: (value) => viewModel.updateRecipeCookingTime(value),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
+                    controller: widget.recipeControllers.cookingController,
+                    decoration: decoration.copyWith(
+                      labelText: 'Cuisson',
+                      icon: Icon(Icons.thermostat),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Center(
-                  child: HeaderTextFormField(
-                    fieldKey: Key('People'),
-                    prefix: Text(' Personnes:  '),
-                    initialValue: recipe.nbOfPeople.toString(),
-                    keyBoardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-                    callback: (value) => viewModel.updateRecipeNbOfPeople(value),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: !widget.recipeControllers.isEditing.value,
+                    controller: widget.recipeControllers.peopleController,
+                    decoration: decoration.copyWith(
+                      labelText: 'Personnes',
+                      icon: Icon(Icons.group),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (String? value) {
+                      if (value == null) {
+                        return 'Entrez un nombre de personnes';
+                      }
+                      try {
+                        if (int.parse(value) < 1) {
+                          return 'Entrez un nombre de personnes positif';
+                        }
+                      } on FormatException {
+                        return 'Entrez un nombre de personnes';
+                      }
+
+                      return null;
+                    },
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class HeaderTextFormField extends StatefulWidget {
-  const HeaderTextFormField({
-    super.key,
-    required this.fieldKey,
-    this.prefix,
-    required this.initialValue,
-    required this.callback,
-    this.keyBoardType,
-    this.inputFormatters,
-  });
-  final Key fieldKey;
-  final Widget? prefix;
-  final String initialValue;
-  final TextInputType? keyBoardType;
-  final List<TextInputFormatter>? inputFormatters;
-  final Function(String) callback;
-
-  @override
-  State<HeaderTextFormField> createState() => _HeaderTextFormFieldState();
-}
-
-class _HeaderTextFormFieldState extends State<HeaderTextFormField> {
-  late String _currentValue;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentValue = widget.initialValue;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      key: widget.fieldKey,
-      decoration: InputDecoration(border: InputBorder.none, prefix: widget.prefix),
-      keyboardType: widget.keyBoardType,
-      inputFormatters: widget.inputFormatters,
-      initialValue: widget.initialValue,
-      onFieldSubmitted: widget.callback,
-      onChanged: (value) {
-        setState(() {
-          _currentValue = value;
-        });
-        widget.callback(_currentValue);
-      },
-      onTapOutside: (PointerDownEvent event) {
-        FocusScope.of(context).unfocus();
-      },
-    );
-  }
-}
-
-class StepCard extends StatelessWidget {
-  const StepCard({super.key, required this.recipe});
-
-  final Recipe recipe;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 4),
-        Row(
-          children: [
-            Text('Etapes:'),
-            TextButton(
-              onPressed: null,
-              child: Icon(Icons.edit),
+              ],
             ),
-          ],
-        ),
-        SizedBox(height: 4),
-        Card(
-          child: ListView.separated(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: recipe.steps.length,
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('\u2022 ${recipe.steps[index]}'),
-              );
-            },
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RecipeSourceWidget(recipeControllers: widget.recipeControllers),
+          ),
+          RecipeStepsWidget(recipeControllers: widget.recipeControllers),
+        ],
+      ),
     );
   }
 }

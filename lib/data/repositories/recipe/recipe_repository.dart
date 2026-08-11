@@ -42,7 +42,7 @@ class RecipeRepository {
     }
   }
 
-  Future<Result<void>> updateRecipe(RawRecipe oldRecipe, RawRecipe newRecipe) async {
+  Future<Result<void>> updateRecipe(RawRecipe newRecipe) async {
     try {
       await _database.updateRecipe(newRecipe);
       updatedRecipeList.add(newRecipe);

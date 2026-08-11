@@ -14,10 +14,10 @@ abstract class RawRecipe with _$RawRecipe {
     @Default('Sans nom') String name,
 
     /// e.g. '1h'
-    @Default('-') String preparationTime,
+    @Default('') String preparationTime,
 
     /// e.g. '45''
-    @Default('-') String cookingTime,
+    @Default('') String cookingTime,
 
     /// e.g. 4
     @Default(4) int nbOfPeople,
@@ -27,6 +27,10 @@ abstract class RawRecipe with _$RawRecipe {
 
     /// e.g. ['Prépare la tarte', 'Cuis la']
     @Default('') String steps,
+
+    /// e.g https://www.marmiton.org/recettes/recette_pates-carbonara_21229.aspx
+    @Default('') String source,
+
   }) = _RawRecipe;
 
   factory RawRecipe.fromJson(Map<String, Object?> json) => _$RawRecipeFromJson(json);

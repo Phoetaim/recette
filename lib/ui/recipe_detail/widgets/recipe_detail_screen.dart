@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
-import '../../ui_utils/import_alert_box.dart';
-import '../view_model/recipe_detail_viewmodel.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
+import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
+import 'package:recette/ui/ui_utils/import_alert_box.dart';
+
+import 'add_recipe_to_shopping_list_widget.dart';
 import 'recipe_detail_info_tab.dart';
 import 'recipe_detail_ingredient_tab.dart';
 
@@ -17,10 +20,15 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final RecipeControllers recipeControllers = RecipeControllers();
+
   @override
   void initState() {
     super.initState();
     widget.viewModel.deleteRecipe.addListener(_onResult);
+    widget.viewModel.loadRecipeById.execute(widget.recipeId!);
+    recipeControllers.initControllers();
   }
 
   @override
@@ -28,17 +36,22 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     super.didUpdateWidget(oldWidget);
     oldWidget.viewModel.deleteRecipe.removeListener(_onResult);
     widget.viewModel.deleteRecipe.addListener(_onResult);
+
+    // If recipe ID changed, reset initialization flag
+    if (oldWidget.recipeId != widget.recipeId) {
+      recipeControllers.resetInitialization();
+    }
   }
 
   @override
   void dispose() {
     widget.viewModel.deleteRecipe.removeListener(_onResult);
+    recipeControllers.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    widget.viewModel.loadRecipeById.execute(widget.recipeId!);
     final theme = Theme.of(context);
     return ListenableBuilder(
       listenable: widget.viewModel.loadRecipeById,
@@ -53,91 +66,177 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             child: Text('Return to recipe list?'),
           );
         }
+        if (mounted) {
+          recipeControllers.initControllerValues(widget.viewModel.recipe.value);
+        }
         return child!;
       },
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            bottom: const TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.info), text: 'Information'),
-                Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
-              ],
-            ),
-            actions: [
-              ListenableBuilder(
-                listenable: widget.viewModel.saveRecipe,
-                builder: (context, value) {
-                  return ValueListenableBuilder(
+      child: ValueListenableBuilder(
+        valueListenable: recipeControllers.isEditing,
+        builder: (context, value, child) {
+          return DefaultTabController(
+            length: 2,
+            child: Form(
+              key: _formKey,
+              child: Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  bottom: const TabBar(
+                    tabs: [
+                      Tab(icon: Icon(Icons.info), text: 'Information'),
+                      Tab(icon: Icon(Icons.food_bank), text: 'Ingredients'),
+                    ],
+                  ),
+                  actions: _getAction(),
+
+                  leading: TextButton(
+                    onPressed: () {
+                      context.pushNamed(Routes.recipePlanning);
+                    },
+                    child: Icon(Icons.home),
+                  ),
+                  title: ValueListenableBuilder(
                     valueListenable: widget.viewModel.recipe,
                     builder: (context, value, child) {
-                      return TextButton(
-                        key: Key('SaveButton'),
-                        onPressed: !widget.viewModel.isRecipeUpdated()
-                            ? null
-                            : () {
-                                widget.viewModel.saveRecipe.execute();
-                              },
-                        child: Icon(Icons.save),
+                      return TextFormField(
+                        readOnly: !recipeControllers.isEditing.value,
+                        controller: recipeControllers.recipeNameController,
+                        decoration: InputDecoration(border: InputBorder.none),
                       );
                     },
-                  );
-                },
-              ),
-              MenuBar(
-                style: MenuStyle(
-                  elevation: WidgetStatePropertyAll(0),
-                  backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primaryContainer),
-                ),
-                children: [
-                  SubmenuButton(
-                    menuChildren: _getMenuItemButtons(theme.colorScheme),
-                    menuStyle: MenuStyle(
-                      backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
-                    ),
-                    child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
                   ),
-                ],
+                  shadowColor: Colors.black,
+                  scrolledUnderElevation: 4,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                ),
+                body: TabBarView(
+                  children: [
+                    RecipeDetailInfoTab(
+                      viewModel: widget.viewModel,
+                      recipeControllers: recipeControllers,
+                    ),
+                    RecipeDetailIngredientTab(
+                      viewModel: widget.viewModel,
+                      recipeControllers: recipeControllers,
+                    ),
+                  ],
+                ),
+                floatingActionButton: ValueListenableBuilder(
+                  valueListenable: widget.viewModel.recipe,
+                  builder: (context, value, child) {
+                    return AddRecipeToShoppingListWidget(
+                      viewModel: widget.viewModel,
+                      callback: _addToShoppingList,
+                    );
+                  },
+                ),
               ),
-            ],
-
-            leading: TextButton(
-              onPressed: () {
-                context.pushNamed(Routes.recipePlanning);
-              },
-              child: Icon(Icons.home),
             ),
-            title: ValueListenableBuilder(
-              valueListenable: widget.viewModel.recipe,
-              builder: (context, value, child) {
-                return HeaderTextFormField(
-                  fieldKey: Key('RecipeName'),
-                  initialValue: widget.viewModel.recipe.value.name,
-                  callback: (value) => widget.viewModel.updateRecipeName(value),
-                );
-              },
-            ),
-            shadowColor: Colors.black,
-            scrolledUnderElevation: 4,
-            backgroundColor: theme.colorScheme.primaryContainer,
-          ),
-          body: TabBarView(
-            children: [
-              RecipeDetailInfoTab(viewModel: widget.viewModel),
-              RecipeDetailIngredientTab(viewModel: widget.viewModel),
-            ],
-          ),
-          floatingActionButton: ValueListenableBuilder(
-            valueListenable: widget.viewModel.recipe,
-            builder: (context, value, child) {
-              return CustomNumberInput(viewModel: widget.viewModel);
-            },
-          ),
-        ),
+          );
+        },
       ),
     );
+  }
+
+  List<Widget> _getAction() {
+    if (recipeControllers.isEditing.value) {
+      return _getEditingActions();
+    } else {
+      return _getNotEditingAction();
+    }
+  }
+
+  List<Widget> _getEditingActions() {
+    return [
+      ValueListenableBuilder(
+        valueListenable: recipeControllers.isRecipeUpdated,
+        builder: (context, value, child) {
+          return TextButton(
+            key: ValueKey('CancelButton'),
+            onPressed: recipeControllers.isRecipeUpdated.value
+                ? () => showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Voulez-vous vraiment annuler les modification ? '),
+                        actions: <Widget>[
+                          MaterialButton(
+                            color: Colors.red,
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Icon(Icons.clear, color: Colors.white),
+                          ),
+                          MaterialButton(
+                            color: Colors.green,
+                            onPressed: () {
+                              recipeControllers.cancelEditing();
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Icon(Icons.check, color: Colors.white),
+                          ),
+                        ],
+                      );
+                    },
+                  )
+                : recipeControllers.cancelEditing,
+            child: Icon(Icons.cancel_outlined),
+          );
+        }
+      ),
+      ListenableBuilder(
+        listenable: widget.viewModel.saveRecipe,
+        builder: (context, value) {
+          return ValueListenableBuilder(
+            valueListenable: recipeControllers.isRecipeUpdated,
+            builder: (context, value, child) {
+              return TextButton(
+                key: ValueKey('SaveButton'),
+                onPressed: recipeControllers.isRecipeUpdated.value ? _saveForm : null,
+                child: Icon(Icons.save),
+              );
+            },
+          );
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _getNotEditingAction() {
+    final theme = Theme.of(context);
+    return [
+      if (!recipeControllers.isEditing.value)
+        ListenableBuilder(
+          listenable: widget.viewModel.saveRecipe,
+          builder: (context, value) {
+            return ValueListenableBuilder(
+              valueListenable: recipeControllers.isRecipeUpdated,
+              builder: (context, value, child) {
+                return TextButton(
+                  key: ValueKey('EditButton'),
+                  onPressed: () => recipeControllers.isEditing.value = true,
+                  child: Icon(Icons.edit),
+                );
+              },
+            );
+          },
+        ),
+      MenuBar(
+        style: MenuStyle(
+          elevation: WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStatePropertyAll(theme.colorScheme.primaryContainer),
+        ),
+        children: [
+          SubmenuButton(
+            menuChildren: _getMenuItemButtons(theme.colorScheme),
+            menuStyle: MenuStyle(
+              backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
+            ),
+            child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
+          ),
+        ],
+      ),
+    ];
   }
 
   List<MenuItemButton> _getMenuItemButtons(ColorScheme colorScheme) {
@@ -150,7 +249,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       ),
       MenuItemButton(
         onPressed: () {
-          widget.viewModel.exportRecipe();
+          if (!_formKey.currentState!.validate()) {
+            return;
+          }
+
+          widget.viewModel.exportRecipe(recipeControllers.getRecipe());
         },
         child: Row(
           children: [
@@ -173,14 +276,36 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     ];
   }
 
+  void _addToShoppingList() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    widget.viewModel.addToShoppingList.execute(recipeControllers.getRecipe());
+    recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
+  }
+
+  Future<void> _saveForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    await widget.viewModel.saveRecipe.execute(recipeControllers.getRecipe());
+    recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
+  }
+
   void _onResult() {
+    if (!mounted) return;
+
     if (widget.viewModel.deleteRecipe.completed) {
       context.pop();
     }
 
     if (widget.viewModel.deleteRecipe.error) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe'), duration: Duration(milliseconds: 500),));
+      }
     }
   }
 }

@@ -26,6 +26,11 @@ abstract class IngredientWithQuantity with _$IngredientWithQuantity {
       _$IngredientWithQuantityFromJson(json);
 }
 
+int compareIngredientWithQuantityName(
+  IngredientWithQuantity ingredient1,
+  IngredientWithQuantity ingredient2,
+) => ingredient1.ingredient.name.compareTo(ingredient2.ingredient.name);
+
 Map<String, dynamic> ingredientWithQuantityToJson(IngredientWithQuantity ingredientWithQuantity) =>
     ingredientWithQuantity.toJson();
 

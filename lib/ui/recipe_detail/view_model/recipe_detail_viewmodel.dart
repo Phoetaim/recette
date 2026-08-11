@@ -9,6 +9,8 @@ import 'package:recette/domain/use_cases/recipe_utils.dart';
 import 'package:recette/utils/commands.dart';
 import 'package:recette/utils/result.dart';
 
+typedef Ingredients = List<IngredientWithQuantity>;
+
 class RecipeDetailViewModel extends ChangeNotifier {
   RecipeDetailViewModel({
     required RecipeRepository recipeRepository,
@@ -20,9 +22,9 @@ class RecipeDetailViewModel extends ChangeNotifier {
        _recipeUtilsUseCase = recipeUtilsUseCase,
        _importExportUseCase = importExportUseCase {
     loadRecipeById = Command1(_loadRecipeById);
-    saveRecipe = Command0(_saveRecipe);
+    saveRecipe = Command1(_saveRecipe);
     deleteRecipe = Command0(_deleteRecipe);
-    addToShoppingList = Command0(_addToShoppingList);
+    addToShoppingList = Command1(_addToShoppingList);
   }
 
   final RecipeRepository _recipeRepository;
@@ -31,18 +33,18 @@ class RecipeDetailViewModel extends ChangeNotifier {
   final RecipeUtilsUseCase _recipeUtilsUseCase;
 
   late final Command1<void, String> loadRecipeById;
-  late final Command0<void> saveRecipe;
+  late final Command1<void, Recipe> saveRecipe;
   late final Command0<void> deleteRecipe;
-  late final Command0<void> addToShoppingList;
+  late final Command1<void, Recipe> addToShoppingList;
 
-  late RawRecipe _rawRecipe;
-  late RawRecipe? _originalRecipe;
   final ValueNotifier<Recipe> recipe = ValueNotifier<Recipe>(Recipe());
 
   // Ingredient tab attributes
   final ValueNotifier<int> currentNumberOfPeople = ValueNotifier<int>(0);
-  int tmpIngredientId = -1;
 
+  ////////////////////////////
+  ///////// Commands /////////
+  ////////////////////////////
   Future<Result<void>> _loadRecipeById(String? recipeIdStr) async {
     if (recipeIdStr == null) {
       return Result.error(RecipeError('No recipe id provided'));
@@ -53,142 +55,45 @@ class RecipeDetailViewModel extends ChangeNotifier {
     }
 
     if (recipeId == -1) {
-      _rawRecipe = RawRecipe();
-      _originalRecipe = null;
       currentNumberOfPeople.value = recipe.value.nbOfPeople;
       return Result.ok(null);
     }
     final result = await _recipeRepository.getRecipe(recipeId);
     switch (result) {
       case Ok<RawRecipe>():
-        _originalRecipe = result.value;
+        recipe.value = await _recipeUtilsUseCase.loadRecipe(result.value);
+        currentNumberOfPeople.value = recipe.value.nbOfPeople;
+        notifyListeners();
+        return Result.ok(null);
       case Error<RawRecipe>():
         return Result.error(RecipeError('No recipe with id: $recipeId'));
     }
-
-    _rawRecipe = _originalRecipe!;
-    recipe.value = await _recipeUtilsUseCase.loadRecipe(_rawRecipe);
-    currentNumberOfPeople.value = recipe.value.nbOfPeople;
-    notifyListeners();
-    return Result.ok(null);
   }
 
-  Future<Result<void>> _saveRecipe() async {
-    if (_rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length) {
-      for (var ingredientWithQuantity in recipe.value.ingredients) {
-        if (ingredientWithQuantity.id! >= 0) {
-          continue;
-        }
-        var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(
-          ingredientWithQuantity,
-        );
-        switch (result) {
-          case Ok<IngredientWithQuantity>():
-            List<int> ingredientWithQuantityIds = List.from(_rawRecipe.ingredientWithQuantityIds);
-            ingredientWithQuantityIds.add(result.value.id!);
-            _rawRecipe = _rawRecipe.copyWith(ingredientWithQuantityIds: ingredientWithQuantityIds);
-
-            List<IngredientWithQuantity> ingredientsWithQuantity = List.from(
-              recipe.value.ingredients,
-            );
-            int index = ingredientsWithQuantity.indexOf(ingredientWithQuantity);
-            ingredientsWithQuantity.removeAt(index);
-            ingredientsWithQuantity.insert(index, result.value);
-            recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
-          case Error<IngredientWithQuantity>():
-            return Result.error(RecipeError('Could add new Ingredients'));
-        }
-      }
+  Future<Result<void>> _saveRecipe(Recipe formRecipe) async {
+    final ingredientResult = await _saveIngredients(formRecipe.ingredients);
+    switch (ingredientResult) {
+      case Ok<List<IngredientWithQuantity>>():
+        formRecipe = formRecipe.copyWith(ingredients: ingredientResult.value);
+      case Error<void>():
+        return ingredientResult;
     }
-    if (_originalRecipe == null) {
-      final result = await _recipeRepository.addRecipe(_rawRecipe);
-      switch (result) {
-        case Ok<RawRecipe>():
-          _originalRecipe = result.value;
-          _rawRecipe = _originalRecipe!;
-          return Result.ok(null);
-        case Error<RawRecipe>():
-          return Result.error(RecipeError('Could not create recipe'));
-      }
+    if (formRecipe.id == null) {
+      return await _addRecipe(formRecipe);
     } else {
-      Result<void> result = await _recipeRepository.updateRecipe(_originalRecipe!, _rawRecipe);
-      switch (result) {
-        case Ok<void>():
-          _originalRecipe = _rawRecipe;
-          return Result.ok(null);
-        case Error<void>():
-          return Result.error(RecipeError('Could not update recipe'));
-      }
+      return await _updateRecipe(formRecipe);
     }
   }
 
   Future<Result<void>> _deleteRecipe() async {
-    if (_rawRecipe.id != null) {
-      return await _recipeRepository.deleteRecipe(_rawRecipe.id!);
+    if (recipe.value.id != null) {
+      return await _recipeRepository.deleteRecipe(recipe.value.id!);
     }
     return Result.ok(null);
   }
 
-  bool isRecipeUpdated() {
-    return _rawRecipe != _originalRecipe ||
-        _rawRecipe.ingredientWithQuantityIds.length != recipe.value.ingredients.length;
-  }
-
-  Future<void> exportRecipe() async {
-    final result = await _saveRecipe();
-    switch (result) {
-      case Ok<void>():
-        await _importExportUseCase.exportRecipes({_rawRecipe.id!});
-        notifyListeners();
-      case Error<void>():
-      //pass
-    }
-  }
-
-  // Update info tab
-  void updateRecipeName(String newName) async {
-    _rawRecipe = _rawRecipe.copyWith(name: newName);
-    recipe.value = recipe.value.copyWith(name: newName);
-  }
-
-  void updateRecipePreparationTime(String newPrepTime) async {
-    _rawRecipe = _rawRecipe.copyWith(preparationTime: newPrepTime);
-    recipe.value = recipe.value.copyWith(preparationTime: newPrepTime);
-  }
-
-  void updateRecipeCookingTime(String newCookingTime) async {
-    _rawRecipe = _rawRecipe.copyWith(cookingTime: newCookingTime);
-    recipe.value = recipe.value.copyWith(cookingTime: newCookingTime);
-  }
-
-  void updateRecipeNbOfPeople(String newNbOfPeopleAsString) async {
-    int? newNbOfPeople = int.tryParse(newNbOfPeopleAsString);
-    if (newNbOfPeople == null) {
-      throw TypeError();
-    }
-    _rawRecipe = _rawRecipe.copyWith(nbOfPeople: newNbOfPeople);
-    currentNumberOfPeople.value = newNbOfPeople;
-    recipe.value = recipe.value.copyWith(nbOfPeople: newNbOfPeople);
-  }
-
-  void addIngredientWithQuantity(IngredientWithQuantity ingredientWithQuantity) async {
-    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(recipe.value.ingredients);
-    ingredientsWithQuantity.add(ingredientWithQuantity.copyWith(id: tmpIngredientId--));
-    recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
-  }
-
-  void removeIngredientWithQuantity(IngredientWithQuantity ingredientWithQuantity) {
-    List<IngredientWithQuantity> ingredientsWithQuantity = List.from(recipe.value.ingredients);
-    ingredientsWithQuantity.remove(ingredientWithQuantity);
-    recipe.value = recipe.value.copyWith(ingredients: ingredientsWithQuantity);
-
-    List<int> ingredientWithQuantityIds = List.from(_rawRecipe.ingredientWithQuantityIds);
-    ingredientWithQuantityIds.remove(ingredientWithQuantity.id);
-    _rawRecipe = _rawRecipe.copyWith(ingredientWithQuantityIds: ingredientWithQuantityIds);
-  }
-
-  Future<Result<void>> _addToShoppingList() async {
-    saveRecipe.execute();
+  Future<Result<void>> _addToShoppingList(Recipe formRecipe) async {
+    await _saveRecipe(formRecipe);
     bool error = await _recipeUtilsUseCase.addRecipeToShoppingList(
       recipe.value,
       currentNumberOfPeople.value,
@@ -198,6 +103,62 @@ class RecipeDetailViewModel extends ChangeNotifier {
       return Result.error(RecipeError('Could not add at least one ingredient'));
     }
     return Result.ok(null);
+  }
+
+  //////////////////////////
+  ///////// Public /////////
+  //////////////////////////
+  Future<void> exportRecipe(Recipe formRecipe) async {
+    await _saveRecipe(formRecipe);
+    await _importExportUseCase.exportRecipes({recipe.value.id!});
+  }
+
+  ///////////////////////////
+  ///////// Private /////////
+  ///////////////////////////
+  Future<Result<Ingredients>> _saveIngredients(Ingredients ingredients) async {
+    Ingredients updatedIngredients = List.from(ingredients);
+    for (var ingredient in ingredients) {
+      if (ingredient.id! >= 0) {
+        continue;
+      }
+      var result = await _ingredientWithQuantityUseCase.addIngredientWithQuantity(ingredient);
+      switch (result) {
+        case Ok<IngredientWithQuantity>():
+          updatedIngredients.remove(ingredient);
+          updatedIngredients.add(result.value);
+        case Error<IngredientWithQuantity>():
+          return Result.error(RecipeError('Could add new Ingredients'));
+      }
+    }
+    return Result.ok(updatedIngredients);
+  }
+
+  Future<Result<void>> _addRecipe(Recipe newRecipe) async {
+    RawRecipe rawRecipe = convertToRawRecipe(newRecipe);
+    final result = await _recipeRepository.addRecipe(rawRecipe);
+    switch (result) {
+      case Ok<RawRecipe>():
+        recipe.value = newRecipe.copyWith(id: result.value.id);
+        return Result.ok(null);
+      case Error<RawRecipe>():
+        return Result.error(RecipeError('Could not create recipe'));
+    }
+  }
+
+  Future<Result<void>> _updateRecipe(Recipe updatedRecipe) async {
+    if (updatedRecipe == recipe.value) {
+      return Result.ok(null);
+    }
+    RawRecipe rawRecipe = convertToRawRecipe(updatedRecipe);
+    Result<void> result = await _recipeRepository.updateRecipe(rawRecipe);
+    switch (result) {
+      case Ok<void>():
+        recipe.value = updatedRecipe;
+        return Result.ok(null);
+      case Error<void>():
+        return Result.error(RecipeError('Could not update recipe'));
+    }
   }
 }
 
