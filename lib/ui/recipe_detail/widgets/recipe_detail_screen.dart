@@ -304,7 +304,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe')));
+        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe'), duration: Duration(milliseconds: 500),));
       }
     }
   }
