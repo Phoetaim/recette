@@ -37,7 +37,9 @@ class ImportExportUseCase {
   final IngredientUnitsRepository _ingredientUnitsRepository;
   final RecipeRepository _recipeRepository;
   final ShoppingListRepository _shoppingListRepository;
-  final export = 'eyJ2ZXJzaW9uIjowLCJyYXdSZWNpcGVzIjpbeyJpZCI6NCwibmFtZSI6IlNhbnMgbm9tIiwicHJlcGFyYXRpb25UaW1lIjoiLSIsImNvb2tpbmdUaW1lIjoiLSIsIm5iT2ZQZW9wbGUiOjQsImluZ3JlZGllbnRXaXRoUXVhbnRpdHlJZHMiOltdLCJzdGVwcyI6IiJ9XSwiaXNTaG9wcGluZ0xpc3QiOmZhbHNlLCJyYXdJbmdyZWRpZW50c1dpdGhRdWFudGl0eSI6W3siaWQiOjksImluZ3JlZGllbnRJZCI6MSwidW5pdCI6MSwicXVhbnRpdHkiOjF9XSwicmF3SW5ncmVkaWVudHMiOlt7ImlkIjoxLCJuYW1lIjoiYWJyaWNvdCIsInR5cGUiOjF9XSwiaW5ncmVkaWVudFVuaXRzIjpbeyJpZCI6MSwibmFtZSI6InVuaXQifV0sImluZ3JlZGllbnRUeXBlcyI6W3siaWQiOjEsIm5hbWUiOiJmcnVpdCIsImNvbG9yIjo0Mjc5OTgzNjQ4fV19';
+  final export =
+      'eyJ2ZXJzaW9uIjowLCJyYXdSZWNpcGVzIjpbeyJpZCI6NCwibmFtZSI6IlNhbnMgbm9tIiwicHJlcGFyYXRpb25UaW1lIjoiLSIsImNvb2tpbmdUaW1lIjoiLSIsIm5iT2ZQZW9wbGUiOjQsImluZ3JlZGllbnRXaXRoUXVhbnRpdHlJZHMiOltdLCJzdGVwcyI6IiJ9XSwiaXNTaG9wcGluZ0xpc3QiOmZhbHNlLCJyYXdJbmdyZWRpZW50c1dpdGhRdWFudGl0eSI6W3siaWQiOjksImluZ3JlZGllbnRJZCI6MSwidW5pdCI6MSwicXVhbnRpdHkiOjF9XSwicmF3SW5ncmVkaWVudHMiOlt7ImlkIjoxLCJuYW1lIjoiYWJyaWNvdCIsInR5cGUiOjF9XSwiaW5ncmVkaWVudFVuaXRzIjpbeyJpZCI6MSwibmFtZSI6InVuaXQifV0sImluZ3JlZGllbnRUeXBlcyI6W3siaWQiOjEsIm5hbWUiOiJmcnVpdCIsImNvbG9yIjo0Mjc5OTgzNjQ4fV19';
+
   // Public
   Future<void> exportRecipes(Set<int> recipesIds) async {
     List<RawRecipe> rawRecipes = await _getCompletedRawRecipes(recipesIds);
@@ -55,25 +57,36 @@ class ImportExportUseCase {
     await _copyToClipboard(export.copyWith(isShoppingList: true));
   }
 
-  Future<void> importRecipes(String encodedImportData) async {
-    ImportData importData = await _loadImportData(encodedImportData);
+  Future<ImportData> loadImportData(String encodedImportData) async {
+    final jsonAsString = stringToBase64.decode(encodedImportData);
+    final json = await _loadStringRecipe(jsonAsString);
+    final importData = ImportData.fromJson(json);
     if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
-    Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
+    return importData;
+  }
+
+  Future<void> importRecipes(ImportData importData, Set<int> recipeIds) async {
+    if (importData.version != 0) {
+      throw ImportExportError('Invalid version');
+    }
+    ImportData filteredImportData = _filterData(importData, recipeIds);
+    Map<int, Ingredient> mappedIngredients = await _importIngredients(filteredImportData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
-      importData.ingredientUnits,
+      filteredImportData.ingredientUnits,
     );
     Map<int, RawIngredientWithQuantity> mappedIngredientsWithQuantity =
-        await _importIngredientsWithQuantity(importData, mappedIngredients, mappedIngredientsUnits);
-    await _importRecipes(importData, mappedIngredientsWithQuantity);
+        await _importIngredientsWithQuantity(
+          filteredImportData,
+          mappedIngredients,
+          mappedIngredientsUnits,
+        );
+    await _importRecipes(filteredImportData, mappedIngredientsWithQuantity);
   }
 
   Future<void> importShoppingList(String encodedImportData) async {
-    ImportData importData = await _loadImportData(encodedImportData);
-    if (importData.version != 0) {
-      throw ImportExportError('Invalid version');
-    }
+    ImportData importData = await loadImportData(encodedImportData);
     Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
       importData.ingredientUnits,
@@ -86,7 +99,7 @@ class ImportExportUseCase {
   // Export
   Future<List<RawRecipe>> _getCompletedRawRecipes(Set<int> recipeIds) async {
     List<RawRecipe> completedRawRecipes = <RawRecipe>[];
-    for(var recipeId in recipeIds) {
+    for (var recipeId in recipeIds) {
       final result = await _recipeRepository.getRecipe(recipeId);
       switch (result) {
         case Ok<RawRecipe>():
@@ -192,14 +205,19 @@ class ImportExportUseCase {
   }
 
   // Import
-  Future<ImportData> _loadImportData(String encodedImportData) async {
-    final jsonAsString = stringToBase64.decode(encodedImportData);
-    final json = await _loadStringRecipe(jsonAsString);
-    return ImportData.fromJson(json);
-  }
 
   Future<Map<String, dynamic>> _loadStringRecipe(String jsonAsString) async {
     return jsonDecode(jsonAsString) as Map<String, dynamic>;
+  }
+
+  ImportData _filterData(ImportData importData, Set<int> recipeIds) {
+    List<RawRecipe> filteredRawRecipe = [];
+    for (var rawRecipe in importData.rawRecipes) {
+      if (recipeIds.contains(rawRecipe.id!)) {
+        filteredRawRecipe.add(rawRecipe);
+      }
+    }
+    return importData.copyWith(rawRecipes: filteredRawRecipe);
   }
 
   Future<Map<int, Ingredient>> _importIngredients(ImportData importData) async {
