@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -53,12 +54,16 @@ class DatabaseService {
   }
 
   Future<void> open() async {
-      _database = await databaseFactory.openDatabase(
+    if (kDebugMode) {
+      // await databaseFactory.deleteDatabase(join( await databaseFactory.getDatabasesPath(), 'app_database.db'));
+    }
+
+    _database = await databaseFactory.openDatabase(
         join(await databaseFactory.getDatabasesPath(), 'app_database.db'),
         options: OpenDatabaseOptions(
           onConfigure: _onConfigure,
           onUpgrade: _onUpgrade,
-          version: 3,
+          version: databaseFiles.keys.last,
         ),
       );
   }
