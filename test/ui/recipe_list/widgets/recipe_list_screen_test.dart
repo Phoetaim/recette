@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
+import 'package:recette/data/services/models/import_data.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/routing/routes.dart';
@@ -22,6 +23,10 @@ void main() {
   late MockRecipeRepository mockRecipeRepository;
   late MockImportExportUseCase mockImportExportUseCase;
   late StreamController<RawRecipe> updatedRecipeListController;
+
+  setUpAll(() {
+    registerFallbackValue(ImportData());
+  });
 
   setUp(() {
     mockRecipeRepository = MockRecipeRepository();
@@ -249,8 +254,11 @@ void main() {
   });
 
   group('Importing recipes', () {
-    testWidgets('opens the import dialog and submits the pasted data', (tester) async {
-      when(() => mockImportExportUseCase.importRecipes(any())).thenAnswer((_) async {});
+    testWidgets('opens the import dialog, submits the pasted data and import recipe', (tester) async {
+      final importData = const ImportData(rawRecipes: [RawRecipe(id: 1, name: 'Test Recipe')]);
+      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return importData;});
+
+      when(() => mockImportExportUseCase.importRecipes(any(), any())).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
 
@@ -266,12 +274,48 @@ void main() {
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
-      verify(() => mockImportExportUseCase.importRecipes('encoded-data')).called(1);
+      verify(() => mockImportExportUseCase.loadImportData('encoded-data')).called(1);
+      expect(find.text('Test Recipe'), findsOne);
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      verify(() => mockImportExportUseCase.importRecipes(importData, {1})).called(1);
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    testWidgets('opens the import dialog, submits the pasted data and don\'t import recipe', (tester) async {
+      final importData = const ImportData(rawRecipes: [RawRecipe(id: 1, name: 'Test Recipe')]);
+      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return importData;});
+
+      when(() => mockImportExportUseCase.importRecipes(any(), any())).thenAnswer((_) async {});
+
+      final viewModel = createViewModel();
+
+      await tester.pumpWidget(buildTestApp(viewModel));
+      await tester.pump();
+
+      await tester.tap(find.byIcon(CupertinoIcons.arrow_down_left));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'encoded-data');
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      verify(() => mockImportExportUseCase.loadImportData('encoded-data')).called(1);
+      expect(find.text('Test Recipe'), findsOne);
+      await tester.tap(find.text('Test Recipe'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+      verify(() => mockImportExportUseCase.importRecipes(importData, {})).called(1);
       expect(find.byType(AlertDialog), findsNothing);
     });
 
     testWidgets('closing without entering data submits an empty string', (tester) async {
-      when(() => mockImportExportUseCase.importRecipes(any())).thenAnswer((_) async {});
+      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return const ImportData();});
 
       final viewModel = createViewModel();
 
@@ -284,7 +328,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.check));
       await tester.pumpAndSettle();
 
-      verify(() => mockImportExportUseCase.importRecipes('')).called(1);
+      verify(() => mockImportExportUseCase.loadImportData('')).called(1);
     });
   });
 }

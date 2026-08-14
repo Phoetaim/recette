@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
+import 'package:recette/data/services/models/import_data.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
 import 'package:recette/domain/use_cases/import_export.dart';
 import 'package:recette/ui/recipe_list/view_model/recipe_list_viewmodel.dart';
@@ -256,19 +257,46 @@ void main() {
         });
   });
 
-  group('importRecipes', () {
-    test('import recipes', () async {
+  group('getRawRecipesFromImport', () {
+    test('Load import data and expose it via recipesToImport', () async {
+      const importData = ImportData(
+        version: 0,
+        rawRecipes: [RawRecipe(id: 1, name: 'Soupe')],
+      );
       when(
-            () => mockImportExportUseCase.importRecipes(any()),
+            () => mockImportExportUseCase.loadImportData('encoded-data'),
+      ).thenAnswer((_) async => importData);
+
+      final viewModel = createViewModel();
+      await flushMicrotasks();
+
+      await viewModel.getRawRecipesFromImport.execute('encoded-data');
+
+      expect(viewModel.recipesToImport, importData.rawRecipes);
+    });
+  });
+
+  group('importRecipes', () {
+    test('import recipes uses the previously loaded import data', () async {
+      const importData = ImportData(
+        version: 0,
+        rawRecipes: [RawRecipe(id: 1, name: 'Soupe')],
+      );
+      when(
+            () => mockImportExportUseCase.loadImportData('encoded-data'),
+      ).thenAnswer((_) async => importData);
+      when(
+            () => mockImportExportUseCase.importRecipes(importData, {1}),
       ).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
       await flushMicrotasks();
 
-      await viewModel.importRecipes.execute('encoded-data');
+      await viewModel.getRawRecipesFromImport.execute('encoded-data');
+      await viewModel.importRecipes.execute({1});
 
       verify(
-            () => mockImportExportUseCase.importRecipes('encoded-data'),
+            () => mockImportExportUseCase.importRecipes(importData, {1}),
       ).called(1);
     });
   });
