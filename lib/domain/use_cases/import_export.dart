@@ -39,6 +39,7 @@ class ImportExportUseCase {
   final ShoppingListRepository _shoppingListRepository;
 
   // Public
+
   Future<void> exportRecipes(Set<int> recipesIds) async {
     List<RawRecipe> rawRecipes = await _getCompletedRawRecipes(recipesIds);
     List<int> ingredientWithQuantityIds = await _getIngredientWithQuantityIds(rawRecipes);
@@ -69,7 +70,7 @@ class ImportExportUseCase {
     if (importData.version != 0) {
       throw ImportExportError('Invalid version');
     }
-    ImportData filteredImportData = _filterData(importData, recipeIds);
+    ImportData filteredImportData = _filterRawRecipeImportData(importData, recipeIds);
     Map<int, Ingredient> mappedIngredients = await _importIngredients(filteredImportData);
     Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(
       filteredImportData.ingredientUnits,
@@ -92,9 +93,8 @@ class ImportExportUseCase {
     await _importShoppingList(importData, mappedIngredients, mappedIngredientsUnits);
   }
 
-  // Private
-
   // Export
+
   Future<List<RawRecipe>> _getCompletedRawRecipes(Set<int> recipeIds) async {
     List<RawRecipe> completedRawRecipes = <RawRecipe>[];
     for (var recipeId in recipeIds) {
@@ -208,14 +208,45 @@ class ImportExportUseCase {
     return jsonDecode(jsonAsString) as Map<String, dynamic>;
   }
 
-  ImportData _filterData(ImportData importData, Set<int> recipeIds) {
+  ImportData _filterRawRecipeImportData(ImportData importData, Set<int> recipeIds) {
     List<RawRecipe> filteredRawRecipe = [];
+    Set<int> ingredientWithQuantitiesIds = {};
+
     for (var rawRecipe in importData.rawRecipes) {
       if (recipeIds.contains(rawRecipe.id!)) {
         filteredRawRecipe.add(rawRecipe);
+        ingredientWithQuantitiesIds.addAll(rawRecipe.ingredientWithQuantityIds);
       }
     }
+    importData = _filterIngredientWithQuantity(importData, ingredientWithQuantitiesIds);
     return importData.copyWith(rawRecipes: filteredRawRecipe);
+  }
+
+  ImportData _filterIngredientWithQuantity(
+    ImportData importData,
+    Set<int> ingredientWithQuantitiesIds,
+  ) {
+    List<RawIngredientWithQuantity> filteredIngredientWithQuantities = [];
+    Set<int> ingredientsIds = {};
+    for (var ingredientWithQuantity in importData.rawIngredientsWithQuantity) {
+      if (ingredientWithQuantitiesIds.contains(ingredientWithQuantity.id!)) {
+        filteredIngredientWithQuantities.add(ingredientWithQuantity);
+        ingredientsIds.add(ingredientWithQuantity.ingredientId);
+      }
+    }
+    importData = _filterIngredients(importData, ingredientsIds);
+
+    return importData.copyWith(rawIngredientsWithQuantity: filteredIngredientWithQuantities);
+  }
+
+  ImportData _filterIngredients(ImportData importData, Set<int> ingredientsIds) {
+    List<RawIngredient> filteredIngredients = [];
+    for (var ingredients in importData.rawIngredients) {
+      if (ingredientsIds.contains(ingredients.id!)) {
+        filteredIngredients.add(ingredients);
+      }
+    }
+    return importData.copyWith(rawIngredients: filteredIngredients);
   }
 
   Future<Map<int, Ingredient>> _importIngredients(ImportData importData) async {
