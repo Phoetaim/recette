@@ -23,7 +23,13 @@ class _RecipesImportWidgetState extends State<RecipesImportWidget> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Recettes à importer : '),
+      title: CheckboxListTile(
+        controlAffinity: ListTileControlAffinity.leading,
+        tristate: true,
+        value: _isTopCheckBoxChecked(),
+        onChanged: _toggleTopCheckBox,
+        title: Text('Recettes à importer'),
+      ),
       content: SizedBox(
         width: .maxFinite,
         child: ListView.builder(
@@ -44,15 +50,6 @@ class _RecipesImportWidgetState extends State<RecipesImportWidget> {
       ),
       actions: <Widget>[
         TextButton.icon(
-          onPressed: _clearSelection,
-          label: const Text('Désélectionne tout'),
-          icon: const Icon(Icons.check_box_outline_blank),
-        ),
-        TextButton.icon(
-          onPressed: _selectAll,
-          label: const Text('Sélectionne tout'),
-          icon: const Icon(Icons.check_box_outlined),
-        ),TextButton.icon(
           onPressed: () {
             widget.viewModel.importRecipes.execute(selectedRecipesToImport);
             Navigator.of(context).pop();
@@ -62,6 +59,28 @@ class _RecipesImportWidgetState extends State<RecipesImportWidget> {
         ),
       ],
     );
+  }
+
+  bool? _isTopCheckBoxChecked() {
+    if (selectedRecipesToImport.isEmpty) {
+      return false;
+    }
+    if (selectedRecipesToImport.length == widget.viewModel.recipes.length) {
+      return true;
+    }
+    return null;
+  }
+
+  void _toggleTopCheckBox(bool? value) {
+    bool? currentState = _isTopCheckBoxChecked();
+    switch (currentState) {
+      case true:
+        _clearSelection();
+      case false:
+        _selectAll();
+      case null:
+        _selectAll();
+    }
   }
 
   bool _isRecipeSelected(int recipeId) {
@@ -75,11 +94,13 @@ class _RecipesImportWidgetState extends State<RecipesImportWidget> {
       }
     });
   }
+
   void _clearSelection() {
     setState(() {
       selectedRecipesToImport.clear();
     });
   }
+
   void _selectAll() {
     setState(() {
       selectedRecipesToImport = widget.viewModel.recipesToImport.map((rawRecipe) => rawRecipe.id!).toSet();
