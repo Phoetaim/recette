@@ -6,6 +6,7 @@ import 'package:recette/ui/ui_utils/configs.dart';
 import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 import 'recipe_list_body.dart';
+import 'recipes_import_widget.dart';
 
 class RecipeListScreen extends StatefulWidget {
   const RecipeListScreen({super.key, required this.viewModel});
@@ -20,19 +21,28 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.deleteRecipe.addListener(_onResult);
+    widget.viewModel.deleteRecipe.addListener(_onDeletionResult);
+    widget.viewModel.getRawRecipesFromImport.addListener(_onGetRawRecipesToImportResult);
+    widget.viewModel.importRecipes.addListener(_onImportRecipesResult);
   }
 
   @override
   void didUpdateWidget(covariant RecipeListScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.viewModel.deleteRecipe.removeListener(_onResult);
-    widget.viewModel.deleteRecipe.addListener(_onResult);
+    oldWidget.viewModel.deleteRecipe.removeListener(_onDeletionResult);
+    widget.viewModel.deleteRecipe.addListener(_onDeletionResult);
+    oldWidget.viewModel.getRawRecipesFromImport.removeListener(_onGetRawRecipesToImportResult);
+    widget.viewModel.getRawRecipesFromImport.addListener(_onGetRawRecipesToImportResult);
+    oldWidget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
+    widget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
   }
 
   @override
   void dispose() {
-    widget.viewModel.deleteRecipe.removeListener(_onResult);
+    widget.viewModel.deleteRecipe.removeListener(_onDeletionResult);
+    widget.viewModel.getRawRecipesFromImport.removeListener(_onGetRawRecipesToImportResult);
+    widget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
+
     super.dispose();
   }
 
@@ -96,22 +106,55 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     );
   }
 
-  void _onResult() {
+  void _onDeletionResult() {
     if (widget.viewModel.deleteRecipe.completed) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Recette supprimée'), duration: snackBarDuration),
-      );
+      final snackBar = SnackBar(content: Text('Recette supprimée'), duration: snackBarDuration);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
 
     if (widget.viewModel.deleteRecipe.error) {
       widget.viewModel.deleteRecipe.clearResult();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error while loading')));
+      final snackBar = SnackBar(content: Text('Error while loading'), duration: snackBarDuration);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void _onGetRawRecipesToImportResult() {
+    if (widget.viewModel.getRawRecipesFromImport.completed) {
+      widget.viewModel.getRawRecipesFromImport.clearResult();
+      showDialog(
+        context: context,
+        builder: (context) => RecipesImportWidget(viewModel: widget.viewModel),
+      );
+    }
+
+    if (widget.viewModel.getRawRecipesFromImport.error) {
+      widget.viewModel.getRawRecipesFromImport.clearResult();
+      final snackBar = SnackBar(content: Text('Could not load import'), duration: snackBarDuration);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void _onImportRecipesResult() {
+    if (widget.viewModel.importRecipes.completed) {
+      widget.viewModel.importRecipes.clearResult();
+      final snackBar = SnackBar(content: Text('Recettes importées'), duration: snackBarDuration);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    if (widget.viewModel.importRecipes.error) {
+      widget.viewModel.importRecipes.clearResult();
+      final snackBar = SnackBar(content: Text('Could not load import'), duration: snackBarDuration);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
   List<Widget> _getActionList() {
-    return [ImportButton(callback: widget.viewModel.importRecipes)];
+    return [ImportButton(callback: widget.viewModel.getRawRecipesFromImport)];
   }
 }
 

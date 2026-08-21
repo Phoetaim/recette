@@ -8,11 +8,7 @@ import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailIngredientTab extends StatefulWidget {
-  const RecipeDetailIngredientTab({
-    super.key,
-    required this.viewModel,
-    required this.recipeControllers,
-  });
+  const RecipeDetailIngredientTab({super.key, required this.viewModel, required this.recipeControllers});
 
   final RecipeDetailViewModel viewModel;
   final RecipeControllers recipeControllers;
@@ -33,25 +29,21 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
         return Column(
           children: [
             if (widget.recipeControllers.isEditing.value)
-            IngredientSearch(
-              viewModel: IngredientsUtilsViewModel(
-                ingredientRepository: context.read(),
-                ingredientUnitsRepository: context.read(),
+              IngredientSearch(
+                viewModel: IngredientsUtilsViewModel(
+                  ingredientRepository: context.read(),
+                  ingredientUnitsRepository: context.read(),
+                ),
+                callbackForIngredient: (IngredientWithQuantity ingredient) {
+                  final List<IngredientWithQuantity> updatedIngredients = List.from(
+                    widget.recipeControllers.recipeIngredients,
+                  );
+                  updatedIngredients.add(ingredient.copyWith(id: tmpIngredientId--));
+                  state.didChange(updatedIngredients);
+                  widget.recipeControllers.computeIfRecipeIsUpdated();
+                },
               ),
-              callbackForIngredient: (IngredientWithQuantity ingredient) {
-                final List<IngredientWithQuantity> updatedIngredients = List.from(
-                  widget.recipeControllers.recipeIngredients,
-                );
-                updatedIngredients.add(ingredient.copyWith(id: tmpIngredientId--));
-                state.didChange(updatedIngredients);
-                widget.recipeControllers.computeIfRecipeIsUpdated();
-              },
-            ),
-            IngredientWidget(
-              viewModel: widget.viewModel,
-              recipeControllers: widget.recipeControllers,
-              state: state,
-            ),
+            IngredientWidget(viewModel: widget.viewModel, recipeControllers: widget.recipeControllers, state: state),
           ],
         );
       },
@@ -60,12 +52,7 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
 }
 
 class IngredientWidget extends StatelessWidget {
-  const IngredientWidget({
-    super.key,
-    required this.viewModel,
-    required this.recipeControllers,
-    required this.state,
-  });
+  const IngredientWidget({super.key, required this.viewModel, required this.recipeControllers, required this.state});
 
   final RecipeDetailViewModel viewModel;
   final RecipeControllers recipeControllers;
@@ -79,18 +66,20 @@ class IngredientWidget extends StatelessWidget {
         return ValueListenableBuilder(
           valueListenable: recipeControllers.isRecipeUpdated,
           builder: (context, value, child) {
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: recipeControllers.recipeIngredients.length,
-              itemBuilder: (BuildContext context, int index) {
-                return IngredientCard(
-                  viewModel: viewModel,
-                  recipeControllers: recipeControllers,
-                  state: state,
-                  ingredientWithQuantity: recipeControllers.recipeIngredients[index],
-                );
-              },
+            return Expanded(
+              child: ListView.builder(
+                padding: .only(bottom: 70),
+                scrollDirection: Axis.vertical,
+                itemCount: recipeControllers.recipeIngredients.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return IngredientCard(
+                    viewModel: viewModel,
+                    recipeControllers: recipeControllers,
+                    state: state,
+                    ingredientWithQuantity: recipeControllers.recipeIngredients[index],
+                  );
+                },
+              ),
             );
           },
         );
@@ -116,9 +105,7 @@ class IngredientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double quantity =
-        viewModel.currentNumberOfPeople.value *
-        ingredientWithQuantity.quantity /
-        viewModel.recipe.value.nbOfPeople;
+        viewModel.currentNumberOfPeople.value * ingredientWithQuantity.quantity / viewModel.recipe.value.nbOfPeople;
     final child = ListTile(
       title: Row(
         children: [
@@ -130,9 +117,7 @@ class IngredientCard extends StatelessWidget {
 
       trailing: Builder(
         builder: (context) {
-          return QuantityTile(
-            ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
-          );
+          return QuantityTile(ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()));
         },
       ),
     );

@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:recette/data/repositories/recipe/recipe_repository.dart';
+import 'package:recette/data/services/models/import_data.dart';
 import 'package:recette/data/services/models/raw_recipe.dart';
-
-import '../../../data/repositories/recipe/recipe_repository.dart';
-import '../../../domain/use_cases/import_export.dart';
-import '../../../utils/commands.dart';
-import '../../../utils/result.dart';
+import 'package:recette/domain/use_cases/import_export.dart';
+import 'package:recette/utils/commands.dart';
+import 'package:recette/utils/result.dart';
 
 class RecipeListViewModel extends ChangeNotifier {
   RecipeListViewModel({
@@ -17,12 +17,14 @@ class RecipeListViewModel extends ChangeNotifier {
     loadRecipes = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
     importRecipes = Command1(_importRecipes);
+    getRawRecipesFromImport = Command1(_getRawRecipesFromImport);
     exportRecipes = Command0(_exportRecipes);
   }
 
   final RecipeRepository _recipeRepository;
   final ImportExportUseCase _importExportUseCase;
   late List<RawRecipe> _recipes;
+  late ImportData _importData;
 
   StreamSubscription? _subscription;
 
@@ -30,9 +32,11 @@ class RecipeListViewModel extends ChangeNotifier {
   Set<int> selectedRecipes = {};
 
   List<RawRecipe> get recipes => _recipes;
+  List<RawRecipe> get recipesToImport => _importData.rawRecipes;
   late final Command0 loadRecipes;
   late final Command1<void, int> deleteRecipe;
-  late final Command1<void, String> importRecipes;
+  late final Command1<void, Set<int>> importRecipes;
+  late final Command1<void, String> getRawRecipesFromImport;
   late final Command0<void> exportRecipes;
 
   Future<Result<void>> _loadRecipeList() async {
@@ -80,8 +84,14 @@ class RecipeListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<void>> _importRecipes(String recipeBase64) async {
-    await _importExportUseCase.importRecipes(recipeBase64);
+  Future<Result<void>> _importRecipes(Set<int> recipeIds) async {
+    await _importExportUseCase.importRecipes(_importData, recipeIds);
+    return Result.ok(null);
+  }
+
+  Future<Result<void>> _getRawRecipesFromImport(String recipeBase64) async {
+    _importData = await _importExportUseCase.loadImportData(recipeBase64);
+    notifyListeners();
     return Result.ok(null);
   }
 
