@@ -17,7 +17,7 @@ class RecipeListViewModel extends ChangeNotifier {
     loadRecipes = Command0(_loadRecipeList)..execute();
     deleteRecipe = Command1(_deleteRecipe);
     importRecipes = Command1(_importRecipes);
-    getRawRecipesFromImport = Command1(_getRawRecipesFromImport);
+    getRawRecipesFromImport = Command0(_getRawRecipesFromImport);
     exportRecipes = Command0(_exportRecipes);
   }
 
@@ -35,8 +35,8 @@ class RecipeListViewModel extends ChangeNotifier {
   List<RawRecipe> get recipesToImport => _importData.rawRecipes;
   late final Command0 loadRecipes;
   late final Command1<void, int> deleteRecipe;
+  late final Command0<void> getRawRecipesFromImport;
   late final Command1<void, Set<int>> importRecipes;
-  late final Command1<void, String> getRawRecipesFromImport;
   late final Command0<void> exportRecipes;
 
   Future<Result<void>> _loadRecipeList() async {
@@ -89,9 +89,9 @@ class RecipeListViewModel extends ChangeNotifier {
     return Result.ok(null);
   }
 
-  Future<Result<void>> _getRawRecipesFromImport(String recipeBase64) async {
+  Future<Result<void>> _getRawRecipesFromImport() async {
     
-    final result = await _importExportUseCase.loadImportData(recipeBase64);
+    final result = await _importExportUseCase.loadImportData();
     switch (result){
       case Ok<ImportData>():
     _importData = result.value;

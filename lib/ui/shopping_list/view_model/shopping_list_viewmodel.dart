@@ -27,7 +27,7 @@ class ShoppingListViewModel extends ChangeNotifier {
        _importExportUseCase = importExportUseCase,
        _shoppingListRepository = shoppingListRepository {
     initShoppingList = Command0(_initShoppingList)..execute();
-    importShoppingList = Command1(_importShoppingList);
+    importShoppingList = Command0(_importShoppingList);
   }
 
   final IngredientRepository _ingredientRepository;
@@ -49,7 +49,7 @@ class ShoppingListViewModel extends ChangeNotifier {
       _shoppingList.where((shoppingIngredient) => shoppingIngredient.bought).toList();
 
   late final Command0<void> initShoppingList;
-  late final Command1<void, String> importShoppingList;
+  late final Command0<void> importShoppingList;
 
   Future<Result<void>> _initShoppingList() async {
     final result = await _shoppingListRepository.getShoppingList();
@@ -163,8 +163,8 @@ class ShoppingListViewModel extends ChangeNotifier {
     await _importExportUseCase.exportShoppingList(shoppingList);
   }
 
-  Future<Result<void>> _importShoppingList(String data) async {
-    await _importExportUseCase.importShoppingList(data);
+  Future<Result<void>> _importShoppingList() async {
+    await _importExportUseCase.importShoppingList();
     return Result.ok(null);
   }
 

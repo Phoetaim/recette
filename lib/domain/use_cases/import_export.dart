@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart' show join;
 import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_repository.dart';
 import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
@@ -18,6 +20,9 @@ import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart
 import 'package:recette/utils/result.dart';
 
 Codec<String, String> stringToBase64 = utf8.fuse(base64);
+const String exportFile = 'export';
+
+enum ExportMode { recipes, shoppingList }
 
 class ImportExportUseCase {
   ImportExportUseCase({
@@ -44,26 +49,25 @@ class ImportExportUseCase {
     List<RawRecipe> rawRecipes = await _getCompletedRawRecipes(recipesIds);
     List<int> ingredientWithQuantityIds = await _getIngredientWithQuantityIds(rawRecipes);
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
-    await _copyToClipboard(export.copyWith(rawRecipes: rawRecipes));
+    await _handleOutput(export.copyWith(rawRecipes: rawRecipes), ExportMode.recipes);
   }
 
   Future<void> exportShoppingList(ShoppingList shoppingList) async {
     List<int> ingredientWithQuantityIds = shoppingList.map((element) => element.ingredientWithQuantity.id!).toList();
 
     ImportData export = await _getCommonImportData(ingredientWithQuantityIds);
-    await _copyToClipboard(export.copyWith(isShoppingList: true));
+    await _handleOutput(export.copyWith(isShoppingList: true), ExportMode.shoppingList);
   }
 
-  Future<Result<ImportData>> loadImportData(String encodedImportData) async {
+  Future<Result<ImportData>> loadImportData() async {
     try {
-      final jsonAsString = stringToBase64.decode(encodedImportData.replaceAll('\n', ''));
-      final json = await _loadStringRecipe(jsonAsString);
+      final json = await _loadStringRecipe(await _pickFile());
       final importData = ImportData.fromJson(json);
       if (importData.version != 0) {
         throw Result.error(ImportExportError('Version non valide'));
       }
       return Result.ok(importData);
-    } on Exception catch (e){
+    } on Exception catch (e) {
       return Result.error(ImportExportError(e.toString()));
     }
   }
@@ -83,8 +87,8 @@ class ImportExportUseCase {
     await _importRecipes(filteredImportData, mappedIngredientsWithQuantity);
   }
 
-  Future<Result<void>> importShoppingList(String encodedImportData) async {
-    final result = await loadImportData(encodedImportData);
+  Future<Result<void>> importShoppingList() async {
+    final result = await loadImportData();
     switch (result) {
       case Ok<ImportData>():
         ImportData importData = result.value;
@@ -155,8 +159,30 @@ class ImportExportUseCase {
     );
   }
 
-  Future<void> _copyToClipboard(ImportData data) async {
-    final encodedData = stringToBase64.encode(jsonEncode(data.toJson()));
+  Future<void> _handleOutput(ImportData data, ExportMode mode) async {
+    final jsonData = jsonEncode(data.toJson());
+    try {
+      await _saveToFile(jsonData, mode);
+    } on Exception {
+      await _copyToClipboard(jsonData);
+    }
+  }
+
+  Future<void> _saveToFile(String encodedData, ExportMode mode) async {
+    String fileName = join(exportFile, mode == ExportMode.recipes ? 'recipes' : 'shoppingList');
+    Uri? outputFile = await FilePicker.saveFile(
+      dialogTitle: 'Fichier d\'export',
+      fileName: '$fileName.json',
+      bytes: utf8.encode(encodedData),
+      type: FileType.custom,
+    );
+    if (outputFile == null) {
+      // User canceled the picker
+    }
+  }
+
+  Future<void> _copyToClipboard(String jsonData) async {
+    final encodedData = stringToBase64.encode(jsonData);
     await Clipboard.setData(ClipboardData(text: encodedData));
   }
 
@@ -202,6 +228,16 @@ class ImportExportUseCase {
   }
 
   // Import
+
+  Future<String> _pickFile() async {
+    PlatformFile? inputFile = await FilePicker.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']);
+    if (inputFile == null) {
+      throw ImportExportError('Cancelled by user');
+      // User canceled the picker
+    }
+
+    return utf8.decode(await inputFile.readAsBytes());
+  }
 
   Future<Map<String, dynamic>> _loadStringRecipe(String jsonAsString) async {
     return jsonDecode(jsonAsString) as Map<String, dynamic>;

@@ -16,6 +16,8 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
+  final MenuController _menuController = MenuController();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
