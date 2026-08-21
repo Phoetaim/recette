@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' show join;
 import 'package:recette/data/repositories/ingredient/ingredient_id_with_quantity_repository.dart';
@@ -8,6 +7,7 @@ import 'package:recette/data/repositories/ingredient/ingredient_repository.dart'
 import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/file_picker_service.dart';
 import 'package:recette/data/services/models/import_data.dart';
 import 'package:recette/data/services/models/raw_ingredient.dart';
 import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
@@ -31,17 +31,20 @@ class ImportExportUseCase {
     required IngredientUnitsRepository ingredientUnitsRepository,
     required RecipeRepository recipeRepository,
     required ShoppingListRepository shoppingListRepository,
+    FilePickerService? filePickerService,
   }) : _ingredientRepository = ingredientRepository,
        _ingredientWithQuantityRepository = ingredientWithQuantityRepository,
        _ingredientUnitsRepository = ingredientUnitsRepository,
        _recipeRepository = recipeRepository,
-       _shoppingListRepository = shoppingListRepository;
+       _shoppingListRepository = shoppingListRepository,
+       _filePickerService = filePickerService ?? FilePickerServiceImpl();
 
   final IngredientRepository _ingredientRepository;
   final IngredientWithQuantityRepository _ingredientWithQuantityRepository;
   final IngredientUnitsRepository _ingredientUnitsRepository;
   final RecipeRepository _recipeRepository;
   final ShoppingListRepository _shoppingListRepository;
+  final FilePickerService _filePickerService;
 
   // Public
 
@@ -64,7 +67,7 @@ class ImportExportUseCase {
       final json = await _loadStringRecipe(await _pickFile());
       final importData = ImportData.fromJson(json);
       if (importData.version != 0) {
-        throw Result.error(ImportExportError('Version non valide'));
+        return Result.error(ImportExportError('Version non valide'));
       }
       return Result.ok(importData);
     } on Exception catch (e) {
@@ -170,11 +173,10 @@ class ImportExportUseCase {
 
   Future<void> _saveToFile(String encodedData, ExportMode mode) async {
     String fileName = join(exportFile, mode == ExportMode.recipes ? 'recipes' : 'shoppingList');
-    Uri? outputFile = await FilePicker.saveFile(
+    Uri? outputFile = await _filePickerService.saveFile(
       dialogTitle: 'Fichier d\'export',
       fileName: '$fileName.json',
-      bytes: utf8.encode(encodedData),
-      type: FileType.custom,
+      content: encodedData,
     );
     if (outputFile == null) {
       // User canceled the picker
@@ -182,8 +184,7 @@ class ImportExportUseCase {
   }
 
   Future<void> _copyToClipboard(String jsonData) async {
-    final encodedData = stringToBase64.encode(jsonData);
-    await Clipboard.setData(ClipboardData(text: encodedData));
+    await Clipboard.setData(ClipboardData(text: jsonData));
   }
 
   Future<List<RawIngredient>> _getRawIngredients(List<RawIngredientWithQuantity> rawIngredientsWithQuantities) async {
@@ -230,13 +231,11 @@ class ImportExportUseCase {
   // Import
 
   Future<String> _pickFile() async {
-    PlatformFile? inputFile = await FilePicker.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']);
-    if (inputFile == null) {
+    String? content = await _filePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']);
+    if (content == null) {
       throw ImportExportError('Cancelled by user');
-      // User canceled the picker
     }
-
-    return utf8.decode(await inputFile.readAsBytes());
+    return content;
   }
 
   Future<Map<String, dynamic>> _loadStringRecipe(String jsonAsString) async {

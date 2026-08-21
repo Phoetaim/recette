@@ -9,6 +9,7 @@ import 'package:recette/data/repositories/ingredient/ingredient_repository.dart'
 import 'package:recette/data/repositories/ingredient/ingredient_units_repository.dart';
 import 'package:recette/data/repositories/recipe/recipe_repository.dart';
 import 'package:recette/data/repositories/shopping_list/shopping_list_repository.dart';
+import 'package:recette/data/services/file_picker_service.dart';
 import 'package:recette/data/services/models/import_data.dart';
 import 'package:recette/data/services/models/raw_ingredient.dart';
 import 'package:recette/data/services/models/raw_ingredient_with_quantity.dart';
@@ -31,6 +32,8 @@ class MockRecipeRepository extends Mock implements RecipeRepository {}
 
 class MockShoppingListRepository extends Mock implements ShoppingListRepository {}
 
+class MockFilePickerService extends Mock implements FilePickerService {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -39,6 +42,7 @@ void main() {
   late MockIngredientUnitsRepository mockIngredientUnitsRepository;
   late MockRecipeRepository mockRecipeRepository;
   late MockShoppingListRepository mockShoppingListRepository;
+  late MockFilePickerService mockFilePickerService;
   late ImportExportUseCase useCase;
 
   Map<Object?, Object?>? clipboardArguments;
@@ -52,6 +56,16 @@ void main() {
   });
 
   setUp(() {
+    mockFilePickerService = MockFilePickerService();
+
+    when(
+      () => mockFilePickerService.saveFile(
+        dialogTitle: any(named: 'dialogTitle'),
+        fileName: any(named: 'fileName'),
+        content: any(named: 'content'),
+      ),
+    ).thenThrow(Exception('File picker unavailable in tests'));
+
     mockIngredientRepository = MockIngredientRepository();
     mockIngredientWithQuantityRepository = MockIngredientWithQuantityRepository();
     mockIngredientUnitsRepository = MockIngredientUnitsRepository();
@@ -64,6 +78,7 @@ void main() {
       ingredientUnitsRepository: mockIngredientUnitsRepository,
       recipeRepository: mockRecipeRepository,
       shoppingListRepository: mockShoppingListRepository,
+      filePickerService: mockFilePickerService,
     );
 
     clipboardArguments = null;
@@ -86,8 +101,7 @@ void main() {
   });
 
   ImportData decodeClipboardExport() {
-    final encoded = clipboardArguments!['text'] as String;
-    final jsonString = stringToBase64.decode(encoded);
+    final jsonString = clipboardArguments!['text'] as String;
     return ImportData.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
   }
 
@@ -592,11 +606,26 @@ void main() {
   });
 
   group('loadImportData', () {
-    test('Throws an ImportExportError if the version is invalid', () async {
-      const importData = ImportData(version: 1);
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+    test('Returns an ImportExportError if the user cancels the picker', () async {
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => null);
 
-      expect(() => useCase.loadImportData(encoded), throwsA(isA<ImportExportError>()));
+      final result = await useCase.loadImportData();
+
+      expect(result, isA<Error<ImportData>>());
+    });
+
+    test('Returns an ImportExportError if the version is invalid', () async {
+      const importData = ImportData(version: 1);
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
+
+      final result = await useCase.loadImportData();
+
+      expect(result, isA<Error<ImportData>>());
     });
 
     test('Correctly decodes a valid encoded ImportData', () async {
@@ -610,11 +639,15 @@ void main() {
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
-      final result = await useCase.loadImportData(encoded);
+      final result = await useCase.loadImportData();
 
-      expect(result, importData);
+      expect(result, isA<Ok<ImportData>>());
+      expect((result as Ok<ImportData>).value, importData);
     });
 
     test('Correctly decodes an encoded shopping list ImportData', () async {
@@ -626,12 +659,16 @@ void main() {
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
-      final result = await useCase.loadImportData(encoded);
+      final result = await useCase.loadImportData();
 
-      expect(result.isShoppingList, isTrue);
-      expect(result.rawRecipes, isEmpty);
+      final value = (result as Ok<ImportData>).value;
+      expect(value.isShoppingList, isTrue);
+      expect(value.rawRecipes, isEmpty);
     });
   });
 
@@ -660,11 +697,16 @@ void main() {
   });
 
   group('importShoppingList', () {
-    test('Throws an ImportExportError if the version is invalid', () async {
+    test('Returns an error if the version is invalid', () async {
       const importData = ImportData(version: 1);
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
-      expect(() => useCase.importShoppingList(encoded), throwsA(isA<ImportExportError>()));
+      final result = await useCase.importShoppingList();
+
+      expect(result, isA<Error<void>>());
     });
 
     test('Correctly import shopping list if isShoppingList == true', () async {
@@ -676,10 +718,11 @@ void main() {
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
-      // On réutilise le cas "ingrédient déjà existant" (moins de setup que
-      // le cas création, déjà couvert par les tests de importRecipes).
       const existingIngredient = Ingredient(
         id: 42,
         name: 'Carotte',
@@ -696,8 +739,9 @@ void main() {
         () => mockShoppingListRepository.addShoppingIngredient(any()),
       ).thenAnswer((_) async => const Result.ok(null));
 
-      await useCase.importShoppingList(encoded);
+      final result = await useCase.importShoppingList();
 
+      expect(result, isA<Ok<void>>());
       verify(
         () => mockShoppingListRepository.addShoppingIngredient(
           const IngredientWithQuantity(ingredient: existingIngredient, unit: existingUnit, quantity: 2),
@@ -714,7 +758,10 @@ void main() {
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
       const existingIngredient = Ingredient(
         id: 42,
@@ -728,12 +775,12 @@ void main() {
         () => mockIngredientUnitsRepository.ingredientUnitsByName,
       ).thenReturn({'dl': const IngredientUnit(id: 55, name: 'dL')});
 
-      await useCase.importShoppingList(encoded);
+      await useCase.importShoppingList();
 
       verifyNever(() => mockShoppingListRepository.addShoppingIngredient(any()));
     });
 
-    test('Throws an ImportExportError if adding an ingredient fails', () async {
+    test('Returns an error if adding an ingredient fails', () async {
       const importData = ImportData(
         version: 0,
         isShoppingList: true,
@@ -742,7 +789,10 @@ void main() {
         ingredientUnits: [IngredientUnit(id: 5, name: 'dL')],
         ingredientTypes: [IngredientTypes(id: 3, name: 'Légume', color: 123)],
       );
-      final encoded = stringToBase64.encode(jsonEncode(importData.toJson()));
+      final encoded = jsonEncode(importData.toJson());
+      when(
+        () => mockFilePickerService.pickFile(dialogTitle: 'Fichier d\'import', allowedExtensions: ['json']),
+      ).thenAnswer((_) async => encoded);
 
       const existingIngredient = Ingredient(
         id: 42,
@@ -759,7 +809,9 @@ void main() {
         () => mockShoppingListRepository.addShoppingIngredient(any()),
       ).thenAnswer((_) async => Result.error(Exception('db error')));
 
-      expect(() => useCase.importShoppingList(encoded), throwsA(isA<ImportExportError>()));
+      final result = await useCase.importShoppingList();
+
+      expect(result, isA<Error<void>>());
     });
   });
 }
