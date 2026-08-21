@@ -90,9 +90,16 @@ class RecipeListViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _getRawRecipesFromImport(String recipeBase64) async {
-    _importData = await _importExportUseCase.loadImportData(recipeBase64);
+    
+    final result = await _importExportUseCase.loadImportData(recipeBase64);
+    switch (result){
+      case Ok<ImportData>():
+    _importData = result.value;
     notifyListeners();
     return Result.ok(null);
+      case Error<ImportData>():
+        return result;
+    }
   }
 
   Future<Result<void>> _exportRecipes() async {

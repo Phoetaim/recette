@@ -54,14 +54,18 @@ class ImportExportUseCase {
     await _copyToClipboard(export.copyWith(isShoppingList: true));
   }
 
-  Future<ImportData> loadImportData(String encodedImportData) async {
-    final jsonAsString = stringToBase64.decode(encodedImportData);
-    final json = await _loadStringRecipe(jsonAsString);
-    final importData = ImportData.fromJson(json);
-    if (importData.version != 0) {
-      throw ImportExportError('Invalid version');
+  Future<Result<ImportData>> loadImportData(String encodedImportData) async {
+    try {
+      final jsonAsString = stringToBase64.decode(encodedImportData.replaceAll('\n', ''));
+      final json = await _loadStringRecipe(jsonAsString);
+      final importData = ImportData.fromJson(json);
+      if (importData.version != 0) {
+        throw Result.error(ImportExportError('Version non valide'));
+      }
+      return Result.ok(importData);
+    } on Exception catch (e){
+      return Result.error(ImportExportError(e.toString()));
     }
-    return importData;
   }
 
   Future<void> importRecipes(ImportData importData, Set<int> recipeIds) async {
@@ -79,11 +83,22 @@ class ImportExportUseCase {
     await _importRecipes(filteredImportData, mappedIngredientsWithQuantity);
   }
 
-  Future<void> importShoppingList(String encodedImportData) async {
-    ImportData importData = await loadImportData(encodedImportData);
-    Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
-    Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(importData.ingredientUnits);
-    await _importShoppingList(importData, mappedIngredients, mappedIngredientsUnits);
+  Future<Result<void>> importShoppingList(String encodedImportData) async {
+    final result = await loadImportData(encodedImportData);
+    switch (result) {
+      case Ok<ImportData>():
+        ImportData importData = result.value;
+        try {
+          Map<int, Ingredient> mappedIngredients = await _importIngredients(importData);
+          Map<int, IngredientUnit> mappedIngredientsUnits = await _importIngredientUnits(importData.ingredientUnits);
+          await _importShoppingList(importData, mappedIngredients, mappedIngredientsUnits);
+        } on Exception catch (e) {
+          return Result.error(e);
+        }
+      case Error<ImportData>():
+        return result;
+    }
+    return Result.ok(null);
   }
 
   // Export
