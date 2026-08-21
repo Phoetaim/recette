@@ -34,9 +34,7 @@ void main() {
     when(() => mockRecipeRepository.updatedRecipeList).thenReturn(updatedRecipeListController);
     // Comportement par défaut : liste vide. Les tests qui ont besoin d'un contenu
     // spécifique redéfinissent ce stub.
-    when(
-          () => mockRecipeRepository.getRecipeList(),
-    ).thenAnswer((_) async => const Result.ok(<RawRecipe>[]));
+    when(() => mockRecipeRepository.getRecipeList()).thenAnswer((_) async => const Result.ok(<RawRecipe>[]));
   });
 
   tearDown(() async {
@@ -44,10 +42,7 @@ void main() {
   });
 
   RecipeListViewModel createViewModel() {
-    return RecipeListViewModel(
-      recipeRepository: mockRecipeRepository,
-      importExportUseCase: mockImportExportUseCase,
-    );
+    return RecipeListViewModel(recipeRepository: mockRecipeRepository, importExportUseCase: mockImportExportUseCase);
   }
 
   /// Construit un viewModel dont `recipesToImport` est peuplé, en simulant le
@@ -56,11 +51,11 @@ void main() {
   /// `recipesToImport` sont bien initialisés avant de construire le widget.
   Future<RecipeListViewModel> createViewModelWithRecipesToImport(List<RawRecipe> rawRecipes) async {
     final importData = ImportData(rawRecipes: rawRecipes);
-    when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async => importData);
+    when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => Result.ok(importData));
 
     final viewModel = createViewModel();
     await viewModel.loadRecipes.execute();
-    await viewModel.getRawRecipesFromImport.execute('encoded-data');
+    await viewModel.getRawRecipesFromImport.execute();
     return viewModel;
   }
 
@@ -170,9 +165,7 @@ void main() {
     // `recipesToImport.length`. Avec le mock par défaut (`recipes` vide) et des
     // recettes à importer non vides, la case globale démarre donc en état
     // indéterminé plutôt que cochée.
-    testWidgets('is indeterminate by default when recipes count differs from recipesToImport count', (
-        tester,
-        ) async {
+    testWidgets('is indeterminate by default when recipes count differs from recipesToImport count', (tester) async {
       final viewModel = await createViewModelWithRecipesToImport([
         const RawRecipe(id: 1, name: 'Soupe'),
         const RawRecipe(id: 2, name: 'Salade'),
@@ -180,16 +173,14 @@ void main() {
 
       await pumpDialog(tester, viewModel);
 
-      final topTile = tester.widget<CheckboxListTile>(
-        find.widgetWithText(CheckboxListTile, 'Recettes à importer'),
-      );
+      final topTile = tester.widget<CheckboxListTile>(find.widgetWithText(CheckboxListTile, 'Recettes à importer'));
       expect(topTile.value, isNull);
     });
 
     testWidgets('tapping it clears the selection when everything is selected', (tester) async {
-      when(() => mockRecipeRepository.getRecipeList()).thenAnswer(
-            (_) async => const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]),
-      );
+      when(
+        () => mockRecipeRepository.getRecipeList(),
+      ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]));
       final viewModel = await createViewModelWithRecipesToImport([
         const RawRecipe(id: 1, name: 'Soupe'),
         const RawRecipe(id: 2, name: 'Salade'),
@@ -204,9 +195,9 @@ void main() {
     });
 
     testWidgets('tapping it selects everything when nothing is selected', (tester) async {
-      when(() => mockRecipeRepository.getRecipeList()).thenAnswer(
-            (_) async => const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]),
-      );
+      when(
+        () => mockRecipeRepository.getRecipeList(),
+      ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]));
       final viewModel = await createViewModelWithRecipesToImport([
         const RawRecipe(id: 1, name: 'Soupe'),
         const RawRecipe(id: 2, name: 'Salade'),
@@ -243,9 +234,7 @@ void main() {
       await tester.tap(find.text('Importer'));
       await tester.pumpAndSettle();
 
-      final captured = verify(
-            () => mockImportExportUseCase.importRecipes(captureAny(), captureAny()),
-      ).captured;
+      final captured = verify(() => mockImportExportUseCase.importRecipes(captureAny(), captureAny())).captured;
       expect(captured[1], {1});
       expect(find.byType(RecipesImportWidget), findsNothing);
     });

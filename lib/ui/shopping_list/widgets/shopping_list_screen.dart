@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/shopping_list/view_model/shopping_list_viewmodel.dart';
-import 'package:recette/ui/ui_utils/import_alert_box.dart';
 import 'package:recette/ui/ui_utils/styles.dart';
 import 'shopping_list_body.dart';
 
@@ -16,7 +15,6 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  final MenuController _menuController = MenuController();
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +48,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         children: [
           SubmenuButton(
             menuChildren: _getMenuItemButtons(),
-            menuStyle: MenuStyle(
-              backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
-            ),
+            menuStyle: MenuStyle(backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer)),
             child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
           ),
         ],
@@ -66,18 +62,40 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
           onPressed: () => context.pushNamed(Routes.ingredientList),
-          child: Row(children: [Icon(Icons.food_bank), SizedBox(width: 8), Text('Ingrédients', style: getTextStyle(context))]),
+          child: Row(
+            children: [
+              Icon(Icons.food_bank),
+              SizedBox(width: 8),
+              Text('Ingrédients', style: getTextStyle(context)),
+            ],
+          ),
         ),
       ),
       MenuEntry(
         child: MenuItemButton(
           style: getMenuButtonStyle(context),
           onPressed: () => widget.viewModel.exportShoppingList(),
-          child: Row(children: [Icon(exportIcon), SizedBox(width: 8), Text('Exporter', style: getTextStyle(context))]),
+          child: Row(
+            children: [
+              Icon(exportIcon),
+              SizedBox(width: 8),
+              Text('Exporter', style: getTextStyle(context)),
+            ],
+          ),
         ),
       ),
       MenuEntry(
-        child: ImportButton(callback: widget.viewModel.importShoppingList, isMenuButton: true),
+        child: MenuItemButton(
+          style: getMenuButtonStyle(context),
+          onPressed: () => widget.viewModel.importShoppingList.execute(),
+          child: Row(
+            children: [
+              Icon(importIcon),
+              SizedBox(width: 8),
+              Text('Importer', style: getTextStyle(context)),
+            ],
+          ),
+        ),
       ),
     ];
   }

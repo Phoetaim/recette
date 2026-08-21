@@ -34,9 +34,7 @@ void main() {
     updatedRecipeListController = StreamController<RawRecipe>.broadcast();
 
     when(() => mockRecipeRepository.updatedRecipeList).thenReturn(updatedRecipeListController);
-    when(
-          () => mockRecipeRepository.getRecipeList(),
-    ).thenAnswer((_) async => const Result.ok(<RawRecipe>[]));
+    when(() => mockRecipeRepository.getRecipeList()).thenAnswer((_) async => const Result.ok(<RawRecipe>[]));
   });
 
   tearDown(() async {
@@ -46,10 +44,7 @@ void main() {
   });
 
   RecipeListViewModel createViewModel() {
-    return RecipeListViewModel(
-      recipeRepository: mockRecipeRepository,
-      importExportUseCase: mockImportExportUseCase,
-    );
+    return RecipeListViewModel(recipeRepository: mockRecipeRepository, importExportUseCase: mockImportExportUseCase);
   }
 
   /// GoRouter matching the actual app structure:
@@ -139,11 +134,9 @@ void main() {
       expect(find.text('detail--1'), findsOneWidget);
     });
 
-    testWidgets('shows the selection FAB with an export button once something is selected', (
-        tester,
-        ) async {
+    testWidgets('shows the selection FAB with an export button once something is selected', (tester) async {
       when(
-            () => mockRecipeRepository.getRecipeList(),
+        () => mockRecipeRepository.getRecipeList(),
       ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
       final viewModel = createViewModel();
@@ -172,10 +165,9 @@ void main() {
     });
 
     testWidgets('"Sélectionne tout" selects every loaded recipe', (tester) async {
-      when(() => mockRecipeRepository.getRecipeList()).thenAnswer(
-            (_) async =>
-        const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]),
-      );
+      when(
+        () => mockRecipeRepository.getRecipeList(),
+      ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 1, name: 'Soupe'), RawRecipe(id: 2, name: 'Salade')]));
 
       final viewModel = createViewModel();
 
@@ -193,7 +185,7 @@ void main() {
 
     testWidgets('the clear FAB quits selection mode', (tester) async {
       when(
-            () => mockRecipeRepository.getRecipeList(),
+        () => mockRecipeRepository.getRecipeList(),
       ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
 
       final viewModel = createViewModel();
@@ -215,11 +207,9 @@ void main() {
   group('Deleting a recipe', () {
     testWidgets('shows a success snackbar when deletion succeeds', (tester) async {
       when(
-            () => mockRecipeRepository.getRecipeList(),
+        () => mockRecipeRepository.getRecipeList(),
       ).thenAnswer((_) async => Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
-      when(
-            () => mockRecipeRepository.deleteRecipe(42),
-      ).thenAnswer((_) async => const Result.ok(null));
+      when(() => mockRecipeRepository.deleteRecipe(42)).thenAnswer((_) async => const Result.ok(null));
 
       final viewModel = createViewModel();
 
@@ -235,10 +225,10 @@ void main() {
 
     testWidgets('shows an error snackbar when deletion fails', (tester) async {
       when(
-            () => mockRecipeRepository.getRecipeList(),
+        () => mockRecipeRepository.getRecipeList(),
       ).thenAnswer((_) async => const Result.ok([RawRecipe(id: 42, name: 'Soupe')]));
       when(
-            () => mockRecipeRepository.deleteRecipe(42),
+        () => mockRecipeRepository.deleteRecipe(42),
       ).thenAnswer((_) async => Result.error(RecipeRepositoryError('boom')));
 
       final viewModel = createViewModel();
@@ -254,10 +244,26 @@ void main() {
   });
 
   group('Importing recipes', () {
-    testWidgets('opens the import dialog, submits the pasted data and import recipe', (tester) async {
+    testWidgets('loads import data and opens the recipe selection dialog', (tester) async {
       final importData = const ImportData(rawRecipes: [RawRecipe(id: 1, name: 'Test Recipe')]);
-      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return importData;});
+      when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => Result.ok(importData));
 
+      final viewModel = createViewModel();
+
+      await tester.pumpWidget(buildTestApp(viewModel));
+      await tester.pump();
+
+      await tester.tap(find.byIcon(CupertinoIcons.arrow_down_left));
+      await tester.pumpAndSettle();
+
+      verify(() => mockImportExportUseCase.loadImportData()).called(1);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Test Recipe'), findsOneWidget);
+    });
+
+    testWidgets('imports every preselected recipe when confirmed without changes', (tester) async {
+      final importData = const ImportData(rawRecipes: [RawRecipe(id: 1, name: 'Test Recipe')]);
+      when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => Result.ok(importData));
       when(() => mockImportExportUseCase.importRecipes(any(), any())).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
@@ -268,25 +274,16 @@ void main() {
       await tester.tap(find.byIcon(CupertinoIcons.arrow_down_left));
       await tester.pumpAndSettle();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
-
-      await tester.enterText(find.byType(TextField), 'encoded-data');
-      await tester.tap(find.byIcon(Icons.check));
+      await tester.tap(find.text('Importer'));
       await tester.pumpAndSettle();
 
-      verify(() => mockImportExportUseCase.loadImportData('encoded-data')).called(1);
-      expect(find.text('Test Recipe'), findsOne);
-
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
       verify(() => mockImportExportUseCase.importRecipes(importData, {1})).called(1);
       expect(find.byType(AlertDialog), findsNothing);
     });
 
-    testWidgets('opens the import dialog, submits the pasted data and don\'t import recipe', (tester) async {
+    testWidgets('deselecting a recipe before confirming imports the remaining subset', (tester) async {
       final importData = const ImportData(rawRecipes: [RawRecipe(id: 1, name: 'Test Recipe')]);
-      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return importData;});
-
+      when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => Result.ok(importData));
       when(() => mockImportExportUseCase.importRecipes(any(), any())).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
@@ -297,25 +294,21 @@ void main() {
       await tester.tap(find.byIcon(CupertinoIcons.arrow_down_left));
       await tester.pumpAndSettle();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
-
-      await tester.enterText(find.byType(TextField), 'encoded-data');
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
-
-      verify(() => mockImportExportUseCase.loadImportData('encoded-data')).called(1);
-      expect(find.text('Test Recipe'), findsOne);
+      // Deselect the only recipe via its CheckboxListTile.
       await tester.tap(find.text('Test Recipe'));
+      await tester.pump();
+
+      await tester.tap(find.text('Importer'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
       verify(() => mockImportExportUseCase.importRecipes(importData, {})).called(1);
       expect(find.byType(AlertDialog), findsNothing);
     });
 
-    testWidgets('closing without entering data submits an empty string', (tester) async {
-      when(() => mockImportExportUseCase.loadImportData(any())).thenAnswer((_) async {return const ImportData();});
+    testWidgets('shows an error snackbar when loading import data fails', (tester) async {
+      when(
+        () => mockImportExportUseCase.loadImportData(),
+      ).thenAnswer((_) async => Result.error(ImportExportError('boom')));
 
       final viewModel = createViewModel();
 
@@ -323,12 +316,10 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byIcon(CupertinoIcons.arrow_down_left));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
-
-      verify(() => mockImportExportUseCase.loadImportData('')).called(1);
+      expect(find.text('Could not load import'), findsOneWidget);
+      expect(find.byType(AlertDialog), findsNothing);
     });
   });
 }

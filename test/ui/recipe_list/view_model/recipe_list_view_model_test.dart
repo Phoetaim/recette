@@ -32,15 +32,11 @@ void main() {
     mockImportExportUseCase = MockImportExportUseCase();
     updatedRecipeListController = StreamController<RawRecipe>.broadcast();
 
-    when(
-          () => mockRepository.updatedRecipeList,
-    ).thenReturn(updatedRecipeListController);
+    when(() => mockRepository.updatedRecipeList).thenReturn(updatedRecipeListController);
 
     // Comportement par défaut : chargement réussi avec une liste vide.
     // Les tests qui ont besoin d'un contenu spécifique redéfinissent ce stub.
-    when(
-          () => mockRepository.getRecipeList(),
-    ).thenAnswer((_) async => Result.ok(<RawRecipe>[]));
+    when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok(<RawRecipe>[]));
   });
 
   tearDown(() async {
@@ -48,18 +44,13 @@ void main() {
   });
 
   RecipeListViewModel createViewModel() {
-    return RecipeListViewModel(
-      recipeRepository: mockRepository,
-      importExportUseCase: mockImportExportUseCase,
-    );
+    return RecipeListViewModel(recipeRepository: mockRepository, importExportUseCase: mockImportExportUseCase);
   }
 
   group('Initial loading', () {
     test('Load recipes successfully on init', () async {
       final recipes = [const RawRecipe(id: 1, name: 'Soupe')];
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok(recipes));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok(recipes));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -70,9 +61,7 @@ void main() {
     });
 
     test('returns an error if loading recipes fails', () async {
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.error(Exception('boom')));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.error(Exception('boom')));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -95,9 +84,7 @@ void main() {
 
     test('Update existing recipe instead of duplicating it', () async {
       const original = RawRecipe(id: 1, name: 'Ancien nom');
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok([original]));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([original]));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -113,12 +100,8 @@ void main() {
   group('deleteRecipe', () {
     test('Remove recipe from list in case of success', () async {
       const recipe = RawRecipe(id: 1, name: 'À supprimer');
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok([recipe]));
-      when(
-            () => mockRepository.deleteRecipe(1),
-      ).thenAnswer((_) async => const Result.ok(null));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([recipe]));
+      when(() => mockRepository.deleteRecipe(1)).thenAnswer((_) async => const Result.ok(null));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -131,12 +114,8 @@ void main() {
 
     test('Do not remove from list in case of error and return an error', () async {
       const recipe = RawRecipe(id: 1, name: 'Reste là');
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok([recipe]));
-      when(
-            () => mockRepository.deleteRecipe(1),
-      ).thenAnswer((_) async => Result.error(Exception('fail')));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([recipe]));
+      when(() => mockRepository.deleteRecipe(1)).thenAnswer((_) async => Result.error(Exception('fail')));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -152,9 +131,7 @@ void main() {
     test('Returns the correct recipe', () async {
       const recipeA = RawRecipe(id: 1, name: 'A');
       const recipeB = RawRecipe(id: 2, name: 'B');
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -196,9 +173,7 @@ void main() {
     test('toggleSelectionAll select all recipes', () async {
       const recipeA = RawRecipe(id: 1, name: 'A');
       const recipeB = RawRecipe(id: 2, name: 'B');
-      when(
-            () => mockRepository.getRecipeList(),
-      ).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
 
       final viewModel = createViewModel();
       await flushMicrotasks();
@@ -232,72 +207,67 @@ void main() {
   });
 
   group('exportRecipes', () {
-    test('Only export correct recipes included in selection then quit the selection',
-            () async {
-          const recipeA = RawRecipe(id: 1, name: 'A');
-          const recipeB = RawRecipe(id: 2, name: 'B');
-          when(
-                () => mockRepository.getRecipeList(),
-          ).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
-          when(
-                () => mockImportExportUseCase.exportRecipes({1}),
-          ).thenAnswer((_) async {});
-
-          final viewModel = createViewModel();
-          await flushMicrotasks();
-
-          viewModel.enterSelection(1);
-          await viewModel.exportRecipes.execute();
-
-          // WEIRD: I know it is called with {1} since it's the only call accepted from the mock
-          // but the verify does not seem to work
-          verify(() => mockImportExportUseCase.exportRecipes(any())).called(1);
-          expect(viewModel.isSelecting.value, isFalse);
-          expect(viewModel.selectedRecipes, isEmpty);
-        });
-  });
-
-  group('getRawRecipesFromImport', () {
-    test('Load import data and expose it via recipesToImport', () async {
-      const importData = ImportData(
-        version: 0,
-        rawRecipes: [RawRecipe(id: 1, name: 'Soupe')],
-      );
-      when(
-            () => mockImportExportUseCase.loadImportData('encoded-data'),
-      ).thenAnswer((_) async => importData);
+    test('Only export correct recipes included in selection then quit the selection', () async {
+      const recipeA = RawRecipe(id: 1, name: 'A');
+      const recipeB = RawRecipe(id: 2, name: 'B');
+      when(() => mockRepository.getRecipeList()).thenAnswer((_) async => Result.ok([recipeA, recipeB]));
+      when(() => mockImportExportUseCase.exportRecipes({1})).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
       await flushMicrotasks();
 
-      await viewModel.getRawRecipesFromImport.execute('encoded-data');
+      viewModel.enterSelection(1);
+      await viewModel.exportRecipes.execute();
+
+      // WEIRD: I know it is called with {1} since it's the only call accepted from the mock
+      // but the verify does not seem to work
+      verify(() => mockImportExportUseCase.exportRecipes(any())).called(1);
+      expect(viewModel.isSelecting.value, isFalse);
+      expect(viewModel.selectedRecipes, isEmpty);
+    });
+  });
+
+  group('getRawRecipesFromImport', () {
+    test('Load import data and expose it via recipesToImport', () async {
+      const importData = ImportData(version: 0, rawRecipes: [RawRecipe(id: 1, name: 'Soupe')]);
+      when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => const Result.ok(importData));
+
+      final viewModel = createViewModel();
+      await flushMicrotasks();
+
+      await viewModel.getRawRecipesFromImport.execute();
 
       expect(viewModel.recipesToImport, importData.rawRecipes);
+      expect(viewModel.getRawRecipesFromImport.error, isFalse);
+    });
+
+    test('returns an error if loading import data fails', () async {
+      when(
+        () => mockImportExportUseCase.loadImportData(),
+      ).thenAnswer((_) async => Result.error(ImportExportError('boom')));
+
+      final viewModel = createViewModel();
+      await flushMicrotasks();
+
+      await viewModel.getRawRecipesFromImport.execute();
+
+      expect(viewModel.getRawRecipesFromImport.error, isTrue);
     });
   });
 
   group('importRecipes', () {
     test('import recipes uses the previously loaded import data', () async {
-      const importData = ImportData(
-        version: 0,
-        rawRecipes: [RawRecipe(id: 1, name: 'Soupe')],
-      );
-      when(
-            () => mockImportExportUseCase.loadImportData('encoded-data'),
-      ).thenAnswer((_) async => importData);
-      when(
-            () => mockImportExportUseCase.importRecipes(importData, {1}),
-      ).thenAnswer((_) async {});
+      const importData = ImportData(version: 0, rawRecipes: [RawRecipe(id: 1, name: 'Soupe')]);
+      when(() => mockImportExportUseCase.loadImportData()).thenAnswer((_) async => const Result.ok(importData));
+      when(() => mockImportExportUseCase.importRecipes(importData, {1})).thenAnswer((_) async {});
 
       final viewModel = createViewModel();
       await flushMicrotasks();
 
-      await viewModel.getRawRecipesFromImport.execute('encoded-data');
+      await viewModel.getRawRecipesFromImport.execute();
       await viewModel.importRecipes.execute({1});
 
-      verify(
-            () => mockImportExportUseCase.importRecipes(importData, {1}),
-      ).called(1);
+      verify(() => mockImportExportUseCase.importRecipes(importData, {1})).called(1);
     });
   });
 }

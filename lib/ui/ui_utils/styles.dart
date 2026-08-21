@@ -1,16 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 const double fontSize = 15;
+final importIcon = CupertinoIcons.arrow_down_left;
+final exportIcon = CupertinoIcons.arrow_up_right;
 
 ButtonStyle getMenuButtonStyle(BuildContext context) {
   final contentColor = _getColor(context);
   return ButtonStyle(
     shape: WidgetStateProperty.all<LinearBorder>(LinearBorder()),
     textStyle: WidgetStateProperty.all<TextStyle>(TextStyle(color: contentColor, fontSize: fontSize)),
-    iconColor:  WidgetStateProperty.all<Color>(contentColor),
-    iconSize:  WidgetStateProperty.all<double>(fontSize + 5)
+    iconColor: WidgetStateProperty.all<Color>(contentColor),
+    iconSize: WidgetStateProperty.all<double>(fontSize + 5),
   );
-
 }
 
 TextStyle getTextStyle(BuildContext context) {

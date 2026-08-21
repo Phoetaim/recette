@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/ui_utils/configs.dart';
+import 'package:recette/ui/ui_utils/styles.dart';
 
-import '../../ui_utils/import_alert_box.dart';
 import '../view_model/recipe_list_viewmodel.dart';
 import 'recipe_list_body.dart';
 import 'recipes_import_widget.dart';
@@ -71,10 +71,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           }
 
           if (widget.viewModel.loadRecipes.error) {
-            return TextButton(
-              onPressed: widget.viewModel.loadRecipes.execute,
-              child: Text('Retry?'),
-            );
+            return TextButton(onPressed: widget.viewModel.loadRecipes.execute, child: Text('Retry?'));
           }
           return child!;
         },
@@ -92,10 +89,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
               ? SelectionFloatingActionButton(viewModel: widget.viewModel)
               : FloatingActionButton(
                   onPressed: () {
-                    context.pushNamed(
-                      Routes.recipeDetail,
-                      pathParameters: {'recipeId': (-1).toString()},
-                    );
+                    context.pushNamed(Routes.recipeDetail, pathParameters: {'recipeId': (-1).toString()});
                   },
                   shape: CircleBorder(),
                   child: const Icon(Icons.add),
@@ -154,7 +148,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
   }
 
   List<Widget> _getActionList() {
-    return [ImportButton(callback: widget.viewModel.getRawRecipesFromImport)];
+    return [TextButton(onPressed: widget.viewModel.getRawRecipesFromImport.execute, child: Icon(importIcon))];
   }
 }
 
@@ -185,9 +179,7 @@ class SelectionFloatingActionButton extends StatelessWidget {
               SmallActionButton(
                 title: 'Exporter',
                 icon: exportIcon,
-                onPressed: viewModel.selectedRecipes.isNotEmpty
-                    ? viewModel.exportRecipes.execute
-                    : null,
+                onPressed: viewModel.selectedRecipes.isNotEmpty ? viewModel.exportRecipes.execute : null,
                 index: 2,
               ),
             SmallActionButton(

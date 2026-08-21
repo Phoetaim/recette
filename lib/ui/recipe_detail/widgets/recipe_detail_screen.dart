@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
-import 'package:recette/ui/ui_utils/import_alert_box.dart';
+import 'package:recette/ui/ui_utils/styles.dart';
 
 import 'add_recipe_to_shopping_list_widget.dart';
 import 'recipe_detail_info_tab.dart';
