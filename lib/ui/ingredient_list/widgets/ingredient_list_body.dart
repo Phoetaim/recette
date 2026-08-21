@@ -21,9 +21,7 @@ class IngredientListBody extends StatelessWidget {
           child: SearchBar(
             leading: Icon(Icons.search),
             hintText: 'carottes, navet,...',
-            padding: const WidgetStatePropertyAll<EdgeInsets>(
-              EdgeInsets.symmetric(horizontal: 16.0),
-            ),
+            padding: const WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 16.0)),
             onChanged: (value) => viewModel.setFilteredIngredients(value),
           ),
         ),
@@ -32,38 +30,20 @@ class IngredientListBody extends StatelessWidget {
           listenable: viewModel,
           builder: (context, child) {
             return Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  IngredientListSlivers(
-                    viewModel: viewModel,
-                    ingredients: viewModel.filteredIngredients,
-                  ),
-                ],
+              child: ListView.builder(
+                scrollDirection: .vertical,
+                itemCount: viewModel.filteredIngredients.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: IngredientCard(viewModel: viewModel, ingredient: viewModel.filteredIngredients[index]),
+                  );
+                },
               ),
             );
           },
         ),
       ],
-    );
-  }
-}
-
-class IngredientListSlivers extends StatelessWidget {
-  const IngredientListSlivers({super.key, required this.viewModel, required this.ingredients});
-
-  final IngredientListViewModel viewModel;
-  final List<Ingredient> ingredients;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList.builder(
-      itemCount: ingredients.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: IngredientCard(viewModel: viewModel, ingredient: ingredients[index]),
-        );
-      },
     );
   }
 }
@@ -92,17 +72,16 @@ class IngredientCard extends StatelessWidget {
                 color: Colors.red,
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pop();
-                  },
-                child:const Icon(Icons.clear, color: Colors.white,),
-
+                },
+                child: const Icon(Icons.clear, color: Colors.white),
               ),
               MaterialButton(
                 color: Colors.green,
                 onPressed: () {
                   viewModel.deleteIngredient.execute(ingredient);
                   Navigator.of(context, rootNavigator: true).pop();
-                  },
-                child: const Icon(Icons.check, color: Colors.white,),
+                },
+                child: const Icon(Icons.check, color: Colors.white),
               ),
             ],
           ),

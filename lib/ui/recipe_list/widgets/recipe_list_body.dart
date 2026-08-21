@@ -13,28 +13,10 @@ class RecipeListBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CustomScrollView(
-            slivers: [RecipeSlivers(viewModel: viewModel, rawRecipes: viewModel.recipes)],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class RecipeSlivers extends StatelessWidget {
-  const RecipeSlivers({super.key, required this.viewModel, required this.rawRecipes});
-
-  final RecipeListViewModel viewModel;
-  final List<RawRecipe> rawRecipes;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList.builder(
-      itemCount: rawRecipes.length,
+    return ListView.builder(
+      padding: .only(bottom: 70),
+      scrollDirection: .vertical,
+      itemCount: viewModel.recipes.length,
       itemBuilder: (BuildContext context, int index) {
         return Column(
           children: [
@@ -60,10 +42,7 @@ class RecipeFullCard extends StatelessWidget {
         Expanded(
           child: TextButton(
             onPressed: () {
-              context.pushNamed(
-                Routes.recipeDetail,
-                pathParameters: {'recipeId': rawRecipe.id.toString()},
-              );
+              context.pushNamed(Routes.recipeDetail, pathParameters: {'recipeId': rawRecipe.id.toString()});
             },
             onLongPress: () => viewModel.enterSelection(rawRecipe.id!),
             child: RecipeCard(key: Key('recipe${rawRecipe.id!}'), recipe: rawRecipe),

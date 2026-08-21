@@ -5,27 +5,9 @@ import 'package:recette/domain/models/recipe/recipe_planning.dart';
 import 'package:recette/routing/routes.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
-class RecipePlanningSlivers extends StatelessWidget {
-  const RecipePlanningSlivers({super.key, required this.viewModel});
 
-  final RecipePlanningViewModel viewModel;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList.builder(
-      itemCount: viewModel.plannings.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: PlanningCard(viewModel: viewModel, planning: viewModel.plannings[index]),
-        );
-      },
-    );
-  }
-}
-
-class PlanningCard extends StatelessWidget {
-  const PlanningCard({super.key, required this.viewModel, required this.planning});
+class RecipePlanningCard extends StatelessWidget {
+  const RecipePlanningCard({super.key, required this.viewModel, required this.planning});
 
   final RecipePlanningViewModel viewModel;
   final RecipePlanning planning;

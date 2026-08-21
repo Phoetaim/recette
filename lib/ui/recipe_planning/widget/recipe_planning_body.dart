@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recette/ui/recipe_planning/view_model/recipe_planning_viewmodel.dart';
 
-import 'planning_slivers.dart';
+import 'recipe_planning_card.dart';
 import 'recipe_planning_form.dart';
 
 class RecipePlanningBody extends StatelessWidget {
@@ -22,9 +22,19 @@ class RecipePlanningBody extends StatelessWidget {
         }
         return Column(
           children: [
-            RecipePlanningForm(viewModel: viewModel,),
+            RecipePlanningForm(viewModel: viewModel),
             Expanded(
-              child: CustomScrollView(slivers: [RecipePlanningSlivers(viewModel: viewModel)]),
+              child: ListView.builder(
+                padding: .only(bottom: 70),
+                scrollDirection: .vertical,
+                itemCount: viewModel.plannings.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: RecipePlanningCard(viewModel: viewModel, planning: viewModel.plannings[index]),
+                  );
+                },
+              ),
             ),
           ],
         );
