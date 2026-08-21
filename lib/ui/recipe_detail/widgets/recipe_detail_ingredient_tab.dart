@@ -8,11 +8,7 @@ import 'package:recette/ui/recipe_detail/view_model/recipe_controllers.dart';
 import 'package:recette/ui/recipe_detail/view_model/recipe_detail_viewmodel.dart';
 
 class RecipeDetailIngredientTab extends StatefulWidget {
-  const RecipeDetailIngredientTab({
-    super.key,
-    required this.viewModel,
-    required this.recipeControllers,
-  });
+  const RecipeDetailIngredientTab({super.key, required this.viewModel, required this.recipeControllers});
 
   final RecipeDetailViewModel viewModel;
   final RecipeControllers recipeControllers;
@@ -60,12 +56,7 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
 }
 
 class IngredientWidget extends StatelessWidget {
-  const IngredientWidget({
-    super.key,
-    required this.viewModel,
-    required this.recipeControllers,
-    required this.state,
-  });
+  const IngredientWidget({super.key, required this.viewModel, required this.recipeControllers, required this.state});
 
   final RecipeDetailViewModel viewModel;
   final RecipeControllers recipeControllers;
@@ -116,9 +107,7 @@ class IngredientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double quantity =
-        viewModel.currentNumberOfPeople.value *
-        ingredientWithQuantity.quantity /
-        viewModel.recipe.value.nbOfPeople;
+        viewModel.currentNumberOfPeople.value * ingredientWithQuantity.quantity / viewModel.recipe.value.nbOfPeople;
     final child = ListTile(
       title: Row(
         children: [
@@ -130,9 +119,7 @@ class IngredientCard extends StatelessWidget {
 
       trailing: Builder(
         builder: (context) {
-          return QuantityTile(
-            ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()),
-          );
+          return QuantityTile(ingredientWithQuantity: ingredientWithQuantity.copyWith(quantity: quantity.toInt()));
         },
       ),
     );

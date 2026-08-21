@@ -23,6 +23,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     super.initState();
     widget.viewModel.deleteRecipe.addListener(_onDeletionResult);
     widget.viewModel.getRawRecipesFromImport.addListener(_onGetRawRecipesToImportResult);
+    widget.viewModel.importRecipes.addListener(_onImportRecipesResult);
   }
 
   @override
@@ -32,12 +33,15 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     widget.viewModel.deleteRecipe.addListener(_onDeletionResult);
     oldWidget.viewModel.getRawRecipesFromImport.removeListener(_onGetRawRecipesToImportResult);
     widget.viewModel.getRawRecipesFromImport.addListener(_onGetRawRecipesToImportResult);
+    oldWidget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
+    widget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
   }
 
   @override
   void dispose() {
     widget.viewModel.deleteRecipe.removeListener(_onDeletionResult);
     widget.viewModel.getRawRecipesFromImport.removeListener(_onGetRawRecipesToImportResult);
+    widget.viewModel.importRecipes.removeListener(_onImportRecipesResult);
 
     super.dispose();
   }
@@ -118,15 +122,31 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
 
   void _onGetRawRecipesToImportResult() {
     if (widget.viewModel.getRawRecipesFromImport.completed) {
-      widget.viewModel.deleteRecipe.clearResult();
+      widget.viewModel.getRawRecipesFromImport.clearResult();
       showDialog(
         context: context,
         builder: (context) => RecipesImportWidget(viewModel: widget.viewModel),
       );
     }
 
-    if (widget.viewModel.deleteRecipe.error) {
-      widget.viewModel.deleteRecipe.clearResult();
+    if (widget.viewModel.getRawRecipesFromImport.error) {
+      widget.viewModel.getRawRecipesFromImport.clearResult();
+      final snackBar = SnackBar(content: Text('Could not load import'), duration: snackBarDuration);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void _onImportRecipesResult() {
+    if (widget.viewModel.importRecipes.completed) {
+      widget.viewModel.importRecipes.clearResult();
+      final snackBar = SnackBar(content: Text('Recettes importées'), duration: snackBarDuration);
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+
+    if (widget.viewModel.importRecipes.error) {
+      widget.viewModel.importRecipes.clearResult();
       final snackBar = SnackBar(content: Text('Could not load import'), duration: snackBarDuration);
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);

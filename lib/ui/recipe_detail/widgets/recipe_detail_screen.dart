@@ -26,7 +26,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   @override
   void initState() {
     super.initState();
-    widget.viewModel.deleteRecipe.addListener(_onResult);
+    widget.viewModel.deleteRecipe.addListener(_onDeleteRecipeResult);
+    widget.viewModel.saveRecipe.addListener(_onSaveRecipeResult);
     widget.viewModel.loadRecipeById.execute(widget.recipeId!);
     recipeControllers.initControllers();
   }
@@ -34,8 +35,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   @override
   void didUpdateWidget(covariant RecipeDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.viewModel.deleteRecipe.removeListener(_onResult);
-    widget.viewModel.deleteRecipe.addListener(_onResult);
+    oldWidget.viewModel.deleteRecipe.removeListener(_onDeleteRecipeResult);
+    widget.viewModel.deleteRecipe.addListener(_onDeleteRecipeResult);
+    oldWidget.viewModel.saveRecipe.removeListener(_onSaveRecipeResult);
+    widget.viewModel.saveRecipe.addListener(_onSaveRecipeResult);
 
     // If recipe ID changed, reset initialization flag
     if (oldWidget.recipeId != widget.recipeId) {
@@ -45,7 +48,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   @override
   void dispose() {
-    widget.viewModel.deleteRecipe.removeListener(_onResult);
+    widget.viewModel.deleteRecipe.removeListener(_onDeleteRecipeResult);
+    widget.viewModel.saveRecipe.removeListener(_onSaveRecipeResult);
     recipeControllers.dispose();
     super.dispose();
   }
@@ -61,10 +65,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         }
 
         if (widget.viewModel.loadRecipeById.error) {
-          return TextButton(
-            onPressed: () => context.goNamed(Routes.recipeList),
-            child: Text('Return to recipe list?'),
-          );
+          return TextButton(onPressed: () => context.goNamed(Routes.recipeList), child: Text('Return to recipe list?'));
         }
         if (mounted) {
           recipeControllers.initControllerValues(widget.viewModel.recipe.value);
@@ -111,23 +112,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ),
                 body: TabBarView(
                   children: [
-                    RecipeDetailInfoTab(
-                      viewModel: widget.viewModel,
-                      recipeControllers: recipeControllers,
-                    ),
-                    RecipeDetailIngredientTab(
-                      viewModel: widget.viewModel,
-                      recipeControllers: recipeControllers,
-                    ),
+                    RecipeDetailInfoTab(viewModel: widget.viewModel, recipeControllers: recipeControllers),
+                    RecipeDetailIngredientTab(viewModel: widget.viewModel, recipeControllers: recipeControllers),
                   ],
                 ),
                 floatingActionButton: ValueListenableBuilder(
                   valueListenable: widget.viewModel.recipe,
                   builder: (context, value, child) {
-                    return AddRecipeToShoppingListWidget(
-                      viewModel: widget.viewModel,
-                      callback: _addToShoppingList,
-                    );
+                    return AddRecipeToShoppingListWidget(viewModel: widget.viewModel, callback: _addToShoppingList);
                   },
                 ),
               ),
@@ -182,7 +174,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 : recipeControllers.cancelEditing,
             child: Icon(Icons.cancel_outlined),
           );
-        }
+        },
       ),
       ListenableBuilder(
         listenable: widget.viewModel.saveRecipe,
@@ -229,9 +221,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         children: [
           SubmenuButton(
             menuChildren: _getMenuItemButtons(theme.colorScheme),
-            menuStyle: MenuStyle(
-              backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer),
-            ),
+            menuStyle: MenuStyle(backgroundColor: WidgetStatePropertyAll(theme.colorScheme.secondaryContainer)),
             child: Icon(Icons.more_vert, color: theme.colorScheme.onPrimaryContainer),
           ),
         ],
@@ -243,10 +233,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final color = colorScheme.onSecondaryContainer;
     final textStyle = TextStyle(color: color);
     return <MenuItemButton>[
-      MenuItemButton(
-        onPressed: null,
-        child: Row(children: [Icon(Icons.share), SizedBox(width: 8), Text('Partager')]),
-      ),
+      MenuItemButton(onPressed: null, child: Row(children: [Icon(Icons.share), SizedBox(width: 8), Text('Partager')])),
       MenuItemButton(
         onPressed: () {
           if (!_formKey.currentState!.validate()) {
@@ -292,7 +279,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     recipeControllers.setOriginalRecipe(widget.viewModel.recipe.value);
   }
 
-  void _onResult() {
+  void _onDeleteRecipeResult() {
     if (!mounted) return;
 
     if (widget.viewModel.deleteRecipe.completed) {
@@ -304,8 +291,26 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe'), duration: Duration(milliseconds: 500),));
+        ).showSnackBar(SnackBar(content: Text('Error while deleting recipe'), duration: Duration(milliseconds: 500)));
       }
+    }
+  }
+
+  void _onSaveRecipeResult() {
+    if (!mounted) return;
+
+    if (widget.viewModel.saveRecipe.completed) {
+      widget.viewModel.saveRecipe.clearResult();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Recette sauvegardée'), duration: Duration(milliseconds: 500)));
+    }
+
+    if (widget.viewModel.saveRecipe.error) {
+      widget.viewModel.saveRecipe.clearResult();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error while saving recipe'), duration: Duration(milliseconds: 500)));
     }
   }
 }
