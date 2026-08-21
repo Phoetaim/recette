@@ -29,25 +29,21 @@ class _RecipeDetailIngredientTabState extends State<RecipeDetailIngredientTab> {
         return Column(
           children: [
             if (widget.recipeControllers.isEditing.value)
-            IngredientSearch(
-              viewModel: IngredientsUtilsViewModel(
-                ingredientRepository: context.read(),
-                ingredientUnitsRepository: context.read(),
+              IngredientSearch(
+                viewModel: IngredientsUtilsViewModel(
+                  ingredientRepository: context.read(),
+                  ingredientUnitsRepository: context.read(),
+                ),
+                callbackForIngredient: (IngredientWithQuantity ingredient) {
+                  final List<IngredientWithQuantity> updatedIngredients = List.from(
+                    widget.recipeControllers.recipeIngredients,
+                  );
+                  updatedIngredients.add(ingredient.copyWith(id: tmpIngredientId--));
+                  state.didChange(updatedIngredients);
+                  widget.recipeControllers.computeIfRecipeIsUpdated();
+                },
               ),
-              callbackForIngredient: (IngredientWithQuantity ingredient) {
-                final List<IngredientWithQuantity> updatedIngredients = List.from(
-                  widget.recipeControllers.recipeIngredients,
-                );
-                updatedIngredients.add(ingredient.copyWith(id: tmpIngredientId--));
-                state.didChange(updatedIngredients);
-                widget.recipeControllers.computeIfRecipeIsUpdated();
-              },
-            ),
-            IngredientWidget(
-              viewModel: widget.viewModel,
-              recipeControllers: widget.recipeControllers,
-              state: state,
-            ),
+            IngredientWidget(viewModel: widget.viewModel, recipeControllers: widget.recipeControllers, state: state),
           ],
         );
       },
@@ -70,18 +66,20 @@ class IngredientWidget extends StatelessWidget {
         return ValueListenableBuilder(
           valueListenable: recipeControllers.isRecipeUpdated,
           builder: (context, value, child) {
-            return ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: recipeControllers.recipeIngredients.length,
-              itemBuilder: (BuildContext context, int index) {
-                return IngredientCard(
-                  viewModel: viewModel,
-                  recipeControllers: recipeControllers,
-                  state: state,
-                  ingredientWithQuantity: recipeControllers.recipeIngredients[index],
-                );
-              },
+            return Expanded(
+              child: ListView.builder(
+                padding: .only(bottom: 70),
+                scrollDirection: Axis.vertical,
+                itemCount: recipeControllers.recipeIngredients.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return IngredientCard(
+                    viewModel: viewModel,
+                    recipeControllers: recipeControllers,
+                    state: state,
+                    ingredientWithQuantity: recipeControllers.recipeIngredients[index],
+                  );
+                },
+              ),
             );
           },
         );
